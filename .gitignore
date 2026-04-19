@@ -1,0 +1,34 @@
+# Docs (internal planning documents)
+docs/
+
+# Claude Code
+CLAUDE.md
+AGENTS.md
+.claude/
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+*.env
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+*.egg-info/
+
+# Node
+node_modules/
+frontend/.next/
+frontend/out/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
