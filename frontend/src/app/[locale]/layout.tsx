@@ -21,14 +21,10 @@ export default async function LocaleLayout({ children, params }: Props) {
   const messages = await getMessages();
 
   return (
-    <html lang={locale}>
-      <body className="min-h-screen flex flex-col antialiased bg-[#0b0f1a] text-slate-100">
-        <NextIntlClientProvider messages={messages}>
-          <Header />
-          <main className="flex-1">{children}</main>
-          <Footer />
-        </NextIntlClientProvider>
-      </body>
-    </html>
+    <NextIntlClientProvider messages={messages}>
+      <Header />
+      <main className="flex-1">{children}</main>
+      <Footer />
+    </NextIntlClientProvider>
   );
 }
