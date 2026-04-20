@@ -1,0 +1,133 @@
+"""aisstream.io WebSocket에서 호르무즈 해협 선박 데이터를 수집한다.
+
+현재 호르무즈 봉쇄 상태로 실제 AIS 데이터가 0건일 수 있음 — 정상 동작.
+"""
+import asyncio
+import json
+import os
+from datetime import datetime, timezone
+from typing import Any
+import websockets
+from dotenv import load_dotenv
+
+load_dotenv()
+
+_API_KEY = os.getenv("AISSTREAM_API_KEY", "")
+
+# 호르무즈 해협 바운딩 박스 [[minLat, minLon], [maxLat, maxLon]]
+_BOUNDING_BOX = [[24.0, 55.5], [27.5, 60.5]]
+
+# AIS 선종 코드 → 내부 레이블 매핑
+_TYPE_MAP: dict[range, str] = {
+    range(80, 90): "tanker",       # 80-89: tanker
+}
+_LNG_TYPES = {84, 85}             # 84: LNG tanker
+_CRUDE_TYPES = {83, 84}           # 83: crude oil tanker
+
+_TIMEOUT_SECONDS = 30
+
+
+def _classify_ship(type_code: int | None) -> str:
+    if type_code is None:
+        return "unknown"
+    if type_code in _LNG_TYPES:
+        return "lng_tanker"
+    if type_code in _CRUDE_TYPES:
+        return "crude_tanker"
+    for r, label in _TYPE_MAP.items():
+        if type_code in r:
+            return label
+    return "other"
+
+
+def _zone_status(lat: float, lng: float) -> str:
+    # 해협 내부: 25.8~27.0°N, 56.0~59.0°E
+    if 25.8 <= lat <= 27.0 and 56.0 <= lng <= 59.0:
+        return "inside_strait"
+    # 페르시아만 쪽
+    if lng < 56.5:
+        return "persian_gulf_side"
+    # 아라비아해 쪽
+    return "arabian_sea_side"
+
+
+def _direction_status(cog: float | None, zone: str) -> str:
+    if cog is None:
+        return "unknown"
+    if cog < 10 or cog > 350:
+        return "stationary"
+    # COG 서쪽(240~300) → 아라비아해로 나가는 방향 = offshore_exit
+    if 240 <= cog <= 300:
+        return "offshore_exit"
+    # COG 동쪽(60~120) → 페르시아만으로 들어가는 방향 = inland_entry
+    if 60 <= cog <= 120:
+        return "inland_entry"
+    return "unknown"
+
+
+async def _collect_async(max_vessels: int = 200) -> list[dict[str, Any]]:
+    records: list[dict[str, Any]] = []
+    sub = {
+        "APIKey": _API_KEY,
+        "BoundingBoxes": [_BOUNDING_BOX],
+        "FilterMessageTypes": ["PositionReport", "ShipStaticData"],
+    }
+    static: dict[str, dict] = {}
+
+    try:
+        async with websockets.connect("wss://stream.aisstream.io/v0/stream", open_timeout=15) as ws:
+            await ws.send(json.dumps(sub))
+            deadline = asyncio.get_event_loop().time() + _TIMEOUT_SECONDS
+            while asyncio.get_event_loop().time() < deadline and len(records) < max_vessels:
+                try:
+                    raw = await asyncio.wait_for(ws.recv(), timeout=5.0)
+                except asyncio.TimeoutError:
+                    break
+                msg = json.loads(raw)
+                mtype = msg.get("MessageType", "")
+
+                if mtype == "ShipStaticData":
+                    mmsi = str(msg.get("MetaData", {}).get("MMSI", ""))
+                    meta = msg.get("Message", {}).get("ShipStaticData", {})
+                    static[mmsi] = {
+                        "ship_name":      meta.get("Name", "").strip(),
+                        "ship_type_code": meta.get("Type"),
+                    }
+
+                elif mtype == "PositionReport":
+                    meta = msg.get("MetaData", {})
+                    pos = msg.get("Message", {}).get("PositionReport", {})
+                    mmsi = str(meta.get("MMSI", ""))
+                    lat = pos.get("Latitude")
+                    lng = pos.get("Longitude")
+                    if lat is None or lng is None:
+                        continue
+
+                    sdata = static.get(mmsi, {})
+                    type_code = sdata.get("ship_type_code")
+                    zone = _zone_status(lat, lng)
+                    cog = pos.get("Cog")
+
+                    records.append({
+                        "mmsi":             mmsi,
+                        "ship_name":        sdata.get("ship_name"),
+                        "ship_type_code":   type_code,
+                        "ship_type_label":  _classify_ship(type_code),
+                        "lat":              lat,
+                        "lng":              lng,
+                        "speed_knots":      pos.get("Sog"),
+                        "course_deg":       cog,
+                        "heading_deg":      pos.get("TrueHeading"),
+                        "zone_status":      zone,
+                        "direction_status": _direction_status(cog, zone),
+                        "source":           "aisstream",
+                        "raw_timestamp":    meta.get("time_utc") or datetime.now(timezone.utc).isoformat(),
+                    })
+    except Exception:
+        pass  # 연결 실패 시 빈 리스트 반환 — 봉쇄로 0건도 정상
+
+    return records
+
+
+def collect(max_vessels: int = 200) -> list[dict[str, Any]]:
+    return asyncio.run(_collect_async(max_vessels))

@@ -10,11 +10,12 @@ def upsert(table: str, records: list[dict[str, Any]], on_conflict: str = "") -> 
         return 0
 
     headers = {"Prefer": "resolution=merge-duplicates,return=minimal"}
+    params = {}
     if on_conflict:
-        headers["Prefer"] += f",on_conflict={on_conflict}"
+        params["on_conflict"] = on_conflict
 
     with get_client() as client:
-        resp = client.post(f"/{table}", json=records, headers=headers)
+        resp = client.post(f"/{table}", json=records, headers=headers, params=params)
         resp.raise_for_status()
     return len(records)
 
