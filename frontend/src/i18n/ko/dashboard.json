@@ -1,1 +1,17 @@
-{}
+{
+  "title": "호르무즈 해협 모니터",
+  "subtitle": "실시간 선박 통행량, 유가, 지정학적 이벤트",
+  "cards": {
+    "straitStatus": "해협 상태",
+    "vesselCount": "통항 선박",
+    "oilPrice": "브렌트유",
+    "riskLevel": "위험 수준"
+  },
+  "mapPlaceholder": "해협 지도가 여기에 표시됩니다",
+  "sections": {
+    "transitFlow": "통항 흐름",
+    "oilPrices": "유가",
+    "marketSnapshot": "시장 현황",
+    "recentEvents": "최근 이벤트"
+  }
+}

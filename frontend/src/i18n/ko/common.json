@@ -1,1 +1,17 @@
-{}
+{
+  "nav": {
+    "dashboard": "대시보드",
+    "events": "이벤트 로그",
+    "about": "소개",
+    "sources": "데이터 출처"
+  },
+  "footer": {
+    "disclaimer": "본 데이터는 정보 제공 목적으로만 제공되며 투자 조언이 아닙니다."
+  },
+  "status": {
+    "loading": "로딩 중...",
+    "noData": "데이터 없음",
+    "error": "데이터 로드 실패",
+    "lastUpdated": "마지막 업데이트"
+  }
+}

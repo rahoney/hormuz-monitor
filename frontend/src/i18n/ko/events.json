@@ -1,1 +1,12 @@
-{}
+{
+  "title": "이벤트 로그",
+  "subtitle": "호르무즈 해협에 영향을 미치는 지정학적 이벤트",
+  "emptyState": "아직 기록된 이벤트가 없습니다",
+  "filters": {
+    "all": "전체",
+    "closure": "봉쇄",
+    "attack": "공격",
+    "sanctions": "제재",
+    "ceasefire": "휴전"
+  }
+}

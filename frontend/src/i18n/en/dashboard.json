@@ -1,1 +1,17 @@
-{}
+{
+  "title": "Hormuz Strait Monitor",
+  "subtitle": "Real-time vessel traffic, oil prices, and geopolitical events",
+  "cards": {
+    "straitStatus": "Strait Status",
+    "vesselCount": "Active Vessels",
+    "oilPrice": "Brent Crude",
+    "riskLevel": "Risk Level"
+  },
+  "mapPlaceholder": "Strait map will appear here",
+  "sections": {
+    "transitFlow": "Transit Flow",
+    "oilPrices": "Oil Prices",
+    "marketSnapshot": "Market Snapshot",
+    "recentEvents": "Recent Events"
+  }
+}

@@ -1,1 +1,5 @@
-{}
+{
+  "title": "Data Sources",
+  "subtitle": "Where does the data come from?",
+  "emptyState": "Source details will appear here"
+}

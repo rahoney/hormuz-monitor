@@ -1,1 +1,12 @@
-{}
+{
+  "title": "Event Log",
+  "subtitle": "Geopolitical events affecting the Hormuz Strait",
+  "emptyState": "No events recorded yet",
+  "filters": {
+    "all": "All",
+    "closure": "Closure",
+    "attack": "Attack",
+    "sanctions": "Sanctions",
+    "ceasefire": "Ceasefire"
+  }
+}
