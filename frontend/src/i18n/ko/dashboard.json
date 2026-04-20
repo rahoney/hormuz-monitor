@@ -4,14 +4,42 @@
   "cards": {
     "straitStatus": "해협 상태",
     "vesselCount": "통항 선박",
+    "lngVessels": "LNG 탱커",
+    "crudeVessels": "원유 탱커",
+    "inlandEntry": "내해 진입",
+    "offshoreExit": "외해 출항",
     "oilPrice": "브렌트유",
     "riskLevel": "위험 수준"
   },
-  "mapPlaceholder": "해협 지도가 여기에 표시됩니다",
   "sections": {
-    "transitFlow": "통항 흐름",
+    "statusCards": "현재 상태",
+    "transitFlow": "통항 흐름 (90일)",
     "oilPrices": "유가",
     "marketSnapshot": "시장 현황",
     "recentEvents": "최근 이벤트"
-  }
+  },
+  "map": {
+    "title": "해협 지도",
+    "placeholder": "실시간 선박 지도"
+  },
+  "oil": {
+    "wti": "WTI",
+    "brent": "브렌트",
+    "naturalGas": "천연가스",
+    "perBbl": "달러/배럴",
+    "perMmbtu": "달러/MMBtu",
+    "realtimeWidget": "실시간"
+  },
+  "events": {
+    "viewAll": "전체 이벤트 보기 →",
+    "noEvents": "최근 이벤트 없음"
+  },
+  "status": {
+    "normal": "정상",
+    "restricted": "제한",
+    "highRisk": "고위험",
+    "unknown": "알 수 없음"
+  },
+  "loading": "로딩 중...",
+  "noData": "데이터 없음"
 }

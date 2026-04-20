@@ -4,14 +4,42 @@
   "cards": {
     "straitStatus": "Strait Status",
     "vesselCount": "Active Vessels",
+    "lngVessels": "LNG Tankers",
+    "crudeVessels": "Crude Tankers",
+    "inlandEntry": "Inland Entry",
+    "offshoreExit": "Offshore Exit",
     "oilPrice": "Brent Crude",
     "riskLevel": "Risk Level"
   },
-  "mapPlaceholder": "Strait map will appear here",
   "sections": {
-    "transitFlow": "Transit Flow",
+    "statusCards": "Current Status",
+    "transitFlow": "Transit Flow (90 days)",
     "oilPrices": "Oil Prices",
     "marketSnapshot": "Market Snapshot",
     "recentEvents": "Recent Events"
-  }
+  },
+  "map": {
+    "title": "Strait Map",
+    "placeholder": "Live vessel map"
+  },
+  "oil": {
+    "wti": "WTI",
+    "brent": "Brent",
+    "naturalGas": "Natural Gas",
+    "perBbl": "USD/bbl",
+    "perMmbtu": "USD/MMBtu",
+    "realtimeWidget": "Real-time"
+  },
+  "events": {
+    "viewAll": "View all events →",
+    "noEvents": "No recent events"
+  },
+  "status": {
+    "normal": "Normal",
+    "restricted": "Restricted",
+    "highRisk": "High Risk",
+    "unknown": "Unknown"
+  },
+  "loading": "Loading...",
+  "noData": "No data"
 }
