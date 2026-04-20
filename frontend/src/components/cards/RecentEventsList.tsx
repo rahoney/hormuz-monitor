@@ -35,11 +35,22 @@ export default function RecentEventsList({ events }: Props) {
                 TYPE_COLORS[ev.event_type] ?? "bg-slate-800 text-slate-400"
               }`}
             >
-              {ev.event_type.replace("_", " ")}
+              {ev.event_type.replace(/_/g, " ")}
             </span>
           </div>
-          <div className="min-w-0">
-            <p className="truncate text-sm text-slate-200">{ev.title}</p>
+          <div className="min-w-0 flex-1">
+            {ev.source_url ? (
+              <a
+                href={ev.source_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block truncate text-sm text-slate-200 hover:text-blue-300"
+              >
+                {ev.title}
+              </a>
+            ) : (
+              <p className="truncate text-sm text-slate-200">{ev.title}</p>
+            )}
             <p className="text-xs text-slate-500">{ev.event_date}</p>
           </div>
         </div>
