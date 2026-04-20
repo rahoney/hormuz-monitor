@@ -1,0 +1,87 @@
+services:
+  # FastAPI 백엔드 웹 서비스
+  - type: web
+    name: hormuz-api
+    runtime: python
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn api.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: DATABASE_URL
+        sync: false
+
+  # 유가 수집 잡 (EIA API → Supabase, 매일 06:00 UTC)
+  - type: cron
+    name: hormuz-oil-ingest
+    runtime: python
+    rootDir: backend
+    schedule: "0 6 * * *"
+    buildCommand: pip install -r requirements.txt
+    startCommand: python -m jobs.oil_ingest
+    envVars:
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+
+  # 시장 지표 수집 잡 (yfinance/pykrx → Supabase, 매일 07:00 UTC)
+  - type: cron
+    name: hormuz-market-ingest
+    runtime: python
+    rootDir: backend
+    schedule: "0 7 * * *"
+    buildCommand: pip install -r requirements.txt
+    startCommand: python -m jobs.market_ingest
+    envVars:
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+
+  # 이벤트/RSS 수집 잡 (매 6시간)
+  - type: cron
+    name: hormuz-events-ingest
+    runtime: python
+    rootDir: backend
+    schedule: "0 */6 * * *"
+    buildCommand: pip install -r requirements.txt
+    startCommand: python -m jobs.events_ingest
+    envVars:
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+
+  # 선박 데이터 수집 잡 (aisstream.io WebSocket, 매 15분)
+  - type: cron
+    name: hormuz-shipping-ingest
+    runtime: python
+    rootDir: backend
+    schedule: "*/15 * * * *"
+    buildCommand: pip install -r requirements.txt
+    startCommand: python -m jobs.shipping_ingest
+    envVars:
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: AISSTREAM_API_KEY
+        sync: false
+
+  # summary 재계산 잡 (매 15분, 선박 수집 직후)
+  - type: cron
+    name: hormuz-summary-rebuild
+    runtime: python
+    rootDir: backend
+    schedule: "5,20,35,50 * * * *"
+    buildCommand: pip install -r requirements.txt
+    startCommand: python -m jobs.summary_rebuild
+    envVars:
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
