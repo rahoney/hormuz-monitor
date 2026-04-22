@@ -1,12 +1,14 @@
 {
   "nav": {
     "dashboard": "Dashboard",
-    "events": "Event Log",
-    "about": "About",
-    "sources": "Sources"
+    "events": "Related Issues",
+    "about": "About"
   },
   "footer": {
-    "disclaimer": "Data is for informational purposes only. Not financial advice."
+    "copyright": "© 2026 Hormuz Monitor by WikiHoney. All rights reserved.",
+    "supportText": "Support this project",
+    "supportKr": "KR Support",
+    "supportGlobal": "Global Support"
   },
   "status": {
     "loading": "Loading...",

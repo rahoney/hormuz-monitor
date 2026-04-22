@@ -9,18 +9,25 @@
     "inlandEntry": "Inland Entry",
     "offshoreExit": "Offshore Exit",
     "oilPrice": "Brent Crude",
-    "riskLevel": "Risk Level"
+    "riskLevel": "Risk Level",
+    "insideStrait": "Inside Strait",
+    "persianGulf": "Persian Gulf",
+    "arabianSea": "Arabian Sea"
   },
   "sections": {
     "statusCards": "Current Status",
     "transitFlow": "Transit Flow (90 days)",
-    "oilPrices": "Oil Prices",
+    "oilPrices": "Oil Prices (90-day history)",
+    "oilRealtime": "Oil Prices (Real-time · TradingView)",
+    "transitOilComparison": "Transit vs Oil Price (90 days)",
     "marketSnapshot": "Market Snapshot",
-    "recentEvents": "Recent Events"
+    "recentEvents": "Related Issues"
   },
   "map": {
     "title": "Strait Map",
-    "placeholder": "Live vessel map"
+    "placeholder": "Live vessel map",
+    "map1": "Map 1",
+    "map2": "Map 2"
   },
   "oil": {
     "wti": "WTI",
@@ -29,6 +36,18 @@
     "perBbl": "USD/bbl",
     "perMmbtu": "USD/MMBtu",
     "realtimeWidget": "Real-time"
+  },
+  "transit": {
+    "comparison": "Transit + Oil",
+    "total": "Total",
+    "breakdown": "By Type",
+    "brent": "Brent",
+    "totalVessels": "Total Vessels",
+    "tanker": "Tanker",
+    "container": "Container",
+    "dryBulk": "Dry Bulk",
+    "general": "General Cargo",
+    "noData": "No transit data"
   },
   "events": {
     "viewAll": "View all events →",
@@ -39,6 +58,30 @@
     "restricted": "Restricted",
     "highRisk": "High Risk",
     "unknown": "Unknown"
+  },
+  "trump": {
+    "title": "Trump Social Media",
+    "noData": "No posts available",
+    "viewOriginal": "View original"
+  },
+  "gasoline": {
+    "title": "U.S. Gasoline Prices",
+    "national": "National Avg",
+    "state": "By Region / State",
+    "pricePerGallon": "$/gallon",
+    "area": "Area",
+    "price": "Price ($/gal)",
+    "weekChange": "Wk Change",
+    "region": "region",
+    "noData": "No gasoline price data"
+  },
+  "gauge": {
+    "title": "Hormuz Risk Index",
+    "safe": "SAFE",
+    "caution": "CAUTION",
+    "warning": "WARNING",
+    "danger": "DANGER",
+    "vessels": "Vessels"
   },
   "loading": "Loading...",
   "noData": "No data"

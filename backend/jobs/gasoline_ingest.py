@@ -1,9 +1,9 @@
-"""RSS 이벤트 수집 → events 저장 잡."""
+"""EIA 휘발유 가격 수집 → gasoline_prices 저장 잡."""
 import sys
 from datetime import date, timedelta
 sys.path.insert(0, ".")
 
-from collectors.events.rss_collector import collect
+from collectors.oil.gasoline_collector import collect
 from db.upsert import upsert
 from db.run_repo import start_run, finish_run
 from db.error_repo import log_error
@@ -11,22 +11,23 @@ from utils.logger import get_logger
 
 logger = get_logger(__name__)
 
-_LOOKBACK_DAYS = 3
+_LOOKBACK_DAYS = 90  # 초기 실행 시 3개월치 수집 (이후 주간 갱신)
 
 
 def run() -> None:
-    since = date.today() - timedelta(days=_LOOKBACK_DAYS)
-    run_id = start_run("rss_events")
-    logger.info("RSS 이벤트 수집 시작 (since %s)", since)
+    end = date.today()
+    start = end - timedelta(days=_LOOKBACK_DAYS)
+    run_id = start_run("eia_gasoline")
+    logger.info("EIA 휘발유 가격 수집 시작 (%s ~ %s)", start, end)
 
     try:
-        records = collect(since=since)
-        saved = upsert("events", records, on_conflict="source_url") if records else 0
+        records = collect(start, end)
+        saved = upsert("gasoline_prices", records, on_conflict="area_code,price_date")
         finish_run(run_id, "success", len(records), saved)
         logger.info("완료: %d건 수집, %d건 저장", len(records), saved)
     except Exception as exc:
         finish_run(run_id, "failed", 0, 0)
-        log_error("rss_events", "unknown", str(exc), run_id)
+        log_error("eia_gasoline", "unknown", str(exc), run_id)
         logger.error("수집 실패: %s", exc)
         raise
 

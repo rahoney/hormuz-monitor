@@ -29,9 +29,39 @@ export interface MarketSnapshot {
   source: string;
 }
 
+export interface TransitRecord {
+  transit_date: string;
+  n_total: number;
+  n_tanker: number;
+  n_container: number;
+  n_dry_bulk: number;
+  n_general_cargo: number;
+  capacity_total: number | null;
+  capacity_tanker: number | null;
+}
+
+export interface TrumpPost {
+  id: number;
+  post_date: string;
+  posted_at: string | null;
+  content: string;
+  content_ko: string | null;
+  source_url: string | null;
+  source_name: string;
+}
+
+export interface GasolinePrice {
+  area_code: string;
+  area_name: string;
+  area_type: string;
+  price_date: string;
+  price_usd: number;
+}
+
 export interface Event {
   id: number;
   event_date: string;
+  published_at: string | null;
   event_type: string;
   title: string;
   summary: string | null;

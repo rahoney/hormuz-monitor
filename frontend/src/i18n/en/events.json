@@ -1,12 +1,27 @@
 {
-  "title": "Event Log",
+  "title": "Related Issues",
   "subtitle": "Geopolitical events affecting the Hormuz Strait",
   "emptyState": "No events recorded yet",
+  "tabs": {
+    "events": "Events",
+    "trump": "Trump Social"
+  },
   "filters": {
     "all": "All",
-    "closure": "Closure",
     "attack": "Attack",
+    "closure": "Closure",
+    "reopening": "Reopening",
     "sanctions": "Sanctions",
-    "ceasefire": "Ceasefire"
-  }
+    "ceasefire": "Ceasefire",
+    "negotiation": "Negotiation",
+    "escort_operation": "Escort Op"
+  },
+  "severity": {
+    "critical": "Critical",
+    "high": "High",
+    "medium": "Medium",
+    "low": "Low"
+  },
+  "source": "Source",
+  "noSource": "No source"
 }

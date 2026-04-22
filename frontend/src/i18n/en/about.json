@@ -1,5 +1,32 @@
 {
   "title": "About",
   "subtitle": "What is Hormuz Monitor?",
-  "description": "Hormuz Monitor is a real-time dashboard that tracks vessel traffic through the Strait of Hormuz, oil prices, market indicators, and geopolitical events. It is designed for global macro investors and analysts who need a consolidated view of one of the world's most critical energy chokepoints."
+  "description": {
+    "p1": "According to the EIA, in 2024 the average daily flow of crude oil and petroleum products through the Strait of Hormuz was 20 million barrels — roughly 20% of global petroleum consumption.",
+    "p2": "About 20% of global LNG trade also passed through the strait, with 84% of crude and condensate and 83% of LNG heading to Asian markets.",
+    "p3": "Any disruption to energy supply through the Strait of Hormuz can have a major impact on global industry and economies. This project was created to bring all that information together in one place, rather than searching across multiple sources.",
+    "p4": "Hormuz Monitor is a dashboard that lets you see vessel movements through the Strait of Hormuz, oil prices, and key U.S. market indices at a glance. It is designed to help you access scattered information faster, in one place."
+  },
+  "sources": {
+    "heading": "Data Sources",
+    "list": "IMF PortWatch, MarineTraffic, EIA, TradingView, Yahoo Finance, Al Jazeera RSS, BBC RSS, Anadolu Agency RSS"
+  },
+  "github": "GitHub",
+  "contact": {
+    "heading": "Contact",
+    "body": "For inquiries about the project, please use the contact form.",
+    "button": "Contact Us"
+  },
+  "support": {
+    "heading": "Support",
+    "body1": "If you'd like to support this project, you can do so through the links below.",
+    "body2": "Your support helps with maintenance and future improvements.",
+    "kr": "KR Support",
+    "global": "Global Support"
+  },
+  "notice": {
+    "heading": "Note",
+    "body": "Hormuz Monitor is operated as a personal project.",
+    "peace": "We hope the war ends soon and peace comes to everyone."
+  }
 }

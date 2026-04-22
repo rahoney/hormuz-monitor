@@ -17,7 +17,7 @@ export default function MarketSnapshotCards({ snapshots }: Props) {
         const snap = snapshots[sym];
         return (
           <div key={sym} className="rounded-lg border border-slate-700/50 bg-slate-900 p-3">
-            <p className="text-xs font-medium text-slate-400">{sym}</p>
+            <p className="text-sm font-bold text-slate-200">{sym}</p>
             <p className="mt-1 text-lg font-semibold text-slate-100">
               {snap ? formatPrice(snap.price, sym === "VIX" ? 2 : 0) : t("noData")}
             </p>

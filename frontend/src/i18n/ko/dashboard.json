@@ -3,24 +3,31 @@
   "subtitle": "실시간 선박 통행량, 유가, 지정학적 이벤트",
   "cards": {
     "straitStatus": "해협 상태",
-    "vesselCount": "통항 선박",
+    "vesselCount": "통행 선박",
     "lngVessels": "LNG 탱커",
     "crudeVessels": "원유 탱커",
     "inlandEntry": "내해 진입",
     "offshoreExit": "외해 출항",
     "oilPrice": "브렌트유",
-    "riskLevel": "위험 수준"
+    "riskLevel": "위험 수준",
+    "insideStrait": "해협 내부",
+    "persianGulf": "페르시아만",
+    "arabianSea": "아라비아해"
   },
   "sections": {
     "statusCards": "현재 상태",
-    "transitFlow": "통항 흐름 (90일)",
-    "oilPrices": "유가",
+    "transitFlow": "통행 흐름 (90일)",
+    "oilPrices": "유가 (90일 이력)",
+    "oilRealtime": "유가 (실시간 · TradingView)",
+    "transitOilComparison": "통행량 vs 유가 (90일)",
     "marketSnapshot": "시장 현황",
-    "recentEvents": "최근 이벤트"
+    "recentEvents": "관련 이슈"
   },
   "map": {
     "title": "해협 지도",
-    "placeholder": "실시간 선박 지도"
+    "placeholder": "실시간 선박 지도",
+    "map1": "지도 1",
+    "map2": "지도 2"
   },
   "oil": {
     "wti": "WTI",
@@ -30,8 +37,20 @@
     "perMmbtu": "달러/MMBtu",
     "realtimeWidget": "실시간"
   },
+  "transit": {
+    "comparison": "통행량 + 유가",
+    "total": "전체",
+    "breakdown": "유형별",
+    "brent": "브렌트유",
+    "totalVessels": "총 선박",
+    "tanker": "탱커",
+    "container": "컨테이너",
+    "dryBulk": "벌크선",
+    "general": "일반화물",
+    "noData": "통행 데이터 없음"
+  },
   "events": {
-    "viewAll": "전체 이벤트 보기 →",
+    "viewAll": "관련 이슈 전체 보기 →",
     "noEvents": "최근 이벤트 없음"
   },
   "status": {
@@ -39,6 +58,30 @@
     "restricted": "제한",
     "highRisk": "고위험",
     "unknown": "알 수 없음"
+  },
+  "trump": {
+    "title": "트럼프 소셜 미디어",
+    "noData": "포스트 데이터 없음",
+    "viewOriginal": "원문 보기"
+  },
+  "gasoline": {
+    "title": "미국 시중 휘발유 가격",
+    "national": "전국 평균",
+    "state": "지역·주별",
+    "pricePerGallon": "달러/갤런",
+    "area": "지역",
+    "price": "가격 ($/gal)",
+    "weekChange": "전주 대비",
+    "region": "지역",
+    "noData": "휘발유 가격 데이터 없음"
+  },
+  "gauge": {
+    "title": "호르무즈 위험 지수",
+    "safe": "안전",
+    "caution": "주의",
+    "warning": "경계",
+    "danger": "위험",
+    "vessels": "통행 선박"
   },
   "loading": "로딩 중...",
   "noData": "데이터 없음"

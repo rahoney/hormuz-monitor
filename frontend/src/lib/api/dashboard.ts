@@ -1,5 +1,5 @@
 import { supabase } from "@/lib/supabase";
-import type { Event, MarketSnapshot, OilPriceSeries, StraitMetric } from "@/types";
+import type { Event, GasolinePrice, MarketSnapshot, OilPriceSeries, StraitMetric, TransitRecord, TrumpPost } from "@/types";
 
 export async function fetchLatestStraitMetric(): Promise<StraitMetric | null> {
   const { data } = await supabase
@@ -57,11 +57,41 @@ export async function fetchLatestMarketSnapshots(): Promise<Record<string, Marke
   return result;
 }
 
+export async function fetchTransitSeries(days = 90): Promise<TransitRecord[]> {
+  const since = new Date(Date.now() - days * 86_400_000).toISOString().slice(0, 10);
+  const { data } = await supabase
+    .from("chokepoint_transits")
+    .select("transit_date,n_total,n_tanker,n_container,n_dry_bulk,n_general_cargo,capacity_total,capacity_tanker")
+    .eq("portid", "chokepoint6")
+    .gte("transit_date", since)
+    .order("transit_date", { ascending: true });
+  return data ?? [];
+}
+
+export async function fetchGasolinePrices(days = 90): Promise<GasolinePrice[]> {
+  const since = new Date(Date.now() - days * 86_400_000).toISOString().slice(0, 10);
+  const { data } = await supabase
+    .from("gasoline_prices")
+    .select("area_code, area_name, area_type, price_date, price_usd")
+    .gte("price_date", since)
+    .order("price_date", { ascending: true });
+  return data ?? [];
+}
+
+export async function fetchTrumpPosts(limit = 20): Promise<TrumpPost[]> {
+  const { data } = await supabase
+    .from("trump_posts")
+    .select("id, post_date, posted_at, content, content_ko, source_url, source_name")
+    .order("post_date", { ascending: false })
+    .limit(limit);
+  return data ?? [];
+}
+
 export async function fetchRecentEvents(limit = 5): Promise<Event[]> {
   const { data } = await supabase
     .from("events")
-    .select("id, event_date, event_type, title, summary, source_name, source_url, severity")
-    .order("event_date", { ascending: false })
+    .select("id, event_date, published_at, event_type, title, summary, source_name, source_url, severity")
+    .order("published_at", { ascending: false, nullsFirst: false })
     .limit(limit);
   return data ?? [];
 }

@@ -56,20 +56,64 @@ services:
       - key: SUPABASE_SERVICE_ROLE_KEY
         sync: false
 
-  # 선박 데이터 수집 잡 (aisstream.io WebSocket, 매 15분)
+  # PortWatch 통행량 수집 잡 (IMF ArcGIS, 매일 02:00 UTC — PortWatch는 전날 데이터를 익일 공개)
   - type: cron
-    name: hormuz-shipping-ingest
+    name: hormuz-portwatch-ingest
     runtime: python
     rootDir: backend
-    schedule: "*/15 * * * *"
+    schedule: "0 2 * * *"
     buildCommand: pip install -r requirements.txt
-    startCommand: python -m jobs.shipping_ingest
+    startCommand: python -m jobs.portwatch_ingest
     envVars:
       - key: SUPABASE_URL
         sync: false
       - key: SUPABASE_SERVICE_ROLE_KEY
         sync: false
-      - key: AISSTREAM_API_KEY
+
+  # 트럼프 소셜 미디어 수집 잡 (매 2시간 :00분)
+  - type: cron
+    name: hormuz-trump-ingest
+    runtime: python
+    rootDir: backend
+    schedule: "0 */2 * * *"
+    buildCommand: pip install -r requirements.txt
+    startCommand: python -m jobs.trump_ingest
+    envVars:
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+
+  # 트럼프 포스트 한국어 번역 잡 (매 2시간 :05분, 수집 직후)
+  - type: cron
+    name: hormuz-trump-translate
+    runtime: python
+    rootDir: backend
+    schedule: "5 */2 * * *"
+    buildCommand: pip install -r requirements.txt
+    startCommand: python -m jobs.trump_translate
+    envVars:
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: GOOGLE_GEMINI_API_KEY
+        sync: false
+
+  # 휘발유 가격 수집 잡 (EIA 주간 데이터, 매주 화요일 08:00 UTC — EIA 월요일 발표)
+  - type: cron
+    name: hormuz-gasoline-ingest
+    runtime: python
+    rootDir: backend
+    schedule: "0 8 * * 2"
+    buildCommand: pip install -r requirements.txt
+    startCommand: python -m jobs.gasoline_ingest
+    envVars:
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: EIA_API_KEY
         sync: false
 
   # summary 재계산 잡 (매 15분, 선박 수집 직후)

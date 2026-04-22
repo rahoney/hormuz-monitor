@@ -21,7 +21,7 @@ export function changePctColor(value: number | null): string {
 export function statusLevelColor(level: string): string {
   switch (level) {
     case "normal":      return "text-emerald-400";
-    case "restricted":  return "text-amber-400";
+    case "restricted":  return "text-blue-400";
     case "high_risk":   return "text-red-400";
     default:            return "text-slate-400";
   }

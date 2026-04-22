@@ -22,7 +22,7 @@ export default function CurrentStatusCards({ metric }: Props) {
       <StatusCard
         label={t("cards.vesselCount")}
         value={metric?.total_vessels ?? "—"}
-        sub="inside strait"
+        sub={t("cards.insideStrait")}
       />
       <StatusCard
         label={t("cards.lngVessels")}
@@ -35,12 +35,12 @@ export default function CurrentStatusCards({ metric }: Props) {
       <StatusCard
         label={t("cards.inlandEntry")}
         value={metric?.inland_entry_count ?? "—"}
-        sub="Persian Gulf"
+        sub={t("cards.persianGulf")}
       />
       <StatusCard
         label={t("cards.offshoreExit")}
         value={metric?.offshore_exit_count ?? "—"}
-        sub="Arabian Sea"
+        sub={t("cards.arabianSea")}
       />
     </div>
   );

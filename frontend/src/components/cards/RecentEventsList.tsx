@@ -1,6 +1,8 @@
 "use client";
 
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
+
+const KO_SOURCES = new Set(["연합뉴스", "한국경제", "매일경제"]);
 import { Link } from "@/i18n/navigation";
 import type { Event } from "@/types";
 
@@ -18,8 +20,11 @@ type Props = { events: Event[] };
 
 export default function RecentEventsList({ events }: Props) {
   const t = useTranslations("dashboard");
+  const te = useTranslations("events");
+  const locale = useLocale();
+  const filtered = locale === "ko" ? events : events.filter((e) => !KO_SOURCES.has(e.source_name ?? ""));
 
-  if (events.length === 0) {
+  if (filtered.length === 0) {
     return (
       <p className="py-6 text-center text-sm text-slate-500">{t("events.noEvents")}</p>
     );
@@ -27,7 +32,7 @@ export default function RecentEventsList({ events }: Props) {
 
   return (
     <div className="flex flex-col gap-3">
-      {events.map((ev) => (
+      {filtered.map((ev) => (
         <div key={ev.id} className="flex gap-3">
           <div className="shrink-0 pt-0.5">
             <span
@@ -35,7 +40,7 @@ export default function RecentEventsList({ events }: Props) {
                 TYPE_COLORS[ev.event_type] ?? "bg-slate-800 text-slate-400"
               }`}
             >
-              {ev.event_type.replace(/_/g, " ")}
+              {te(`filters.${ev.event_type}` as any, { defaultValue: ev.event_type.replace(/_/g, " ") })}
             </span>
           </div>
           <div className="min-w-0 flex-1">

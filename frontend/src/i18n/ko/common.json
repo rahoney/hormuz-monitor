@@ -1,12 +1,14 @@
 {
   "nav": {
     "dashboard": "대시보드",
-    "events": "이벤트 로그",
-    "about": "소개",
-    "sources": "데이터 출처"
+    "events": "관련 이슈",
+    "about": "소개"
   },
   "footer": {
-    "disclaimer": "본 데이터는 정보 제공 목적으로만 제공되며 투자 조언이 아닙니다."
+    "copyright": "© 2026 Hormuz Monitor by WikiHoney. All rights reserved.",
+    "supportText": "이 프로젝트를 응원하고 싶다면",
+    "supportKr": "한국 후원",
+    "supportGlobal": "Global Support"
   },
   "status": {
     "loading": "로딩 중...",

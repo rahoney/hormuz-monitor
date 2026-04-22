@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { usePathname } from "next/navigation";
 import { Link, useRouter } from "@/i18n/navigation";
@@ -10,7 +11,6 @@ const NAV_ITEMS = [
   { key: "dashboard", href: "/" },
   { key: "events", href: "/events" },
   { key: "about", href: "/about" },
-  { key: "sources", href: "/sources" },
 ] as const;
 
 export default function Header() {
@@ -39,8 +39,8 @@ export default function Header() {
       <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4 sm:px-6">
         {/* 로고 */}
         <Link href="/" className="flex items-center gap-2 text-slate-100 hover:text-white">
-          <span className="text-blue-400">◈</span>
-          <span className="font-semibold tracking-tight">Hormuz Monitor</span>
+          <Image src="/logo.jpg" alt="Hormuz Monitor" width={32} height={32} className="rounded" />
+          <span className="text-xl font-bold tracking-wider uppercase text-amber-400">Hormuz Monitor</span>
         </Link>
 
         {/* 데스크톱 내비게이션 */}

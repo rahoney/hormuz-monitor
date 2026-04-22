@@ -1,20 +1,35 @@
-import { useTranslations } from "next-intl";
 import PageShell from "@/components/layout/PageShell";
+import EventsPageClient from "@/components/cards/EventsPageClient";
+import { supabase } from "@/lib/supabase";
+import type { Event, TrumpPost } from "@/types";
 
-export default function EventsPage() {
-  const t = useTranslations("events");
+async function fetchAllEvents(): Promise<Event[]> {
+  const { data } = await supabase
+    .from("events")
+    .select("id, event_date, published_at, event_type, title, summary, source_name, source_url, severity")
+    .order("published_at", { ascending: false, nullsFirst: false })
+    .limit(200);
+  return data ?? [];
+}
+
+async function fetchAllTrumpPosts(): Promise<TrumpPost[]> {
+  const { data } = await supabase
+    .from("trump_posts")
+    .select("id, post_date, posted_at, content, content_ko, source_url, source_name")
+    .order("post_date", { ascending: false })
+    .limit(100);
+  return data ?? [];
+}
+
+export default async function EventsPage() {
+  const [events, trumpPosts] = await Promise.all([
+    fetchAllEvents(),
+    fetchAllTrumpPosts(),
+  ]);
 
   return (
     <PageShell>
-      <div className="flex flex-col gap-6">
-        <div>
-          <h1 className="text-2xl font-semibold text-slate-100">{t("title")}</h1>
-          <p className="mt-1 text-sm text-slate-400">{t("subtitle")}</p>
-        </div>
-        <div className="rounded-lg border border-slate-700/50 bg-slate-900 p-6 text-center text-sm text-slate-500">
-          {t("emptyState")}
-        </div>
-      </div>
+      <EventsPageClient events={events} trumpPosts={trumpPosts} />
     </PageShell>
   );
 }
