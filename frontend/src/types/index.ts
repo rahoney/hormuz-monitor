@@ -58,6 +58,13 @@ export interface GasolinePrice {
   price_usd: number;
 }
 
+export interface SituationSummary {
+  id: number;
+  summary_ko: string;
+  summary_en: string | null;
+  generated_at: string;
+}
+
 export interface Event {
   id: number;
   event_date: string;

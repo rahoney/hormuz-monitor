@@ -67,7 +67,7 @@ export default function Header() {
               <button
                 key={loc}
                 onClick={() => switchLocale(loc)}
-                className={`px-2.5 py-1 transition-colors first:rounded-l last:rounded-r ${
+                className={`cursor-pointer px-2.5 py-1 transition-colors first:rounded-l last:rounded-r ${
                   currentLocale === loc
                     ? "bg-slate-700 text-slate-100"
                     : "text-slate-400 hover:text-slate-100"

@@ -28,12 +28,12 @@ services:
       - key: SUPABASE_SERVICE_ROLE_KEY
         sync: false
 
-  # 시장 지표 수집 잡 (yfinance/pykrx → Supabase, 매일 07:00 UTC)
+  # 시장 지표 수집 잡 (5분 단위 실시간, 장중/장후 시간대만 수집)
   - type: cron
     name: hormuz-market-ingest
     runtime: python
     rootDir: backend
-    schedule: "0 7 * * *"
+    schedule: "*/5 * * * *"
     buildCommand: pip install -r requirements.txt
     startCommand: python -m jobs.market_ingest
     envVars:
@@ -42,12 +42,12 @@ services:
       - key: SUPABASE_SERVICE_ROLE_KEY
         sync: false
 
-  # 이벤트/RSS 수집 잡 (매 6시간)
+  # 이벤트/RSS 수집 잡 (매 1시간)
   - type: cron
     name: hormuz-events-ingest
     runtime: python
     rootDir: backend
-    schedule: "0 */6 * * *"
+    schedule: "0 * * * *"
     buildCommand: pip install -r requirements.txt
     startCommand: python -m jobs.events_ingest
     envVars:
@@ -114,6 +114,36 @@ services:
       - key: SUPABASE_SERVICE_ROLE_KEY
         sync: false
       - key: EIA_API_KEY
+        sync: false
+
+  # 상황 요약 생성 잡 (Gemini, 매 1시간 :10분 — 뉴스 수집 직후)
+  - type: cron
+    name: hormuz-situation-summary
+    runtime: python
+    rootDir: backend
+    schedule: "10 * * * *"
+    buildCommand: pip install -r requirements.txt
+    startCommand: python -m jobs.situation_summary_ingest
+    envVars:
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: GOOGLE_GEMINI_API_KEY
+        sync: false
+
+  # 오래된 데이터 정리 잡 (매일 03:00 UTC, 10일 이상 삭제)
+  - type: cron
+    name: hormuz-data-cleanup
+    runtime: python
+    rootDir: backend
+    schedule: "0 3 * * *"
+    buildCommand: pip install -r requirements.txt
+    startCommand: python -m jobs.data_cleanup
+    envVars:
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
         sync: false
 
   # summary 재계산 잡 (매 15분, 선박 수집 직후)

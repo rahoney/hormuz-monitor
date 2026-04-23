@@ -18,7 +18,7 @@
     "statusCards": "현재 상태",
     "transitFlow": "통행 흐름 (90일)",
     "oilPrices": "유가 (90일 이력)",
-    "oilRealtime": "유가 (실시간 · TradingView)",
+    "oilRealtime": "유가 (실시간)",
     "transitOilComparison": "통행량 vs 유가 (90일)",
     "marketSnapshot": "시장 현황",
     "recentEvents": "관련 이슈"
@@ -82,6 +82,12 @@
     "warning": "경계",
     "danger": "위험",
     "vessels": "통행 선박"
+  },
+  "summary": {
+    "title": "상황 요약",
+    "aiLabel": "AI 요약",
+    "updated": "업데이트",
+    "noData": "요약 데이터를 불러오는 중입니다..."
   },
   "loading": "로딩 중...",
   "noData": "데이터 없음"

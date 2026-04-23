@@ -22,7 +22,7 @@ export default function RecentEventsList({ events }: Props) {
   const t = useTranslations("dashboard");
   const te = useTranslations("events");
   const locale = useLocale();
-  const filtered = locale === "ko" ? events : events.filter((e) => !KO_SOURCES.has(e.source_name ?? ""));
+  const filtered = (locale === "ko" ? events : events.filter((e) => !KO_SOURCES.has(e.source_name ?? ""))).slice(0, 5);
 
   if (filtered.length === 0) {
     return (

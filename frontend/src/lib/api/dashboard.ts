@@ -1,5 +1,15 @@
 import { supabase } from "@/lib/supabase";
-import type { Event, GasolinePrice, MarketSnapshot, OilPriceSeries, StraitMetric, TransitRecord, TrumpPost } from "@/types";
+import type { Event, GasolinePrice, MarketSnapshot, OilPriceSeries, SituationSummary, StraitMetric, TransitRecord, TrumpPost } from "@/types";
+
+export async function fetchLatestSummary(): Promise<SituationSummary | null> {
+  const { data } = await supabase
+    .from("situation_summaries")
+    .select("id, summary_ko, summary_en, generated_at")
+    .order("generated_at", { ascending: false })
+    .limit(1)
+    .single();
+  return data ?? null;
+}
 
 export async function fetchLatestStraitMetric(): Promise<StraitMetric | null> {
   const { data } = await supabase

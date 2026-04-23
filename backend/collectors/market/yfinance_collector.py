@@ -12,6 +12,34 @@ _SYMBOLS: list[dict[str, str]] = [
 ]
 
 
+def collect_live() -> list[dict[str, Any]]:
+    """현재 시장 실시간 가격을 수집한다 (장중/장후용)."""
+    today = date.today().isoformat()
+    records: list[dict[str, Any]] = []
+    for s in _SYMBOLS:
+        try:
+            ticker = yf.Ticker(s["ticker"])
+            hist = ticker.history(period="5d", interval="1d")
+            if hist.empty:
+                continue
+            latest_price = float(hist["Close"].iloc[-1])
+            chg = None
+            if len(hist) >= 2:
+                prev_close = float(hist["Close"].iloc[-2])
+                if prev_close:
+                    chg = round((latest_price - prev_close) / prev_close * 100, 4)
+            records.append({
+                "symbol":        s["symbol"],
+                "snapshot_date": today,
+                "price":         round(latest_price, 4),
+                "change_pct":    chg,
+                "source":        "yfinance",
+            })
+        except Exception:
+            continue
+    return records
+
+
 def collect(start: date, end: date) -> list[dict[str, Any]]:
     records: list[dict[str, Any]] = []
     for s in _SYMBOLS:

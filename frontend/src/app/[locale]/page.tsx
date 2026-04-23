@@ -10,6 +10,7 @@ import StraitMapPanel from "@/components/map/StraitMapPanel";
 import HormuzRiskGauge from "@/components/cards/HormuzRiskGauge";
 import GasolinePricesPanel from "@/components/charts/GasolinePricesPanel";
 import TrumpPostsFeed from "@/components/cards/TrumpPostsFeed";
+import SituationSummaryCard from "@/components/cards/SituationSummaryCard";
 import {
   fetchLatestStraitMetric,
   fetchOilPriceSeries,
@@ -18,19 +19,21 @@ import {
   fetchTransitSeries,
   fetchGasolinePrices,
   fetchTrumpPosts,
+  fetchLatestSummary,
 } from "@/lib/api/dashboard";
 
 export default async function DashboardPage() {
   const t = await getTranslations("dashboard");
 
-  const [metric, oilSeries, marketSnapshots, recentEvents, transitSeries, gasolineSeries, trumpPosts] = await Promise.allSettled([
+  const [metric, oilSeries, marketSnapshots, recentEvents, transitSeries, gasolineSeries, trumpPosts, summaryResult] = await Promise.allSettled([
     fetchLatestStraitMetric(),
     fetchOilPriceSeries(["WTI", "BRENT", "NATURAL_GAS"], 90),
     fetchLatestMarketSnapshots(),
-    fetchRecentEvents(5),
+    fetchRecentEvents(15),
     fetchTransitSeries(90),
     fetchGasolinePrices(90),
     fetchTrumpPosts(20),
+    fetchLatestSummary(),
   ]);
 
   const metricData  = metric.status         === "fulfilled" ? metric.value         : null;
@@ -40,6 +43,7 @@ export default async function DashboardPage() {
   const transitData  = transitSeries.status  === "fulfilled" ? transitSeries.value  : [];
   const gasolineData = gasolineSeries.status === "fulfilled" ? gasolineSeries.value : [];
   const trumpData    = trumpPosts.status     === "fulfilled" ? trumpPosts.value     : [];
+  const summaryData  = summaryResult.status  === "fulfilled" ? summaryResult.value  : null;
 
   const latestBrent = oilData
     .filter((r) => r.symbol === "BRENT")
@@ -55,6 +59,9 @@ export default async function DashboardPage() {
           <h1 className="text-2xl font-semibold text-slate-100">{t("title")}</h1>
           <p className="mt-1 text-sm text-slate-400">{t("subtitle")}</p>
         </div>
+
+        {/* 상황 요약 */}
+        <SituationSummaryCard summary={summaryData} />
 
         {/* 호르무즈 위험 지수 게이지 */}
         <Card title={t("gauge.title")}>
