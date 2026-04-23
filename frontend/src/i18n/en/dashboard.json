@@ -81,7 +81,13 @@
     "caution": "CAUTION",
     "warning": "WARNING",
     "danger": "DANGER",
-    "vessels": "Vessels"
+    "vessels": "Vessels",
+    "geoLabel": "Geopolitical Tension",
+    "histLabel": "Historical",
+    "hist1d": "Yesterday",
+    "hist1w": "1W ago",
+    "hist2w": "2W ago",
+    "hist1m": "1M ago"
   },
   "summary": {
     "title": "Situation Summary",

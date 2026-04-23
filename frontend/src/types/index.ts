@@ -63,6 +63,17 @@ export interface SituationSummary {
   summary_ko: string;
   summary_en: string | null;
   generated_at: string;
+  geo_score: number | null;
+}
+
+export interface RiskScoreHistory {
+  score_date: string;
+  total_score: number;
+  vessel_score: number | null;
+  geo_score: number | null;
+  brent_score: number | null;
+  vix_score: number | null;
+  geo_raw: number | null;
 }
 
 export interface Event {

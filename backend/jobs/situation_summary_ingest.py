@@ -22,10 +22,14 @@ def run() -> None:
             finish_run(run_id, "success", 0, 0)
             return
 
-        ko, en = result
-        insert("situation_summaries", [{"summary_ko": ko, "summary_en": en}])
+        ko, en, geo_score = result
+        record: dict = {"summary_ko": ko, "summary_en": en}
+        if geo_score is not None:
+            record["geo_score"] = geo_score
+        insert("situation_summaries", [record])
         finish_run(run_id, "success", 1, 1)
-        logger.info("완료: 요약 저장 (ko %d자, en %d words)", len(ko), len(en.split()))
+        logger.info("완료: 요약 저장 (ko %d자, en %d words, geo_score %s)",
+                    len(ko), len(en.split()), geo_score)
 
     except Exception as exc:
         finish_run(run_id, "failed", 0, 0)

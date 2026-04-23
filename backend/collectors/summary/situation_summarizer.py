@@ -119,14 +119,21 @@ def _build_prompt(events: list, trump: list, oil: dict,
 
     return f"""You are a concise analyst for the Hormuz Monitor dashboard.
 
-Generate TWO situation summaries based on the data below.
+Generate a situation summary AND a geopolitical tension score based on the data below.
 - FOCUS: US-Iran war/negotiations and Trump's statements are the PRIMARY topic.
 - Oil prices and market indices are SECONDARY (mention briefly).
 - Korean: 150~400 characters (자).
 - English: 60~150 words.
-- Output ONLY these two lines, nothing else:
+- SCORE: integer 1~30 measuring geopolitical tension for the Hormuz Strait.
+  1~7 = Safe (peace agreement, strait open, ceasefire holding, normalization confirmed)
+  8~15 = Caution (negotiations ongoing, talks in progress, ceasefire active but unresolved)
+  16~22 = Warning (diplomatic breakdown, negotiations failed/suspended, escalating threats, sanctions increased)
+  23~30 = Danger (military action imminent or underway, attack/seizure/blockade occurring or just confirmed)
+  Use the full range — e.g. score 5 vs 3 or 20 vs 17 to reflect degrees within each band.
+- Output ONLY these three lines, nothing else:
 KO: [Korean summary]
 EN: [English summary]
+SCORE: [integer 1-30]
 
 [Recent News Headlines (last 24h)]
 {news_block}
@@ -142,8 +149,8 @@ WTI: {wti_str} | Brent: {brent_str}
 {market_block}"""
 
 
-def generate() -> tuple[str, str] | None:
-    """(summary_ko, summary_en) 반환. 실패 시 None."""
+def generate() -> tuple[str, str, int | None] | None:
+    """(summary_ko, summary_en, geo_score) 반환. 실패 시 None."""
     events = _fetch_recent_events()
     trump = _fetch_trump_posts()
     oil = _fetch_oil()
@@ -167,13 +174,20 @@ def generate() -> tuple[str, str] | None:
     except Exception:
         return None
 
-    ko, en = "", ""
+    ko, en, geo_score = "", "", None
     for line in text.splitlines():
         if line.startswith("KO:"):
             ko = line[3:].strip()
         elif line.startswith("EN:"):
             en = line[3:].strip()
+        elif line.startswith("SCORE:"):
+            raw = line[6:].strip()
+            try:
+                val = int(raw)
+                geo_score = max(1, min(30, val))
+            except ValueError:
+                pass
 
     if not ko:
         return None
-    return ko, en or ""
+    return ko, en or "", geo_score

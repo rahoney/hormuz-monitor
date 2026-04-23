@@ -21,12 +21,13 @@ import {
   fetchGasolinePrices,
   fetchTrumpPosts,
   fetchLatestSummary,
+  fetchRiskScoreHistory,
 } from "@/lib/api/dashboard";
 
 export default async function DashboardPage() {
   const t = await getTranslations("dashboard");
 
-  const [metric, oilSeries, marketSnapshots, marketHistoryResult, recentEvents, transitSeries, gasolineSeries, trumpPosts, summaryResult] = await Promise.allSettled([
+  const [metric, oilSeries, marketSnapshots, marketHistoryResult, recentEvents, transitSeries, gasolineSeries, trumpPosts, summaryResult, riskHistoryResult] = await Promise.allSettled([
     fetchLatestStraitMetric(),
     fetchOilPriceSeries(["WTI", "BRENT", "NATURAL_GAS"], 90),
     fetchLatestMarketSnapshots(),
@@ -36,6 +37,7 @@ export default async function DashboardPage() {
     fetchGasolinePrices(90),
     fetchTrumpPosts(20),
     fetchLatestSummary(),
+    fetchRiskScoreHistory(),
   ]);
 
   const metricData      = metric.status              === "fulfilled" ? metric.value              : null;
@@ -47,6 +49,7 @@ export default async function DashboardPage() {
   const gasolineData    = gasolineSeries.status      === "fulfilled" ? gasolineSeries.value      : [];
   const trumpData       = trumpPosts.status          === "fulfilled" ? trumpPosts.value          : [];
   const summaryData     = summaryResult.status       === "fulfilled" ? summaryResult.value       : null;
+  const riskHistory     = riskHistoryResult.status   === "fulfilled" ? riskHistoryResult.value   : [];
 
   const latestBrent = oilData
     .filter((r) => r.symbol === "BRENT")
@@ -72,6 +75,8 @@ export default async function DashboardPage() {
             vessels={metricData?.total_vessels ?? null}
             brent={latestBrent}
             vix={latestVix}
+            geoScore={summaryData?.geo_score ?? null}
+            history={riskHistory}
           />
         </Card>
 

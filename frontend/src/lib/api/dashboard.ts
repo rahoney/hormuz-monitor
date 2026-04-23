@@ -1,14 +1,24 @@
 import { supabase } from "@/lib/supabase";
-import type { Event, GasolinePrice, MarketSnapshot, OilPriceSeries, SituationSummary, StraitMetric, TransitRecord, TrumpPost } from "@/types";
+import type { Event, GasolinePrice, MarketSnapshot, OilPriceSeries, RiskScoreHistory, SituationSummary, StraitMetric, TransitRecord, TrumpPost } from "@/types";
 
 export async function fetchLatestSummary(): Promise<SituationSummary | null> {
   const { data } = await supabase
     .from("situation_summaries")
-    .select("id, summary_ko, summary_en, generated_at")
+    .select("id, summary_ko, summary_en, generated_at, geo_score")
     .order("generated_at", { ascending: false })
     .limit(1)
     .single();
   return data ?? null;
+}
+
+export async function fetchRiskScoreHistory(): Promise<RiskScoreHistory[]> {
+  const since = new Date(Date.now() - 35 * 86_400_000).toISOString().slice(0, 10);
+  const { data } = await supabase
+    .from("risk_score_history")
+    .select("score_date, total_score, vessel_score, geo_score, brent_score, vix_score, geo_raw")
+    .gte("score_date", since)
+    .order("score_date", { ascending: false });
+  return data ?? [];
 }
 
 export async function fetchLatestStraitMetric(): Promise<StraitMetric | null> {
