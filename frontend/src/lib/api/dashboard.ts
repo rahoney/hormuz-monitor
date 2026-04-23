@@ -67,6 +67,24 @@ export async function fetchLatestMarketSnapshots(): Promise<Record<string, Marke
   return result;
 }
 
+export async function fetchMarketHistory(days = 30): Promise<Record<string, { date: string; price: number }[]>> {
+  const since = new Date(Date.now() - days * 86_400_000).toISOString().slice(0, 10);
+  const symbols = ["VIX", "NASDAQ", "SP500", "KOSPI", "KOSDAQ"];
+  const { data } = await supabase
+    .from("market_snapshots")
+    .select("symbol, snapshot_date, price")
+    .in("symbol", symbols)
+    .gte("snapshot_date", since)
+    .order("snapshot_date", { ascending: true });
+
+  const result: Record<string, { date: string; price: number }[]> = {};
+  for (const row of data ?? []) {
+    if (!result[row.symbol]) result[row.symbol] = [];
+    result[row.symbol].push({ date: row.snapshot_date, price: row.price });
+  }
+  return result;
+}
+
 export async function fetchTransitSeries(days = 90): Promise<TransitRecord[]> {
   const since = new Date(Date.now() - days * 86_400_000).toISOString().slice(0, 10);
   const { data } = await supabase

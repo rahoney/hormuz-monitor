@@ -28,7 +28,7 @@ export default function TrumpPostsFeed({ posts, fullPage = false }: Props) {
       {posts.map((post) => (
         <div
           key={post.id}
-          className="rounded-lg border border-slate-700/50 bg-slate-800/50 p-4 flex flex-col gap-2"
+          className="relative overflow-hidden rounded-lg border border-slate-700/50 bg-slate-800/50 p-4 flex flex-col gap-2 transition-all duration-200 hover:bg-white/[0.03] hover:border-white/[0.10] after:absolute after:inset-0 after:pointer-events-none after:rounded-lg after:bg-gradient-to-r after:from-white/[0.05] after:to-transparent after:opacity-0 after:transition-opacity after:duration-200 hover:after:opacity-100"
         >
           <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-2">

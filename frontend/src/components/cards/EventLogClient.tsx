@@ -42,7 +42,7 @@ export default function EventLogClient({ events }: Props) {
       {filtered.map((ev) => (
         <div
           key={ev.id}
-          className="rounded-lg border border-slate-700/50 bg-slate-900 p-4 flex gap-4"
+          className="relative overflow-hidden rounded-lg border border-slate-700/50 bg-slate-900 p-4 flex gap-4 transition-all duration-200 hover:bg-white/[0.03] hover:border-white/[0.08] after:absolute after:inset-0 after:pointer-events-none after:rounded-lg after:bg-gradient-to-r after:from-white/[0.04] after:to-transparent after:opacity-0 after:transition-opacity after:duration-200 hover:after:opacity-100"
         >
           <div className="shrink-0 w-20 text-xs text-slate-500 pt-0.5">{ev.event_date}</div>
           <div className="flex-1 min-w-0">

@@ -33,7 +33,10 @@ export default function RecentEventsList({ events }: Props) {
   return (
     <div className="flex flex-col gap-3">
       {filtered.map((ev) => (
-        <div key={ev.id} className="flex gap-3">
+        <div
+          key={ev.id}
+          className="relative overflow-hidden flex gap-3 rounded-lg px-2 py-1.5 -mx-2 border border-transparent transition-all duration-200 hover:bg-white/[0.04] hover:border-white/[0.06] after:absolute after:inset-0 after:pointer-events-none after:rounded-lg after:bg-gradient-to-r after:from-white/[0.04] after:to-transparent after:opacity-0 after:transition-opacity after:duration-200 hover:after:opacity-100"
+        >
           <div className="shrink-0 pt-0.5">
             <span
               className={`inline-block rounded px-1.5 py-0.5 text-xs font-medium ${

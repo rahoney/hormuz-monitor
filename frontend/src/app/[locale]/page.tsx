@@ -15,6 +15,7 @@ import {
   fetchLatestStraitMetric,
   fetchOilPriceSeries,
   fetchLatestMarketSnapshots,
+  fetchMarketHistory,
   fetchRecentEvents,
   fetchTransitSeries,
   fetchGasolinePrices,
@@ -25,10 +26,11 @@ import {
 export default async function DashboardPage() {
   const t = await getTranslations("dashboard");
 
-  const [metric, oilSeries, marketSnapshots, recentEvents, transitSeries, gasolineSeries, trumpPosts, summaryResult] = await Promise.allSettled([
+  const [metric, oilSeries, marketSnapshots, marketHistoryResult, recentEvents, transitSeries, gasolineSeries, trumpPosts, summaryResult] = await Promise.allSettled([
     fetchLatestStraitMetric(),
     fetchOilPriceSeries(["WTI", "BRENT", "NATURAL_GAS"], 90),
     fetchLatestMarketSnapshots(),
+    fetchMarketHistory(30),
     fetchRecentEvents(15),
     fetchTransitSeries(90),
     fetchGasolinePrices(90),
@@ -36,14 +38,15 @@ export default async function DashboardPage() {
     fetchLatestSummary(),
   ]);
 
-  const metricData  = metric.status         === "fulfilled" ? metric.value         : null;
-  const oilData     = oilSeries.status      === "fulfilled" ? oilSeries.value      : [];
-  const marketData  = marketSnapshots.status === "fulfilled" ? marketSnapshots.value : {};
-  const eventsData  = recentEvents.status   === "fulfilled" ? recentEvents.value   : [];
-  const transitData  = transitSeries.status  === "fulfilled" ? transitSeries.value  : [];
-  const gasolineData = gasolineSeries.status === "fulfilled" ? gasolineSeries.value : [];
-  const trumpData    = trumpPosts.status     === "fulfilled" ? trumpPosts.value     : [];
-  const summaryData  = summaryResult.status  === "fulfilled" ? summaryResult.value  : null;
+  const metricData      = metric.status              === "fulfilled" ? metric.value              : null;
+  const oilData         = oilSeries.status           === "fulfilled" ? oilSeries.value           : [];
+  const marketData      = marketSnapshots.status     === "fulfilled" ? marketSnapshots.value     : {};
+  const marketHistory   = marketHistoryResult.status === "fulfilled" ? marketHistoryResult.value : {};
+  const eventsData      = recentEvents.status        === "fulfilled" ? recentEvents.value        : [];
+  const transitData     = transitSeries.status       === "fulfilled" ? transitSeries.value       : [];
+  const gasolineData    = gasolineSeries.status      === "fulfilled" ? gasolineSeries.value      : [];
+  const trumpData       = trumpPosts.status          === "fulfilled" ? trumpPosts.value          : [];
+  const summaryData     = summaryResult.status       === "fulfilled" ? summaryResult.value       : null;
 
   const latestBrent = oilData
     .filter((r) => r.symbol === "BRENT")
@@ -103,7 +106,7 @@ export default async function DashboardPage() {
           <h2 className="inline-block rounded-md border-2 border-blue-400 px-3 py-1 mb-4 text-lg font-bold text-white">
             {t("sections.marketSnapshot")}
           </h2>
-          <MarketSnapshotCards snapshots={marketData} />
+          <MarketSnapshotCards snapshots={marketData} history={marketHistory} />
         </section>
 
         {/* 최근 이벤트 */}
