@@ -87,7 +87,12 @@
     "title": "상황 요약",
     "aiLabel": "AI 요약",
     "updated": "업데이트",
-    "noData": "요약 데이터를 불러오는 중입니다..."
+    "noData": "요약 데이터를 불러오는 중입니다...",
+    "share": "공유",
+    "shareCopied": "복사됨!",
+    "shareSource": "출처: 호르무즈 모니터",
+    "shareService": "호르무즈 모니터",
+    "shareServiceUrl": "https://hormuz-monitor.vercel.app"
   },
   "loading": "로딩 중...",
   "noData": "데이터 없음"

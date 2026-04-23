@@ -87,7 +87,12 @@
     "title": "Situation Summary",
     "aiLabel": "AI Summary",
     "updated": "Updated",
-    "noData": "Loading summary..."
+    "noData": "Loading summary...",
+    "share": "Share",
+    "shareCopied": "Copied!",
+    "shareSource": "Source: Hormuz Monitor",
+    "shareService": "Hormuz Monitor",
+    "shareServiceUrl": "https://hormuz-monitor.vercel.app"
   },
   "loading": "Loading...",
   "noData": "No data"
