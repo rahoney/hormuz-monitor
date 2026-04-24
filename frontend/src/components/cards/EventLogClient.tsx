@@ -29,6 +29,29 @@ export default function EventLogClient({ events }: Props) {
   const locale = useLocale();
   const filtered = locale === "ko" ? events : events.filter((e) => !KO_SOURCES.has(e.source_name ?? ""));
 
+  const eventTypeLabel = (type: string) => {
+    switch (type) {
+      case "attack": return t("filters.attack");
+      case "closure": return t("filters.closure");
+      case "reopening": return t("filters.reopening");
+      case "sanctions": return t("filters.sanctions");
+      case "ceasefire": return t("filters.ceasefire");
+      case "negotiation": return t("filters.negotiation");
+      case "escort_operation": return t("filters.escort_operation");
+      default: return type.replace(/_/g, " ");
+    }
+  };
+
+  const severityLabel = (severity: string) => {
+    switch (severity) {
+      case "critical": return t("severity.critical");
+      case "high": return t("severity.high");
+      case "medium": return t("severity.medium");
+      case "low": return t("severity.low");
+      default: return severity;
+    }
+  };
+
   if (filtered.length === 0) {
     return (
       <div className="rounded-lg border border-slate-700/50 bg-slate-900 p-8 text-center text-sm text-slate-500">
@@ -48,11 +71,11 @@ export default function EventLogClient({ events }: Props) {
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1 flex-wrap">
               <span className={`inline-block rounded px-1.5 py-0.5 text-xs font-medium ${TYPE_COLORS[ev.event_type] ?? "bg-slate-800 text-slate-400"}`}>
-                {t(`filters.${ev.event_type}` as any, { defaultValue: ev.event_type.replace(/_/g, " ") })}
+                {eventTypeLabel(ev.event_type)}
               </span>
               {ev.severity && (
                 <span className={`text-xs ${SEVERITY_COLORS[ev.severity] ?? "text-slate-400"}`}>
-                  {t(`severity.${ev.severity}` as any, { defaultValue: ev.severity })}
+                  {severityLabel(ev.severity)}
                 </span>
               )}
             </div>

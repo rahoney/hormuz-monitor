@@ -3,7 +3,7 @@
 import { useState } from "react";
 import {
   LineChart, Line, XAxis, YAxis, Tooltip,
-  ResponsiveContainer, Legend,
+  ResponsiveContainer,
 } from "recharts";
 import { useTranslations } from "next-intl";
 import type { OilPriceSeries } from "@/types";

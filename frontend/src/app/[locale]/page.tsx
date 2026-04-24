@@ -18,7 +18,6 @@ import {
   fetchLatestStraitMetric,
   fetchOilPriceSeries,
   fetchLatestMarketSnapshots,
-  fetchMarketHistory,
   fetchRecentEvents,
   fetchTransitSeries,
   fetchGasolinePrices,

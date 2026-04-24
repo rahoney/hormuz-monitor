@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import type { CandlestickData, IChartApi, LineData, UTCTimestamp } from "lightweight-charts";
 import type { MarketOHLCV } from "@/types";
 
 type IntradayPoint = { time: string; price: number };
@@ -25,11 +26,11 @@ const CHART_OPTIONS = {
   timeScale: { borderColor: "rgba(51,65,85,0.5)", timeVisible: true },
 };
 
-function prepareIntraday(intraday: IntradayPoint[]): { time: number; value: number }[] {
+function prepareIntraday(intraday: IntradayPoint[]): LineData<UTCTimestamp>[] {
   const seen = new Set<number>();
   return intraday
     .map((d) => ({
-      time: Math.floor(new Date(d.time).getTime() / 1000),
+      time: Math.floor(new Date(d.time).getTime() / 1000) as UTCTimestamp,
       value: d.price,
     }))
     .filter((d) => Number.isFinite(d.time) && d.value != null)
@@ -49,7 +50,7 @@ export default function MarketCustomChart({ symbol, intraday, ohlcv }: Props) {
   useEffect(() => {
     if (!containerRef.current) return;
 
-    let chart: any = null;
+    let chart: IChartApi | null = null;
     let ro: ResizeObserver | null = null;
     let cancelled = false;
 
@@ -80,7 +81,7 @@ export default function MarketCustomChart({ symbol, intraday, ohlcv }: Props) {
           if (chartData.length > 0) {
             const series = chart.addSeries(LineSeries, {
               color: "#3b82f6",
-              lineWidth: 1.5,
+              lineWidth: 2,
             });
             try {
               series.setData(chartData);
@@ -105,7 +106,7 @@ export default function MarketCustomChart({ symbol, intraday, ohlcv }: Props) {
                 high:  d.high,
                 low:   d.low,
                 close: d.close,
-              }))
+              })) as CandlestickData[]
             );
           } catch {
             // 데이터 형식 문제 시 무시

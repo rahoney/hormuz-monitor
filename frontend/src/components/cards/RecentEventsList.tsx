@@ -23,6 +23,18 @@ export default function RecentEventsList({ events }: Props) {
   const te = useTranslations("events");
   const locale = useLocale();
   const filtered = (locale === "ko" ? events : events.filter((e) => !KO_SOURCES.has(e.source_name ?? ""))).slice(0, 5);
+  const eventTypeLabel = (type: string) => {
+    switch (type) {
+      case "attack": return te("filters.attack");
+      case "closure": return te("filters.closure");
+      case "reopening": return te("filters.reopening");
+      case "sanctions": return te("filters.sanctions");
+      case "ceasefire": return te("filters.ceasefire");
+      case "negotiation": return te("filters.negotiation");
+      case "escort_operation": return te("filters.escort_operation");
+      default: return type.replace(/_/g, " ");
+    }
+  };
 
   if (filtered.length === 0) {
     return (
@@ -43,7 +55,7 @@ export default function RecentEventsList({ events }: Props) {
                 TYPE_COLORS[ev.event_type] ?? "bg-slate-800 text-slate-400"
               }`}
             >
-              {te(`filters.${ev.event_type}` as any, { defaultValue: ev.event_type.replace(/_/g, " ") })}
+              {eventTypeLabel(ev.event_type)}
             </span>
           </div>
           <div className="min-w-0 flex-1">

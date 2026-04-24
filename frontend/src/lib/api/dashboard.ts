@@ -1,5 +1,5 @@
 import { supabase } from "@/lib/supabase";
-import type { Event, GasolinePrice, MarketIntraday, MarketOHLCV, MarketSnapshot, OilPriceSeries, RiskScoreHistory, SituationSummary, StraitMetric, TransitRecord, TrumpPost } from "@/types";
+import type { Event, GasolinePrice, MarketOHLCV, MarketSnapshot, OilPriceSeries, RiskScoreHistory, SituationSummary, StraitMetric, TransitRecord, TrumpPost } from "@/types";
 
 export async function fetchLatestSummary(): Promise<SituationSummary | null> {
   const { data } = await supabase

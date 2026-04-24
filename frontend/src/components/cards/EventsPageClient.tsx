@@ -31,7 +31,7 @@ export default function EventsPageClient({ events, trumpPosts }: Props) {
                 : "border-slate-600 text-slate-400 hover:border-slate-400 hover:text-slate-200"
             }`}
           >
-            {t(`tabs.${key}` as any)}
+            {key === "events" ? t("tabs.events") : t("tabs.trump")}
           </button>
         ))}
       </div>

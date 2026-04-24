@@ -100,7 +100,7 @@ export default function HormuzRiskGauge({ vessels, brent, vix, geoScore, history
     { labelKey: "hist1w",  daysAgo: 7  },
     { labelKey: "hist2w",  daysAgo: 14 },
     { labelKey: "hist1m",  daysAgo: 30 },
-  ];
+  ] as const;
 
   return (
     <div className="flex flex-col items-center gap-3 py-2 sm:flex-row sm:items-start sm:justify-center sm:gap-8">
@@ -169,7 +169,7 @@ export default function HormuzRiskGauge({ vessels, brent, vix, geoScore, history
           const diff = past !== null ? score - past : null;
           return (
             <div key={labelKey} className="flex items-center justify-between gap-4 text-sm">
-              <span className="text-slate-300 font-bold" style={{ fontSize: "18px" }}>{t(labelKey as any)}</span>
+              <span className="text-slate-300 font-bold" style={{ fontSize: "18px" }}>{t(labelKey)}</span>
               <div className="flex items-center gap-1.5">
                 {past !== null ? (
                   <>

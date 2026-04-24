@@ -11,28 +11,35 @@ const SYMBOLS = [
 
 type SymbolKey = typeof SYMBOLS[number]["key"];
 
+type TradingViewWindow = Window & {
+  TradingView?: {
+    widget: new (options: Record<string, unknown>) => unknown;
+  };
+};
+
 export default function TradingViewChart() {
   const t = useTranslations("dashboard.oil");
   const [active, setActive] = useState<SymbolKey>("BRENT");
   const containerRef = useRef<HTMLDivElement>(null);
-  const widgetRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (!containerRef.current) return;
+    const container = containerRef.current;
+    if (!container) return;
 
     // 이전 위젯 제거
-    containerRef.current.innerHTML = "";
+    container.innerHTML = "";
 
     const inner = document.createElement("div");
     inner.id = `tv-widget-${active}-${Date.now()}`;
-    containerRef.current.appendChild(inner);
+    container.appendChild(inner);
 
     const script = document.createElement("script");
     script.src = "https://s3.tradingview.com/tv.js";
     script.async = true;
     script.onload = () => {
-      if (!(window as any).TradingView || !containerRef.current) return;
-      new (window as any).TradingView.widget({
+      const tradingView = (window as TradingViewWindow).TradingView;
+      if (!tradingView || !container.isConnected) return;
+      new tradingView.widget({
         container_id: inner.id,
         width: "100%",
         height: 280,
@@ -51,10 +58,10 @@ export default function TradingViewChart() {
         gridColor: "rgba(51,65,85,0.3)",
       });
     };
-    containerRef.current.appendChild(script);
+    container.appendChild(script);
 
     return () => {
-      if (containerRef.current) containerRef.current.innerHTML = "";
+      container.innerHTML = "";
     };
   }, [active]);
 

@@ -90,11 +90,6 @@ export default function GasolinePricesPanel({ data }: Props) {
     .filter((r) => r.area_code === "NUS")
     .map((r) => ({ date: r.price_date.slice(5), price: r.price_usd }));
 
-  // 최신 날짜의 전국 + 지역 + 주별 데이터 (표용)
-  const latestDate = data
-    .filter((r) => r.area_code !== "NUS")
-    .reduce((max, r) => (r.price_date > max ? r.price_date : max), "");
-
   const latestByArea = new Map<string, GasolinePrice>();
   const prevByArea = new Map<string, GasolinePrice>();
 
