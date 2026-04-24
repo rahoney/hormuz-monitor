@@ -1,0 +1,27 @@
+{
+  "title": "관련 이슈",
+  "subtitle": "호르무즈 해협에 영향을 미치는 지정학적 이벤트",
+  "emptyState": "등록된 이벤트가 없습니다",
+  "tabs": {
+    "events": "이벤트",
+    "trump": "트럼프 소셜"
+  },
+  "filters": {
+    "all": "전체",
+    "attack": "공격",
+    "closure": "봉쇄",
+    "reopening": "재개",
+    "sanctions": "제재",
+    "ceasefire": "휴전",
+    "negotiation": "협상",
+    "escort_operation": "호위 작전"
+  },
+  "severity": {
+    "critical": "긴급",
+    "high": "높음",
+    "medium": "보통",
+    "low": "낮음"
+  },
+  "source": "출처",
+  "noSource": "출처 없음"
+}

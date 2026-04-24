@@ -1,0 +1,43 @@
+{
+  "title": "데이터 출처",
+  "subtitle": "데이터는 어디서 가져오나요?",
+  "emptyState": "출처 상세 정보가 여기 표시됩니다",
+  "shipping": {
+    "heading": "선박 통행량",
+    "items": [
+      { "name": "IMF PortWatch", "detail": "ArcGIS REST API를 통한 일별 해협 통과 선박 수. 위성 AIS 기반. 매일 1회 갱신.", "url": "https://portwatch.imf.org" },
+      { "name": "MarineTraffic (지도)", "detail": "iframe으로 임베드된 실시간 AIS 선박 지도. 근실시간 선박 위치 제공.", "url": "https://www.marinetraffic.com" }
+    ]
+  },
+  "oil": {
+    "heading": "유가 및 가스",
+    "items": [
+      { "name": "EIA (미국 에너지정보청)", "detail": "일별 WTI, Brent, 헨리 허브 천연가스 가격. 무료 무제한 API.", "url": "https://www.eia.gov/opendata" },
+      { "name": "TradingView", "detail": "위젯으로 임베드된 실시간 가격 차트 (TVC:USOIL, TVC:UKOIL, CAPITALCOM:NATURALGAS).", "url": "https://www.tradingview.com" }
+    ]
+  },
+  "market": {
+    "heading": "시장 지표",
+    "items": [
+      { "name": "Yahoo Finance (yfinance)", "detail": "VIX(^VIX), 나스닥(^IXIC), S&P 500(^GSPC), KOSPI(^KS11), KOSDAQ(^KQ11) 일별 종가 및 변동률.", "url": "https://finance.yahoo.com" }
+    ]
+  },
+  "events": {
+    "heading": "지정학적 이벤트",
+    "items": [
+      { "name": "알자지라 RSS", "detail": "중동 헤드라인. 키워드 기반 자동 분류.", "url": "https://www.aljazeera.com" },
+      { "name": "BBC 중동 RSS", "detail": "BBC 뉴스의 중동 헤드라인.", "url": "https://www.bbc.com/news/world/middle_east" },
+      { "name": "아나돌루통신 RSS", "detail": "터키 국영 통신사의 지역 뉴스.", "url": "https://www.aa.com.tr/en" }
+    ]
+  },
+  "updateFrequency": {
+    "heading": "갱신 주기",
+    "rows": [
+      { "source": "선박 통행량 (PortWatch)", "frequency": "매일 02:00 UTC" },
+      { "source": "유가 (EIA)", "frequency": "매일 06:00 UTC" },
+      { "source": "시장 지표 (yfinance)", "frequency": "매일 07:00 UTC" },
+      { "source": "이벤트 (RSS)", "frequency": "6시간마다" }
+    ]
+  },
+  "disclaimer": "모든 데이터는 공개 API 및 피드에서 수집됩니다. Hormuz Monitor는 위에 나열된 데이터 제공자와 제휴 관계가 없습니다."
+}

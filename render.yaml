@@ -1,0 +1,161 @@
+services:
+  # FastAPI 백엔드 웹 서비스
+  - type: web
+    name: hormuz-api
+    runtime: python
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn api.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: DATABASE_URL
+        sync: false
+
+  # 유가 수집 잡 (EIA API → Supabase, 매일 06:00 UTC)
+  - type: cron
+    name: hormuz-oil-ingest
+    runtime: python
+    rootDir: backend
+    schedule: "0 6 * * *"
+    buildCommand: pip install -r requirements.txt
+    startCommand: python -m jobs.oil_ingest
+    envVars:
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+
+  # 시장 지표 수집 잡 (5분 단위 실시간, 장중/장후 시간대만 수집)
+  - type: cron
+    name: hormuz-market-ingest
+    runtime: python
+    rootDir: backend
+    schedule: "*/5 * * * *"
+    buildCommand: pip install -r requirements.txt
+    startCommand: python -m jobs.market_ingest
+    envVars:
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+
+  # 이벤트/RSS 수집 잡 (매 1시간)
+  - type: cron
+    name: hormuz-events-ingest
+    runtime: python
+    rootDir: backend
+    schedule: "0 * * * *"
+    buildCommand: pip install -r requirements.txt
+    startCommand: python -m jobs.events_ingest
+    envVars:
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+
+  # PortWatch 통행량 수집 잡 (IMF ArcGIS, 매일 02:00 UTC — PortWatch는 전날 데이터를 익일 공개)
+  - type: cron
+    name: hormuz-portwatch-ingest
+    runtime: python
+    rootDir: backend
+    schedule: "0 2 * * *"
+    buildCommand: pip install -r requirements.txt
+    startCommand: python -m jobs.portwatch_ingest
+    envVars:
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+
+  # 트럼프 소셜 미디어 수집 잡 (매 2시간 :00분)
+  - type: cron
+    name: hormuz-trump-ingest
+    runtime: python
+    rootDir: backend
+    schedule: "0 */2 * * *"
+    buildCommand: pip install -r requirements.txt
+    startCommand: python -m jobs.trump_ingest
+    envVars:
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+
+  # 트럼프 포스트 한국어 번역 잡 (매 2시간 :05분, 수집 직후)
+  - type: cron
+    name: hormuz-trump-translate
+    runtime: python
+    rootDir: backend
+    schedule: "5 */2 * * *"
+    buildCommand: pip install -r requirements.txt
+    startCommand: python -m jobs.trump_translate
+    envVars:
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: GOOGLE_GEMINI_API_KEY
+        sync: false
+
+  # 휘발유 가격 수집 잡 (EIA 주간 데이터, 매주 화요일 08:00 UTC — EIA 월요일 발표)
+  - type: cron
+    name: hormuz-gasoline-ingest
+    runtime: python
+    rootDir: backend
+    schedule: "0 8 * * 2"
+    buildCommand: pip install -r requirements.txt
+    startCommand: python -m jobs.gasoline_ingest
+    envVars:
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: EIA_API_KEY
+        sync: false
+
+  # 상황 요약 생성 잡 (Gemini, 매 1시간 :10분 — 뉴스 수집 직후)
+  - type: cron
+    name: hormuz-situation-summary
+    runtime: python
+    rootDir: backend
+    schedule: "10 * * * *"
+    buildCommand: pip install -r requirements.txt
+    startCommand: python -m jobs.situation_summary_ingest
+    envVars:
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: GOOGLE_GEMINI_API_KEY
+        sync: false
+
+  # 오래된 데이터 정리 잡 (매일 03:00 UTC, 10일 이상 삭제)
+  - type: cron
+    name: hormuz-data-cleanup
+    runtime: python
+    rootDir: backend
+    schedule: "0 3 * * *"
+    buildCommand: pip install -r requirements.txt
+    startCommand: python -m jobs.data_cleanup
+    envVars:
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+
+  # summary 재계산 잡 (매 15분, 선박 수집 직후)
+  - type: cron
+    name: hormuz-summary-rebuild
+    runtime: python
+    rootDir: backend
+    schedule: "5,20,35,50 * * * *"
+    buildCommand: pip install -r requirements.txt
+    startCommand: python -m jobs.summary_rebuild
+    envVars:
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false

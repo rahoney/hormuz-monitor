@@ -1,0 +1,105 @@
+{
+  "title": "Hormuz Strait Monitor",
+  "subtitle": "Real-time vessel traffic, oil prices, and geopolitical events",
+  "cards": {
+    "straitStatus": "Strait Status",
+    "vesselCount": "Active Vessels",
+    "lngVessels": "LNG Tankers",
+    "crudeVessels": "Crude Tankers",
+    "inlandEntry": "Inland Entry",
+    "offshoreExit": "Offshore Exit",
+    "oilPrice": "Brent Crude",
+    "riskLevel": "Risk Level",
+    "insideStrait": "Inside Strait",
+    "persianGulf": "Persian Gulf",
+    "arabianSea": "Arabian Sea"
+  },
+  "sections": {
+    "statusCards": "Current Status",
+    "transitFlow": "Transit Flow (90 days)",
+    "oilPrices": "Oil Prices (90-day history)",
+    "oilRealtime": "Oil Prices (Real-time · TradingView)",
+    "transitOilComparison": "Transit vs Oil Price (90 days)",
+    "marketSnapshot": "Market Snapshot",
+    "recentEvents": "Related Issues"
+  },
+  "map": {
+    "title": "Strait Map",
+    "placeholder": "Live vessel map",
+    "map1": "Map 1",
+    "map2": "Map 2"
+  },
+  "oil": {
+    "wti": "WTI",
+    "brent": "Brent",
+    "naturalGas": "Natural Gas",
+    "perBbl": "USD/bbl",
+    "perMmbtu": "USD/MMBtu",
+    "realtimeWidget": "Real-time"
+  },
+  "transit": {
+    "comparison": "Transit + Oil",
+    "total": "Total",
+    "breakdown": "By Type",
+    "brent": "Brent",
+    "totalVessels": "Total Vessels",
+    "tanker": "Tanker",
+    "container": "Container",
+    "dryBulk": "Dry Bulk",
+    "general": "General Cargo",
+    "noData": "No transit data"
+  },
+  "events": {
+    "viewAll": "View all events →",
+    "noEvents": "No recent events"
+  },
+  "status": {
+    "normal": "Normal",
+    "restricted": "Restricted",
+    "highRisk": "High Risk",
+    "unknown": "Unknown"
+  },
+  "trump": {
+    "title": "Trump Social Media",
+    "noData": "No posts available",
+    "viewOriginal": "View original"
+  },
+  "gasoline": {
+    "title": "U.S. Gasoline Prices",
+    "national": "National Avg",
+    "state": "By Region / State",
+    "pricePerGallon": "$/gallon",
+    "area": "Area",
+    "price": "Price ($/gal)",
+    "weekChange": "Wk Change",
+    "region": "region",
+    "noData": "No gasoline price data"
+  },
+  "gauge": {
+    "title": "Hormuz Risk Index",
+    "safe": "SAFE",
+    "caution": "CAUTION",
+    "warning": "WARNING",
+    "danger": "DANGER",
+    "vessels": "Vessels",
+    "geoLabel": "Geopolitical Tension",
+    "histLabel": "Historical",
+    "hist1d": "Yesterday",
+    "hist1w": "1W ago",
+    "hist2w": "2W ago",
+    "hist1m": "1M ago"
+  },
+  "summary": {
+    "title": "Situation Summary",
+    "aiLabel": "AI Summary",
+    "updated": "Updated",
+    "noData": "Loading summary...",
+    "share": "Share",
+    "shareCopied": "Copied!",
+    "shareSource": "Source: Hormuz Monitor",
+    "shareService": "Hormuz Monitor",
+    "shareServiceUrl": "https://hormuz-monitor.vercel.app"
+  },
+  "loading": "Loading...",
+  "noData": "No data"
+}

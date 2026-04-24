@@ -1,0 +1,43 @@
+{
+  "title": "Data Sources",
+  "subtitle": "Where does the data come from?",
+  "emptyState": "Source details will appear here",
+  "shipping": {
+    "heading": "Vessel Traffic",
+    "items": [
+      { "name": "IMF PortWatch", "detail": "Daily chokepoint transit counts via ArcGIS REST API. Satellite AIS-based. Updated once per day.", "url": "https://portwatch.imf.org" },
+      { "name": "MarineTraffic (map)", "detail": "Live AIS vessel map embedded via iframe. Real-time vessel positions.", "url": "https://www.marinetraffic.com" }
+    ]
+  },
+  "oil": {
+    "heading": "Oil & Gas Prices",
+    "items": [
+      { "name": "EIA (U.S. Energy Information Administration)", "detail": "Daily WTI, Brent, and Henry Hub Natural Gas prices. Free, unlimited API.", "url": "https://www.eia.gov/opendata" },
+      { "name": "TradingView", "detail": "Real-time price charts embedded via widget (TVC:USOIL, TVC:UKOIL, CAPITALCOM:NATURALGAS).", "url": "https://www.tradingview.com" }
+    ]
+  },
+  "market": {
+    "heading": "Market Indicators",
+    "items": [
+      { "name": "Yahoo Finance (yfinance)", "detail": "Daily closing prices and change % for VIX (^VIX), Nasdaq (^IXIC), S&P 500 (^GSPC), KOSPI (^KS11), KOSDAQ (^KQ11).", "url": "https://finance.yahoo.com" }
+    ]
+  },
+  "events": {
+    "heading": "Geopolitical Events",
+    "items": [
+      { "name": "Al Jazeera RSS", "detail": "Middle East headlines, auto-classified by keyword.", "url": "https://www.aljazeera.com" },
+      { "name": "BBC Middle East RSS", "detail": "Middle East headlines from BBC News.", "url": "https://www.bbc.com/news/world/middle_east" },
+      { "name": "Anadolu Agency RSS", "detail": "Regional news from Turkey's state news agency.", "url": "https://www.aa.com.tr/en" }
+    ]
+  },
+  "updateFrequency": {
+    "heading": "Update Frequency",
+    "rows": [
+      { "source": "Vessel transit (PortWatch)", "frequency": "Daily at 02:00 UTC" },
+      { "source": "Oil prices (EIA)", "frequency": "Daily at 06:00 UTC" },
+      { "source": "Market indicators (yfinance)", "frequency": "Daily at 07:00 UTC" },
+      { "source": "Events (RSS)", "frequency": "Every 6 hours" }
+    ]
+  },
+  "disclaimer": "All data is sourced from publicly available APIs and feeds. Hormuz Monitor is not affiliated with any of the data providers listed above."
+}

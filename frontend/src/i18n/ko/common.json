@@ -1,0 +1,19 @@
+{
+  "nav": {
+    "dashboard": "대시보드",
+    "events": "관련 이슈",
+    "about": "소개"
+  },
+  "footer": {
+    "copyright": "© 2026 Hormuz Monitor by WikiHoney. All rights reserved.",
+    "supportText": "이 프로젝트를 응원하고 싶다면",
+    "supportKr": "한국 후원",
+    "supportGlobal": "Global Support"
+  },
+  "status": {
+    "loading": "로딩 중...",
+    "noData": "데이터 없음",
+    "error": "데이터 로드 실패",
+    "lastUpdated": "마지막 업데이트"
+  }
+}

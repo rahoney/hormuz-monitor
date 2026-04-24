@@ -3,8 +3,11 @@ docs/
 
 # Claude Code
 CLAUDE.md
+CLAUDE
 AGENTS.md
 .claude/
+.codex
+.codex/
 
 # Environment variables
 .env
@@ -18,6 +21,7 @@ __pycache__/
 *.pyo
 .venv/
 *.egg-info/
+backend/test_translate.py
 
 # Node
 node_modules/
@@ -32,3 +36,6 @@ Thumbs.db
 .idea/
 .vscode/
 *.swp
+
+# 임시 테스트 폴더 (깃허브 업로드 제외)
+tmp_test/
