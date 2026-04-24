@@ -1,5 +1,6 @@
 """yfinance에서 시장 지표 스냅샷·5분봉·일봉 OHLCV를 수집한다."""
 from datetime import date, timedelta
+import math
 from typing import Any
 import yfinance as yf
 
@@ -14,14 +15,20 @@ _SYMBOLS: list[dict[str, str]] = [
 ]
 
 
+def _finite_float(value: Any) -> float | None:
+    raw = value.iloc[0] if hasattr(value, "iloc") else value
+    try:
+        number = float(raw)
+    except (TypeError, ValueError):
+        return None
+    return number if math.isfinite(number) else None
+
+
 def collect_ohlcv(days: int = 35) -> list[dict[str, Any]]:
     """일봉 OHLCV 수집 (최근 N일)."""
     end = date.today()
     start = end - timedelta(days=days)
     records: list[dict[str, Any]] = []
-
-    def _val(v: Any) -> float:
-        return float(v.iloc[0]) if hasattr(v, "iloc") else float(v)
 
     for s in _SYMBOLS:
         try:
@@ -30,13 +37,19 @@ def collect_ohlcv(days: int = 35) -> list[dict[str, Any]]:
             if df.empty:
                 continue
             for ts, row in df.iterrows():
+                open_price = _finite_float(row["Open"])
+                high = _finite_float(row["High"])
+                low = _finite_float(row["Low"])
+                close = _finite_float(row["Close"])
+                if None in (open_price, high, low, close):
+                    continue
                 records.append({
                     "symbol":     s["symbol"],
                     "price_date": ts.date().isoformat() if hasattr(ts, "date") else str(ts)[:10],
-                    "open":       round(_val(row["Open"]),  4),
-                    "high":       round(_val(row["High"]),  4),
-                    "low":        round(_val(row["Low"]),   4),
-                    "close":      round(_val(row["Close"]), 4),
+                    "open":       round(open_price, 4),
+                    "high":       round(high, 4),
+                    "low":        round(low, 4),
+                    "close":      round(close, 4),
                     "source":     "yfinance",
                 })
         except Exception:
@@ -56,10 +69,13 @@ def collect_intraday() -> list[dict[str, Any]]:
             if hist.empty:
                 continue
             for ts, row in hist.iterrows():
+                close = _finite_float(row["Close"])
+                if close is None:
+                    continue
                 records.append({
                     "symbol":      s["symbol"],
                     "recorded_at": ts.isoformat(),
-                    "price":       round(float(row["Close"]), 4),
+                    "price":       round(close, 4),
                     "source":      "yfinance",
                 })
         except Exception:
@@ -77,12 +93,15 @@ def collect_live() -> list[dict[str, Any]]:
             hist = ticker.history(period="5d", interval="1d")
             if hist.empty:
                 continue
-            latest_price = float(hist["Close"].iloc[-1])
+            latest_price = _finite_float(hist["Close"].iloc[-1])
+            if latest_price is None:
+                continue
             chg = None
             if len(hist) >= 2:
-                prev_close = float(hist["Close"].iloc[-2])
+                prev_close = _finite_float(hist["Close"].iloc[-2])
                 if prev_close:
-                    chg = round((latest_price - prev_close) / prev_close * 100, 4)
+                    raw_chg = (latest_price - prev_close) / prev_close * 100
+                    chg = round(raw_chg, 4) if math.isfinite(raw_chg) else None
             records.append({
                 "symbol":        s["symbol"],
                 "snapshot_date": today,
@@ -103,13 +122,15 @@ def collect(start: date, end: date) -> list[dict[str, Any]]:
             continue
         df["pct_change"] = df["Close"].pct_change() * 100
         for ts, row in df.iterrows():
-            close = float(row["Close"].iloc[0]) if hasattr(row["Close"], "iloc") else float(row["Close"])
-            chg = float(row["pct_change"].iloc[0]) if hasattr(row["pct_change"], "iloc") else float(row["pct_change"])
+            close = _finite_float(row["Close"])
+            if close is None:
+                continue
+            chg = _finite_float(row["pct_change"])
             records.append({
                 "symbol":        s["symbol"],
                 "snapshot_date": ts.date().isoformat(),
                 "price":         round(close, 4),
-                "change_pct":    None if chg != chg else round(chg, 4),  # NaN → None
+                "change_pct":    None if chg is None else round(chg, 4),
                 "source":        "yfinance",
             })
     return records
