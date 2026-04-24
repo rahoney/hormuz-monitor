@@ -16,6 +16,7 @@ import TrumpPostsFeed from "@/components/cards/TrumpPostsFeed";
 import SituationSummaryCard from "@/components/cards/SituationSummaryCard";
 import {
   fetchLatestStraitMetric,
+  fetchWeeklyTransitSummary,
   fetchOilPriceSeries,
   fetchLatestMarketSnapshots,
   fetchRecentEvents,
@@ -31,8 +32,9 @@ import {
 export default async function DashboardPage() {
   const t = await getTranslations("dashboard");
 
-  const [metric, oilSeries, marketSnapshots, marketIntradayResult, marketOHLCVResult, recentEvents, transitSeries, gasolineSeries, trumpPosts, summaryResult, riskHistoryResult] = await Promise.allSettled([
+  const [metric, weeklyTransit, oilSeries, marketSnapshots, marketIntradayResult, marketOHLCVResult, recentEvents, transitSeries, gasolineSeries, trumpPosts, summaryResult, riskHistoryResult] = await Promise.allSettled([
     fetchLatestStraitMetric(),
+    fetchWeeklyTransitSummary(),
     fetchOilPriceSeries(["WTI", "BRENT", "NATURAL_GAS"], 90),
     fetchLatestMarketSnapshots(),
     fetchMarketIntraday(),
@@ -46,6 +48,7 @@ export default async function DashboardPage() {
   ]);
 
   const metricData      = metric.status              === "fulfilled" ? metric.value              : null;
+  const weeklyTransitData = weeklyTransit.status     === "fulfilled" ? weeklyTransit.value       : null;
   const oilData         = oilSeries.status           === "fulfilled" ? oilSeries.value           : [];
   const marketData      = marketSnapshots.status     === "fulfilled" ? marketSnapshots.value     : {};
   const marketHistory   = marketIntradayResult.status === "fulfilled" ? marketIntradayResult.value : {};
@@ -81,7 +84,7 @@ export default async function DashboardPage() {
         {/* 호르무즈 위험 지수 게이지 */}
         <Card title={t("gauge.title")}>
           <HormuzRiskGauge
-            vessels={metricData?.total_vessels ?? null}
+            vessels={weeklyTransitData?.total_vessels ?? metricData?.total_vessels ?? null}
             brent={latestBrent}
             vix={latestVix}
             geoScore={summaryData?.geo_score ?? null}
@@ -92,9 +95,9 @@ export default async function DashboardPage() {
         {/* 현재 상태 카드 */}
         <section className="rounded-lg border border-slate-700/50 bg-slate-900 p-4">
           <h2 className="inline-block rounded-md border-2 border-blue-400 px-3 py-1 mb-4 text-lg font-bold text-white">
-            {t("sections.statusCards")}
+            {t("sections.weeklyTransit")}
           </h2>
-          <CurrentStatusCards metric={metricData} />
+          <CurrentStatusCards summary={weeklyTransitData} />
         </section>
 
         {/* 지도 */}

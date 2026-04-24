@@ -66,6 +66,9 @@ def _direction_status(cog: float | None, zone: str) -> str:
 
 
 async def _collect_async(max_vessels: int = 200) -> list[dict[str, Any]]:
+    if not _API_KEY:
+        raise RuntimeError("환경변수 누락: AISSTREAM_API_KEY")
+
     records: list[dict[str, Any]] = []
     sub = {
         "APIKey": _API_KEY,
@@ -74,57 +77,54 @@ async def _collect_async(max_vessels: int = 200) -> list[dict[str, Any]]:
     }
     static: dict[str, dict] = {}
 
-    try:
-        async with websockets.connect("wss://stream.aisstream.io/v0/stream", open_timeout=15) as ws:
-            await ws.send(json.dumps(sub))
-            deadline = asyncio.get_event_loop().time() + _TIMEOUT_SECONDS
-            while asyncio.get_event_loop().time() < deadline and len(records) < max_vessels:
-                try:
-                    raw = await asyncio.wait_for(ws.recv(), timeout=5.0)
-                except asyncio.TimeoutError:
-                    break
-                msg = json.loads(raw)
-                mtype = msg.get("MessageType", "")
+    async with websockets.connect("wss://stream.aisstream.io/v0/stream", open_timeout=15) as ws:
+        await ws.send(json.dumps(sub))
+        deadline = asyncio.get_event_loop().time() + _TIMEOUT_SECONDS
+        while asyncio.get_event_loop().time() < deadline and len(records) < max_vessels:
+            try:
+                raw = await asyncio.wait_for(ws.recv(), timeout=5.0)
+            except asyncio.TimeoutError:
+                break
+            msg = json.loads(raw)
+            mtype = msg.get("MessageType", "")
 
-                if mtype == "ShipStaticData":
-                    mmsi = str(msg.get("MetaData", {}).get("MMSI", ""))
-                    meta = msg.get("Message", {}).get("ShipStaticData", {})
-                    static[mmsi] = {
-                        "ship_name":      meta.get("Name", "").strip(),
-                        "ship_type_code": meta.get("Type"),
-                    }
+            if mtype == "ShipStaticData":
+                mmsi = str(msg.get("MetaData", {}).get("MMSI", ""))
+                meta = msg.get("Message", {}).get("ShipStaticData", {})
+                static[mmsi] = {
+                    "ship_name":      meta.get("Name", "").strip(),
+                    "ship_type_code": meta.get("Type"),
+                }
 
-                elif mtype == "PositionReport":
-                    meta = msg.get("MetaData", {})
-                    pos = msg.get("Message", {}).get("PositionReport", {})
-                    mmsi = str(meta.get("MMSI", ""))
-                    lat = pos.get("Latitude")
-                    lng = pos.get("Longitude")
-                    if lat is None or lng is None:
-                        continue
+            elif mtype == "PositionReport":
+                meta = msg.get("MetaData", {})
+                pos = msg.get("Message", {}).get("PositionReport", {})
+                mmsi = str(meta.get("MMSI", ""))
+                lat = pos.get("Latitude")
+                lng = pos.get("Longitude")
+                if lat is None or lng is None:
+                    continue
 
-                    sdata = static.get(mmsi, {})
-                    type_code = sdata.get("ship_type_code")
-                    zone = _zone_status(lat, lng)
-                    cog = pos.get("Cog")
+                sdata = static.get(mmsi, {})
+                type_code = sdata.get("ship_type_code")
+                zone = _zone_status(lat, lng)
+                cog = pos.get("Cog")
 
-                    records.append({
-                        "mmsi":             mmsi,
-                        "ship_name":        sdata.get("ship_name"),
-                        "ship_type_code":   type_code,
-                        "ship_type_label":  _classify_ship(type_code),
-                        "lat":              lat,
-                        "lng":              lng,
-                        "speed_knots":      pos.get("Sog"),
-                        "course_deg":       cog,
-                        "heading_deg":      pos.get("TrueHeading"),
-                        "zone_status":      zone,
-                        "direction_status": _direction_status(cog, zone),
-                        "source":           "aisstream",
-                        "raw_timestamp":    meta.get("time_utc") or datetime.now(timezone.utc).isoformat(),
-                    })
-    except Exception:
-        pass  # 연결 실패 시 빈 리스트 반환 — 봉쇄로 0건도 정상
+                records.append({
+                    "mmsi":             mmsi,
+                    "ship_name":        sdata.get("ship_name"),
+                    "ship_type_code":   type_code,
+                    "ship_type_label":  _classify_ship(type_code),
+                    "lat":              lat,
+                    "lng":              lng,
+                    "speed_knots":      pos.get("Sog"),
+                    "course_deg":       cog,
+                    "heading_deg":      pos.get("TrueHeading"),
+                    "zone_status":      zone,
+                    "direction_status": _direction_status(cog, zone),
+                    "source":           "aisstream",
+                    "raw_timestamp":    meta.get("time_utc") or datetime.now(timezone.utc).isoformat(),
+                })
 
     return records
 

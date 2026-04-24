@@ -5,7 +5,7 @@ import { useTranslations } from "next-intl";
 
 type Props = { text: string };
 
-const SERVICE_URL = "https://hormuz-monitor.vercel.app";
+const SERVICE_URL = "https://www.hrmz.today";
 
 export default function ShareSummaryButton({ text }: Props) {
   const t = useTranslations("dashboard.summary");

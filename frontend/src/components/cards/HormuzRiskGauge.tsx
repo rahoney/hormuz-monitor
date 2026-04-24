@@ -139,7 +139,6 @@ export default function HormuzRiskGauge({ vessels, brent, vix, geoScore, history
         <div className="flex flex-wrap justify-center gap-3 text-sm text-slate-400">
           <span>
             {t("vessels")}: <span className="font-medium text-blue-400">{vessels ?? "—"}</span>
-            <span className="text-slate-500">/70</span>
           </span>
           <span>
             Brent: <span className="font-medium text-blue-400">
@@ -154,7 +153,7 @@ export default function HormuzRiskGauge({ vessels, brent, vix, geoScore, history
           {geoScore != null && (
             <span>
               {t("geoLabel")}: <span className="font-medium" style={{ color: geoRawColor(geoScore) }}>
-                {geoScore}/30
+                {geoScore}
               </span>
             </span>
           )}

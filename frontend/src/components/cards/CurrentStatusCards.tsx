@@ -3,44 +3,57 @@
 import { useTranslations } from "next-intl";
 import StatusCard from "./StatusCard";
 import { statusLevelColor, statusLevelLabel } from "@/lib/formatters";
-import type { StraitMetric } from "@/types";
+import type { WeeklyTransitSummary } from "@/types";
 
-type Props = { metric: StraitMetric | null };
+type Props = { summary: WeeklyTransitSummary | null };
 
-export default function CurrentStatusCards({ metric }: Props) {
+export default function CurrentStatusCards({ summary }: Props) {
   const t = useTranslations("dashboard");
 
-  const status = metric?.status_level ?? "unknown";
+  const status = summary?.status_level ?? "unknown";
 
   return (
-    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+    <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-8">
       <StatusCard
         label={t("cards.straitStatus")}
         value={statusLevelLabel(status)}
         valueClassName={statusLevelColor(status)}
+        sub={summary?.source === "aisstream_estimate" ? t("cards.estimated") : t("cards.confirmed")}
       />
       <StatusCard
         label={t("cards.vesselCount")}
-        value={metric?.total_vessels ?? "—"}
-        sub={t("cards.insideStrait")}
+        value={summary?.total_vessels ?? "—"}
+        sub={t("cards.weeklyAverage")}
       />
       <StatusCard
-        label={t("cards.lngVessels")}
-        value={metric?.lng_vessels ?? "—"}
+        label={t("cards.tankerVessels")}
+        value={summary?.tanker_vessels ?? "—"}
+        sub={t("cards.weeklyAverage")}
       />
       <StatusCard
-        label={t("cards.crudeVessels")}
-        value={metric?.crude_vessels ?? "—"}
+        label={t("cards.containerVessels")}
+        value={summary?.container_vessels ?? "—"}
+        sub={t("cards.weeklyAverage")}
+      />
+      <StatusCard
+        label={t("cards.dryBulkVessels")}
+        value={summary?.dry_bulk_vessels ?? "—"}
+        sub={t("cards.weeklyAverage")}
+      />
+      <StatusCard
+        label={t("cards.generalCargoVessels")}
+        value={summary?.general_cargo_vessels ?? "—"}
+        sub={t("cards.weeklyAverage")}
       />
       <StatusCard
         label={t("cards.inlandEntry")}
-        value={metric?.inland_entry_count ?? "—"}
-        sub={t("cards.persianGulf")}
+        value={summary?.inland_entry_count ?? "—"}
+        sub={t("cards.aisEstimated")}
       />
       <StatusCard
         label={t("cards.offshoreExit")}
-        value={metric?.offshore_exit_count ?? "—"}
-        sub={t("cards.arabianSea")}
+        value={summary?.offshore_exit_count ?? "—"}
+        sub={t("cards.aisEstimated")}
       />
     </div>
   );

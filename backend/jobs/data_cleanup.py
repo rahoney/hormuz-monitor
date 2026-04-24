@@ -33,15 +33,15 @@ def run() -> None:
     logger.info("데이터 정리 시작 (기준: %s일 이전)", _RETENTION_DAYS)
 
     try:
-        cutoff_30 = (datetime.now(timezone.utc) - timedelta(days=30)).date().isoformat()
+        cutoff_40 = (datetime.now(timezone.utc) - timedelta(days=40)).date().isoformat()
         cutoff_intraday = (datetime.now(timezone.utc) - timedelta(days=3)).isoformat()
         targets = [
             ("situation_summaries",  "generated_at", cutoff),
             ("events",               "published_at",  cutoff),
             ("trump_posts",          "post_date",     cutoff_date),
-            ("risk_score_history",   "score_date",    cutoff_30),
+            ("risk_score_history",   "score_date",    cutoff_40),
             ("market_intraday",      "recorded_at",   cutoff_intraday),
-            ("market_ohlcv",         "price_date",    cutoff_30),
+            ("market_ohlcv",         "price_date",    cutoff_40),
         ]
         for table, col, cut in targets:
             _delete_old(table, col, cut)

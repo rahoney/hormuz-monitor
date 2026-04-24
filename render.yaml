@@ -58,7 +58,7 @@ services:
       - key: SUPABASE_SERVICE_ROLE_KEY
         sync: false
 
-  # PortWatch 통행량 수집 잡 (IMF ArcGIS, 매일 02:00 UTC — PortWatch는 전날 데이터를 익일 공개)
+  # PortWatch 통행량 수집 잡 (IMF ArcGIS, 매일 확인 — 원본은 주간 배치 지연 가능)
   - type: cron
     name: hormuz-portwatch-ingest
     runtime: python
@@ -70,6 +70,22 @@ services:
       - key: SUPABASE_URL
         sync: false
       - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+
+  # AISStream 실시간 선박 위치 수집 잡 (PortWatch 미공개 최근일 추정치 생성)
+  - type: cron
+    name: hormuz-shipping-ingest
+    runtime: python
+    rootDir: backend
+    schedule: "*/15 * * * *"
+    buildCommand: pip install -r requirements.txt
+    startCommand: python -m jobs.shipping_ingest
+    envVars:
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: AISSTREAM_API_KEY
         sync: false
 
   # 트럼프 소셜 미디어 수집 잡 (매 2시간 :00분)

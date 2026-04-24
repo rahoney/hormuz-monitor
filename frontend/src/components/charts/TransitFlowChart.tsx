@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import {
-  BarChart, Bar, XAxis, YAxis, Tooltip,
+  BarChart, Bar, XAxis, YAxis, Tooltip, Cell,
   ResponsiveContainer, Legend,
 } from "recharts";
 import { useTranslations } from "next-intl";
@@ -19,10 +19,13 @@ export default function TransitFlowChart({ records }: Props) {
   const data = records.map((r) => ({
     date: r.transit_date.slice(5),
     total: r.n_total,
+    offshore: Math.min(r.offshore_exit_count ?? 0, r.n_total),
+    nonOffshore: Math.max(r.n_total - (r.offshore_exit_count ?? 0), 0),
     tanker: r.n_tanker,
     container: r.n_container,
     dry_bulk: r.n_dry_bulk,
     general: r.n_general_cargo,
+    estimated: r.source === "aisstream_estimate",
   }));
 
   return (
@@ -65,9 +68,20 @@ export default function TransitFlowChart({ records }: Props) {
             <Tooltip
               contentStyle={{ background: "#1e293b", border: "1px solid #334155", borderRadius: 6 }}
               labelStyle={{ color: "#94a3b8", fontSize: 11 }}
+              labelFormatter={(label, payload) => {
+                const estimated = payload?.[0]?.payload?.estimated;
+                return `${label} · ${estimated ? t("estimated") : t("confirmed")}`;
+              }}
             />
             {active === "total" ? (
-              <Bar dataKey="total" fill="#60a5fa" radius={[2, 2, 0, 0]} name={t("totalVessels")} />
+              <>
+              <Bar dataKey="offshore" stackId="transit" fill="#92400e" radius={[0, 0, 0, 0]} name={t("offshoreExitEstimate")} />
+              <Bar dataKey="nonOffshore" stackId="transit" fill="#60a5fa" radius={[2, 2, 0, 0]} name={t("totalVessels")}>
+                {data.map((entry) => (
+                  <Cell key={entry.date} fill={entry.estimated ? "#f59e0b" : "#60a5fa"} />
+                ))}
+              </Bar>
+              </>
             ) : (
               <>
                 <Bar dataKey="tanker"    fill="#f87171" stackId="a" radius={[0, 0, 0, 0]} name={t("tanker")} />
