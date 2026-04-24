@@ -163,14 +163,13 @@ export default function HormuzRiskGauge({ vessels, brent, vix, geoScore, history
 
       {/* 과거 비교 */}
       <div className="flex flex-col gap-2 min-w-[120px]">
-        <p className="text-xs text-slate-500 font-medium mb-1">{t("histLabel")}</p>
         {comparisons.map(({ labelKey, daysAgo }) => {
           const row = findClosest(history, daysAgo);
           const past = row ? Math.round(row.total_score) : null;
           const diff = past !== null ? score - past : null;
           return (
             <div key={labelKey} className="flex items-center justify-between gap-4 text-sm">
-              <span className="text-slate-500 text-xs">{t(labelKey as any)}</span>
+              <span className="text-slate-300 font-bold" style={{ fontSize: "18px" }}>{t(labelKey as any)}</span>
               <div className="flex items-center gap-1.5">
                 {past !== null ? (
                   <>

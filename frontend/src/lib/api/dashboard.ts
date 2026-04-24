@@ -1,5 +1,5 @@
 import { supabase } from "@/lib/supabase";
-import type { Event, GasolinePrice, MarketSnapshot, OilPriceSeries, RiskScoreHistory, SituationSummary, StraitMetric, TransitRecord, TrumpPost } from "@/types";
+import type { Event, GasolinePrice, MarketIntraday, MarketOHLCV, MarketSnapshot, OilPriceSeries, RiskScoreHistory, SituationSummary, StraitMetric, TransitRecord, TrumpPost } from "@/types";
 
 export async function fetchLatestSummary(): Promise<SituationSummary | null> {
   const { data } = await supabase
@@ -62,7 +62,7 @@ export async function fetchLatestOilPrices(): Promise<Record<string, OilPriceSer
 }
 
 export async function fetchLatestMarketSnapshots(): Promise<Record<string, MarketSnapshot>> {
-  const symbols = ["VIX", "NASDAQ", "SP500", "KOSPI", "KOSDAQ"];
+  const symbols = ["VIX", "NASDAQ", "SP500", "KOSPI", "KOSDAQ", "ES_FUTURES", "NQ_FUTURES", "VKOSPI"];
   const result: Record<string, MarketSnapshot> = {};
   for (const symbol of symbols) {
     const { data } = await supabase
@@ -77,9 +77,51 @@ export async function fetchLatestMarketSnapshots(): Promise<Record<string, Marke
   return result;
 }
 
+export async function fetchMarketIntraday(): Promise<Record<string, { time: string; price: number }[]>> {
+  const since = new Date(Date.now() - 2 * 86_400_000).toISOString();
+  const symbols = ["VIX", "NASDAQ", "SP500", "KOSPI", "KOSDAQ", "ES_FUTURES", "NQ_FUTURES"];
+
+  // 심볼별 병렬 쿼리 — 단일 쿼리 시 기본 1000행 limit에 걸려 선물 심볼이 결과를 독점하는 문제 방지
+  const fetches = await Promise.all(
+    symbols.map((symbol) =>
+      supabase
+        .from("market_intraday")
+        .select("recorded_at, price")
+        .eq("symbol", symbol)
+        .gte("recorded_at", since)
+        .order("recorded_at", { ascending: true })
+        .then(({ data }) => ({ symbol, rows: (data ?? []) as { recorded_at: string; price: number }[] }))
+    )
+  );
+
+  const result: Record<string, { time: string; price: number }[]> = {};
+  for (const { symbol, rows } of fetches) {
+    result[symbol] = rows.map((r) => ({ time: r.recorded_at, price: r.price }));
+  }
+  return result;
+}
+
+export async function fetchMarketOHLCV(): Promise<Record<string, MarketOHLCV[]>> {
+  const since = new Date(Date.now() - 35 * 86_400_000).toISOString().slice(0, 10);
+  const symbols = ["VIX", "NASDAQ", "SP500", "KOSPI", "KOSDAQ", "ES_FUTURES", "NQ_FUTURES", "VKOSPI"];
+  const { data } = await supabase
+    .from("market_ohlcv")
+    .select("symbol, price_date, open, high, low, close")
+    .in("symbol", symbols)
+    .gte("price_date", since)
+    .order("price_date", { ascending: true });
+
+  const result: Record<string, MarketOHLCV[]> = {};
+  for (const row of (data ?? []) as MarketOHLCV[]) {
+    if (!result[row.symbol]) result[row.symbol] = [];
+    result[row.symbol].push(row);
+  }
+  return result;
+}
+
 export async function fetchMarketHistory(days = 30): Promise<Record<string, { date: string; price: number }[]>> {
   const since = new Date(Date.now() - days * 86_400_000).toISOString().slice(0, 10);
-  const symbols = ["VIX", "NASDAQ", "SP500", "KOSPI", "KOSDAQ"];
+  const symbols = ["VIX", "NASDAQ", "SP500", "KOSPI", "KOSDAQ", "ES_FUTURES", "NQ_FUTURES", "VKOSPI"];
   const { data } = await supabase
     .from("market_snapshots")
     .select("symbol, snapshot_date, price")

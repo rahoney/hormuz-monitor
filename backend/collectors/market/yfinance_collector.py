@@ -1,15 +1,70 @@
-"""yfinance에서 VIX/Nasdaq/S&P500 일별 스냅샷을 수집한다."""
-from datetime import date
+"""yfinance에서 VIX/Nasdaq/S&P500 일별 스냅샷·OHLCV를 수집한다."""
+from datetime import date, timedelta
 from typing import Any
 import yfinance as yf
 
 _SYMBOLS: list[dict[str, str]] = [
-    {"symbol": "VIX",    "ticker": "^VIX"},
-    {"symbol": "NASDAQ", "ticker": "^IXIC"},
-    {"symbol": "SP500",  "ticker": "^GSPC"},
-    {"symbol": "KOSPI",  "ticker": "^KS11"},
-    {"symbol": "KOSDAQ", "ticker": "^KQ11"},
+    {"symbol": "VIX",        "ticker": "^VIX"},
+    {"symbol": "NASDAQ",     "ticker": "^IXIC"},
+    {"symbol": "SP500",      "ticker": "^GSPC"},
+    {"symbol": "KOSPI",      "ticker": "^KS11"},
+    {"symbol": "KOSDAQ",     "ticker": "^KQ11"},
+    {"symbol": "ES_FUTURES", "ticker": "ES=F"},
+    {"symbol": "NQ_FUTURES", "ticker": "NQ=F"},
 ]
+
+
+def collect_ohlcv(days: int = 35) -> list[dict[str, Any]]:
+    """일봉 OHLCV 수집 (최근 N일)."""
+    end = date.today()
+    start = end - timedelta(days=days)
+    records: list[dict[str, Any]] = []
+
+    def _val(v: Any) -> float:
+        return float(v.iloc[0]) if hasattr(v, "iloc") else float(v)
+
+    for s in _SYMBOLS:
+        try:
+            df = yf.download(s["ticker"], start=start.isoformat(), end=end.isoformat(),
+                             progress=False, auto_adjust=True)
+            if df.empty:
+                continue
+            for ts, row in df.iterrows():
+                records.append({
+                    "symbol":     s["symbol"],
+                    "price_date": ts.date().isoformat() if hasattr(ts, "date") else str(ts)[:10],
+                    "open":       round(_val(row["Open"]),  4),
+                    "high":       round(_val(row["High"]),  4),
+                    "low":        round(_val(row["Low"]),   4),
+                    "close":      round(_val(row["Close"]), 4),
+                    "source":     "yfinance",
+                })
+        except Exception:
+            continue
+    return records
+
+
+def collect_intraday() -> list[dict[str, Any]]:
+    """5분봉 데이터 수집. 선물 티커는 period=5d fallback 사용."""
+    records: list[dict[str, Any]] = []
+    for s in _SYMBOLS:
+        try:
+            ticker = yf.Ticker(s["ticker"])
+            hist = ticker.history(period="1d", interval="5m")
+            if hist.empty:
+                hist = ticker.history(period="5d", interval="5m")
+            if hist.empty:
+                continue
+            for ts, row in hist.iterrows():
+                records.append({
+                    "symbol":      s["symbol"],
+                    "recorded_at": ts.isoformat(),
+                    "price":       round(float(row["Close"]), 4),
+                    "source":      "yfinance",
+                })
+        except Exception:
+            continue
+    return records
 
 
 def collect_live() -> list[dict[str, Any]]:

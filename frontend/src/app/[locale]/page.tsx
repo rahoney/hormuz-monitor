@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { getTranslations } from "next-intl/server";
 import PageShell from "@/components/layout/PageShell";
 import Card from "@/components/ui/Card";
@@ -8,6 +10,7 @@ import MarketSnapshotCards from "@/components/cards/MarketSnapshotCards";
 import RecentEventsList from "@/components/cards/RecentEventsList";
 import StraitMapPanel from "@/components/map/StraitMapPanel";
 import HormuzRiskGauge from "@/components/cards/HormuzRiskGauge";
+import SharePageButton from "@/components/cards/SharePageButton";
 import GasolinePricesPanel from "@/components/charts/GasolinePricesPanel";
 import TrumpPostsFeed from "@/components/cards/TrumpPostsFeed";
 import SituationSummaryCard from "@/components/cards/SituationSummaryCard";
@@ -22,16 +25,19 @@ import {
   fetchTrumpPosts,
   fetchLatestSummary,
   fetchRiskScoreHistory,
+  fetchMarketIntraday,
+  fetchMarketOHLCV,
 } from "@/lib/api/dashboard";
 
 export default async function DashboardPage() {
   const t = await getTranslations("dashboard");
 
-  const [metric, oilSeries, marketSnapshots, marketHistoryResult, recentEvents, transitSeries, gasolineSeries, trumpPosts, summaryResult, riskHistoryResult] = await Promise.allSettled([
+  const [metric, oilSeries, marketSnapshots, marketIntradayResult, marketOHLCVResult, recentEvents, transitSeries, gasolineSeries, trumpPosts, summaryResult, riskHistoryResult] = await Promise.allSettled([
     fetchLatestStraitMetric(),
     fetchOilPriceSeries(["WTI", "BRENT", "NATURAL_GAS"], 90),
     fetchLatestMarketSnapshots(),
-    fetchMarketHistory(30),
+    fetchMarketIntraday(),
+    fetchMarketOHLCV(),
     fetchRecentEvents(15),
     fetchTransitSeries(90),
     fetchGasolinePrices(90),
@@ -43,7 +49,8 @@ export default async function DashboardPage() {
   const metricData      = metric.status              === "fulfilled" ? metric.value              : null;
   const oilData         = oilSeries.status           === "fulfilled" ? oilSeries.value           : [];
   const marketData      = marketSnapshots.status     === "fulfilled" ? marketSnapshots.value     : {};
-  const marketHistory   = marketHistoryResult.status === "fulfilled" ? marketHistoryResult.value : {};
+  const marketHistory   = marketIntradayResult.status === "fulfilled" ? marketIntradayResult.value : {};
+  const marketOHLCV     = marketOHLCVResult.status    === "fulfilled" ? marketOHLCVResult.value    : {};
   const eventsData      = recentEvents.status        === "fulfilled" ? recentEvents.value        : [];
   const transitData     = transitSeries.status       === "fulfilled" ? transitSeries.value       : [];
   const gasolineData    = gasolineSeries.status      === "fulfilled" ? gasolineSeries.value      : [];
@@ -62,7 +69,10 @@ export default async function DashboardPage() {
 
         {/* 페이지 헤더 */}
         <div>
-          <h1 className="text-2xl font-semibold text-slate-100">{t("title")}</h1>
+          <div className="flex items-center gap-3">
+            <h1 className="text-2xl font-semibold text-slate-100">{t("title")}</h1>
+            <SharePageButton />
+          </div>
           <p className="mt-1 text-sm text-slate-400">{t("subtitle")}</p>
         </div>
 
@@ -111,7 +121,7 @@ export default async function DashboardPage() {
           <h2 className="inline-block rounded-md border-2 border-blue-400 px-3 py-1 mb-4 text-lg font-bold text-white">
             {t("sections.marketSnapshot")}
           </h2>
-          <MarketSnapshotCards snapshots={marketData} history={marketHistory} />
+          <MarketSnapshotCards snapshots={marketData} intraday={marketHistory} ohlcv={marketOHLCV} />
         </section>
 
         {/* 최근 이벤트 */}

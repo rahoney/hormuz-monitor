@@ -1,19 +1,18 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 
-type Props = { text: string };
-
-const SERVICE_URL = "https://hormuz-monitor.vercel.app";
-
-export default function ShareSummaryButton({ text }: Props) {
+export default function SharePageButton() {
   const t = useTranslations("dashboard.summary");
+  const locale = useLocale();
   const [open, setOpen] = useState(false);
   const [copied, setCopied] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
-  const shareText = `[${t("shareSource")}]\n${text}\n${SERVICE_URL}`;
+  const serviceName = locale === "ko" ? "호르무즈 모니터" : "Hormuz Monitor";
+  const serviceUrl = t("shareServiceUrl");
+  const shareText = `${serviceName}\n${serviceUrl}`;
 
   useEffect(() => {
     if (!open) return;
@@ -42,7 +41,7 @@ export default function ShareSummaryButton({ text }: Props) {
 
   const webShare = async () => {
     if (navigator.share) {
-      try { await navigator.share({ title: t("shareService"), text: shareText, url: SERVICE_URL }); }
+      try { await navigator.share({ title: serviceName, url: serviceUrl }); }
       catch { /* cancelled */ }
     } else {
       await copy();
@@ -50,35 +49,30 @@ export default function ShareSummaryButton({ text }: Props) {
     setOpen(false);
   };
 
-  const shareKakao = async () => {
-    // Kakao SDK 없이는 클립보드 복사 후 KakaoTalk에서 붙여넣기 안내
-    await copy();
-  };
-
   const enc = encodeURIComponent(shareText);
-  const encUrl = encodeURIComponent(SERVICE_URL);
-  const encTitle = encodeURIComponent(text.slice(0, 100));
+  const encUrl = encodeURIComponent(serviceUrl);
+  const encTitle = encodeURIComponent(serviceName);
 
   const targets = [
-    { label: "URL 복사",      icon: "📋", href: null, onClick: copy },
-    { label: "Twitter / X",  icon: "𝕏",  href: `https://twitter.com/intent/tweet?text=${enc}` },
-    { label: "Facebook",     icon: "f",   href: `https://www.facebook.com/sharer/sharer.php?u=${encUrl}&quote=${enc}` },
-    { label: "LinkedIn",     icon: "in",  href: `https://www.linkedin.com/sharing/share-offsite/?url=${encUrl}` },
-    { label: "Reddit",       icon: "r/",  href: `https://www.reddit.com/submit?url=${encUrl}&title=${encTitle}` },
-    { label: "WhatsApp",     icon: "W",   href: `https://wa.me/?text=${enc}` },
-    { label: "Telegram",     icon: "✈",   href: `https://t.me/share/url?url=${encUrl}&text=${enc}` },
-    { label: "LINE",         icon: "L",   href: `https://social-plugins.line.me/lineit/share?url=${encUrl}` },
-    { label: "KakaoTalk",    icon: "K",   href: null, onClick: shareKakao },
+    { label: "URL 복사",     icon: "📋", href: null, onClick: copy },
+    { label: "Twitter / X", icon: "𝕏",  href: `https://twitter.com/intent/tweet?text=${enc}` },
+    { label: "Facebook",    icon: "f",   href: `https://www.facebook.com/sharer/sharer.php?u=${encUrl}` },
+    { label: "LinkedIn",    icon: "in",  href: `https://www.linkedin.com/sharing/share-offsite/?url=${encUrl}` },
+    { label: "Reddit",      icon: "r/",  href: `https://www.reddit.com/submit?url=${encUrl}&title=${encTitle}` },
+    { label: "WhatsApp",    icon: "W",   href: `https://wa.me/?text=${enc}` },
+    { label: "Telegram",    icon: "✈",   href: `https://t.me/share/url?url=${encUrl}&text=${enc}` },
+    { label: "LINE",        icon: "L",   href: `https://social-plugins.line.me/lineit/share?url=${encUrl}` },
+    { label: "KakaoTalk",   icon: "K",   href: null, onClick: copy },
   ] as const;
 
   return (
     <div className="relative" ref={menuRef}>
       <button
         onClick={() => setOpen((v) => !v)}
-        className={`inline-flex items-center gap-1.5 rounded-md border px-3 py-1 text-sm font-semibold transition-colors ${
+        className={`inline-flex items-center gap-1.5 rounded-md border-2 px-3 py-1 text-sm font-semibold transition-colors ${
           copied
-            ? "border-2 border-emerald-500/80 bg-emerald-900/30 text-emerald-400"
-            : "border-2 border-blue-500/80 bg-blue-900/20 text-blue-400 hover:border-blue-400 hover:bg-blue-900/40 hover:text-blue-200"
+            ? "border-emerald-500/80 bg-emerald-900/30 text-emerald-400"
+            : "border-blue-500/80 bg-blue-900/20 text-blue-400 hover:border-blue-400 hover:bg-blue-900/40 hover:text-blue-200"
         }`}
       >
         <svg viewBox="0 0 24 24" className="w-3.5 h-3.5 fill-current" aria-hidden="true">
@@ -88,7 +82,7 @@ export default function ShareSummaryButton({ text }: Props) {
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full mt-1.5 z-50 w-44 rounded-lg border border-slate-700/60 bg-slate-900 shadow-xl py-1">
+        <div className="absolute left-0 top-full mt-1.5 z-50 w-44 rounded-lg border border-slate-700/60 bg-slate-900 shadow-xl py-1">
           {typeof navigator !== "undefined" && "share" in navigator && (
             <button
               onClick={webShare}

@@ -1,146 +1,160 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { LineChart, Line, YAxis, ResponsiveContainer } from "recharts";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { formatPrice, formatChangePct, changePctColor } from "@/lib/formatters";
-import type { MarketSnapshot } from "@/types";
+import type { MarketOHLCV, MarketSnapshot } from "@/types";
+import MarketCustomChart from "./MarketCustomChart";
 
-const SYMBOLS = ["VIX", "NASDAQ", "SP500", "KOSPI", "KOSDAQ"] as const;
+const SYMBOLS = ["SP500", "NASDAQ", "ES_FUTURES", "NQ_FUTURES", "VIX", "VKOSPI", "KOSPI", "KOSDAQ"] as const;
 
-const TV_SYMBOLS: Record<string, string> = {
-  SP500:  "SP:SPX",
-  NASDAQ: "NASDAQ:NDX",
-  VIX:    "CBOE:VIX",
-  KOSPI:  "KRX:KOSPI",
-  KOSDAQ: "KRX:KOSDAQ",
+const DISPLAY_NAMES: Record<string, string> = {
+  SP500:      "S&P 500",
+  ES_FUTURES: "S&P Fut.",
+  NQ_FUTURES: "NASDAQ Fut.",
 };
+
+const DISPLAY_NAMES_KO: Record<string, string> = {
+  SP500:      "S&P 500",
+  NASDAQ:     "나스닥",
+  ES_FUTURES: "S&P 선물",
+  NQ_FUTURES: "나스닥 선물",
+  KOSPI:      "코스피",
+  KOSDAQ:     "코스닥",
+};
+
+const DECIMAL_2 = new Set(["VIX", "VKOSPI"]);
 
 type Props = {
   snapshots: Record<string, MarketSnapshot>;
-  history: Record<string, { date: string; price: number }[]>;
+  intraday: Record<string, { time: string; price: number }[]>;
+  ohlcv: Record<string, MarketOHLCV[]>;
 };
 
-function MarketTVChart({ symbol }: { symbol: string }) {
-  const containerRef = useRef<HTMLDivElement>(null);
+type CardProps = {
+  sym: typeof SYMBOLS[number];
+  snap: MarketSnapshot | undefined;
+  spark: { time: string; price: number }[];
+  ohlcv: MarketOHLCV[];
+  noDataLabel: string;
+  displayName: string;
+};
 
-  useEffect(() => {
-    const tvSymbol = TV_SYMBOLS[symbol];
-    if (!containerRef.current || !tvSymbol) return;
-    containerRef.current.innerHTML = "";
+function MarketCard({ sym, snap, spark, ohlcv, noDataLabel, displayName }: CardProps) {
+  const [open, setOpen] = useState(false);
+  const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const isPositive = snap?.change_pct != null && snap.change_pct >= 0;
 
-    const inner = document.createElement("div");
-    inner.id = `tv-market-${symbol}-${Date.now()}`;
-    containerRef.current.appendChild(inner);
+  // 인트라데이 없으면 일봉 종가로 폴백
+  const sparkData = spark.length >= 3
+    ? spark
+    : ohlcv.slice(-30).map((d) => ({ time: d.price_date, price: d.close }));
 
-    const script = document.createElement("script");
-    script.src = "https://s3.tradingview.com/tv.js";
-    script.async = true;
-    script.onload = () => {
-      if (!(window as any).TradingView || !containerRef.current) return;
-      new (window as any).TradingView.widget({
-        container_id: inner.id,
-        width: "100%",
-        height: 260,
-        symbol: tvSymbol,
-        interval: "D",
-        timezone: "UTC",
-        theme: "dark",
-        style: "1",
-        locale: "en",
-        toolbar_bg: "#0f172a",
-        enable_publishing: false,
-        hide_top_toolbar: false,
-        hide_legend: true,
-        save_image: false,
-        backgroundColor: "#0f172a",
-        gridColor: "rgba(51,65,85,0.3)",
-      });
-    };
-    containerRef.current.appendChild(script);
+  const cancelClose = () => {
+    if (closeTimer.current !== null) {
+      clearTimeout(closeTimer.current);
+      closeTimer.current = null;
+    }
+  };
+  const scheduleClose = () => {
+    cancelClose();
+    closeTimer.current = setTimeout(() => setOpen(false), 150);
+  };
 
-    return () => {
-      if (containerRef.current) containerRef.current.innerHTML = "";
-    };
-  }, [symbol]);
-
-  return <div ref={containerRef} style={{ minHeight: 260 }} />;
-}
-
-export default function MarketSnapshotCards({ snapshots, history }: Props) {
-  const t = useTranslations("dashboard");
-  const [selected, setSelected] = useState<string | null>(null);
+  useEffect(() => () => cancelClose(), []);
 
   return (
-    <div className="flex flex-col gap-3">
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
-        {SYMBOLS.map((sym) => {
-          const snap = snapshots[sym];
-          const spark = history[sym] ?? [];
-          const isSelected = selected === sym;
-          const isPositive = snap?.change_pct != null && snap.change_pct >= 0;
-
-          return (
-            <div
-              key={sym}
-              onClick={() => setSelected((prev) => (prev === sym ? null : sym))}
-              className={[
-                "relative overflow-hidden rounded-lg border p-3 cursor-pointer",
-                "transition-all duration-200",
-                "after:absolute after:inset-0 after:pointer-events-none after:rounded-lg",
-                "after:bg-gradient-to-br after:from-white/[0.06] after:to-transparent",
-                "after:opacity-0 after:transition-opacity after:duration-200",
-                "hover:after:opacity-100",
-                isSelected
-                  ? "border-blue-500/60 bg-blue-900/20 shadow-[0_0_0_1px_rgba(59,130,246,0.15)]"
-                  : "border-slate-700/50 bg-slate-900 hover:border-white/[0.10] hover:bg-white/[0.03]",
-              ].join(" ")}
-            >
-              <p className="text-sm font-bold text-slate-200">{sym}</p>
-              <p className="mt-1 text-lg font-semibold text-slate-100">
-                {snap ? formatPrice(snap.price, sym === "VIX" ? 2 : 0) : t("noData")}
-              </p>
-              {snap?.change_pct !== undefined && (
-                <p className={`text-xs ${changePctColor(snap.change_pct)}`}>
-                  {formatChangePct(snap.change_pct)}
-                </p>
-              )}
-              {spark.length >= 3 && (
-                <div className="mt-2 h-10 w-full">
-                  <ResponsiveContainer width="100%" height={40}>
-                    <LineChart data={spark} margin={{ top: 2, right: 0, bottom: 2, left: 0 }}>
-                      <YAxis domain={["auto", "auto"]} hide />
-                      <Line
-                        dataKey="price"
-                        stroke={isPositive ? "#34d399" : "#f87171"}
-                        strokeWidth={1.5}
-                        dot={false}
-                        connectNulls
-                      />
-                    </LineChart>
-                  </ResponsiveContainer>
-                </div>
-              )}
-            </div>
-          );
-        })}
+    <div
+      className={`relative ${open ? "z-50" : ""}`}
+      onMouseEnter={() => { cancelClose(); setOpen(true); }}
+      onMouseLeave={scheduleClose}
+    >
+      {/* 카드 본체 */}
+      <div
+        onClick={() => setOpen((v) => !v)}
+        className={[
+          "overflow-hidden rounded-lg border p-3 cursor-pointer",
+          "transition-all duration-200",
+          "after:absolute after:inset-0 after:pointer-events-none after:rounded-lg",
+          "after:bg-gradient-to-br after:from-white/[0.06] after:to-transparent",
+          "after:opacity-0 after:transition-opacity after:duration-200",
+          "hover:after:opacity-100",
+          open
+            ? "border-blue-500/60 bg-blue-900/20 shadow-[0_0_0_1px_rgba(59,130,246,0.15)]"
+            : "border-slate-700/50 bg-slate-900 hover:border-white/[0.10] hover:bg-white/[0.03]",
+        ].join(" ")}
+      >
+        <p className="text-sm font-bold text-slate-200">{displayName}</p>
+        <p className="mt-1 text-lg font-semibold text-slate-100">
+          {snap ? formatPrice(snap.price, DECIMAL_2.has(sym) ? 2 : 0) : noDataLabel}
+        </p>
+        {snap?.change_pct != null && (
+          <p className={`text-xs ${changePctColor(snap.change_pct)}`}>
+            {formatChangePct(snap.change_pct)}
+          </p>
+        )}
+        {sparkData.length >= 3 && (
+          <div className="mt-2 h-10 w-full">
+            <ResponsiveContainer width="100%" height={40}>
+              <LineChart data={sparkData} margin={{ top: 2, right: 0, bottom: 2, left: 0 }}>
+                <YAxis domain={["auto", "auto"]} hide />
+                <Line
+                  dataKey="price"
+                  isAnimationActive={false}
+                  stroke={isPositive ? "#34d399" : "#f87171"}
+                  strokeWidth={1.5}
+                  dot={false}
+                  connectNulls
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        )}
       </div>
 
-      {/* 클릭 시 TradingView 차트 확장 */}
-      {selected && (
-        <div className="rounded-lg border border-slate-700/50 bg-slate-900 p-3">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-bold text-slate-200">{selected}</span>
+      {/* 카드 바로 아래 커스텀 차트 (절대 위치) */}
+      {open && (
+        <div
+          className="absolute top-full left-0 z-50 mt-1.5 rounded-lg border border-slate-700/50 bg-slate-900 p-3 shadow-xl"
+          style={{ width: "min(480px, 92vw)" }}
+          onMouseEnter={cancelClose}
+          onMouseLeave={scheduleClose}
+        >
+          <div className="flex items-center justify-between mb-1">
+            <span className="text-xs font-bold text-slate-300">{displayName}</span>
             <button
-              onClick={() => setSelected(null)}
+              onClick={(e) => { e.stopPropagation(); setOpen(false); }}
               className="text-xs text-slate-500 hover:text-slate-300 transition-colors px-2 py-0.5 rounded hover:bg-slate-800"
             >
               ✕
             </button>
           </div>
-          <MarketTVChart key={selected} symbol={selected} />
+          <MarketCustomChart symbol={sym} intraday={spark} ohlcv={ohlcv} />
         </div>
       )}
+    </div>
+  );
+}
+
+export default function MarketSnapshotCards({ snapshots, intraday, ohlcv }: Props) {
+  const t = useTranslations("dashboard");
+  const locale = useLocale();
+  const names = locale === "ko" ? DISPLAY_NAMES_KO : DISPLAY_NAMES;
+
+  return (
+    <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-4">
+      {SYMBOLS.map((sym) => (
+        <MarketCard
+          key={sym}
+          sym={sym}
+          snap={snapshots[sym]}
+          spark={intraday[sym] ?? []}
+          ohlcv={ohlcv[sym] ?? []}
+          noDataLabel={t("noData")}
+          displayName={names[sym] ?? sym}
+        />
+      ))}
     </div>
   );
 }

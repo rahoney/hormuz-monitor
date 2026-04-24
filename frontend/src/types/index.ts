@@ -66,6 +66,21 @@ export interface SituationSummary {
   geo_score: number | null;
 }
 
+export interface MarketOHLCV {
+  symbol: string;
+  price_date: string;
+  open: number;
+  high: number;
+  low: number;
+  close: number;
+}
+
+export interface MarketIntraday {
+  symbol: string;
+  recorded_at: string;
+  price: number;
+}
+
 export interface RiskScoreHistory {
   score_date: string;
   total_score: number;
