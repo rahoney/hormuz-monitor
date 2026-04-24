@@ -27,6 +27,8 @@ services:
         sync: false
       - key: SUPABASE_SERVICE_ROLE_KEY
         sync: false
+      - key: EIA_API_KEY
+        sync: false
 
   # 시장 지표 수집 잡 (5분 단위 실시간, 장중/장후 시간대만 수집)
   - type: cron
