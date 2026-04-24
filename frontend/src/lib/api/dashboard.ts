@@ -1,5 +1,5 @@
 import { supabase } from "@/lib/supabase";
-import type { Event, GasolinePrice, MarketOHLCV, MarketSnapshot, OilPriceSeries, RiskScoreHistory, SituationSummary, StraitMetric, TransitRecord, TrumpPost } from "@/types";
+import type { Event, GasolinePrice, MarketOHLCV, MarketSnapshot, OilPriceSeries, RiskScoreHistory, SituationSummary, StraitMetric, TransitRecord, TrumpPost, WeeklyTransitSummary } from "@/types";
 
 export async function fetchLatestSummary(): Promise<SituationSummary | null> {
   const { data } = await supabase
@@ -29,6 +29,67 @@ export async function fetchLatestStraitMetric(): Promise<StraitMetric | null> {
     .limit(1)
     .single();
   return data ?? null;
+}
+
+function statusFromTotal(total: number | null): "normal" | "restricted" | "high_risk" | "unknown" {
+  if (total == null) return "unknown";
+  if (total === 0) return "restricted";
+  if (total < 5) return "high_risk";
+  return "normal";
+}
+
+function avg(rows: Record<string, unknown>[], key: string): number | null {
+  if (rows.length === 0) return null;
+  const total = rows.reduce((sum, row) => sum + Number(row[key] ?? 0), 0);
+  return Math.round(total / rows.length);
+}
+
+export async function fetchWeeklyTransitSummary(): Promise<WeeklyTransitSummary | null> {
+  const { data: transits } = await supabase
+    .from("chokepoint_transits")
+    .select("transit_date,n_total,n_tanker,n_container,n_dry_bulk,n_general_cargo,source")
+    .eq("portid", "chokepoint6")
+    .order("transit_date", { ascending: false })
+    .limit(7);
+
+  const rows = (transits ?? []) as TransitRecord[];
+  if (rows.length === 0) return null;
+
+  const latestDate = rows[0].transit_date;
+  const since = rows[rows.length - 1].transit_date;
+  const { data: metrics } = await supabase
+    .from("strait_metrics")
+    .select("period_start,offshore_exit_count")
+    .gte("period_start", `${since}T00:00:00+00:00`)
+    .lte("period_start", `${latestDate}T23:59:59+00:00`);
+
+  const metricMap = new Map(
+    ((metrics ?? []) as { period_start: string; offshore_exit_count: number | null }[]).map((m) => [
+      m.period_start.slice(0, 10),
+      m.offshore_exit_count ?? null,
+    ])
+  );
+
+  const outboundVals = rows
+    .map((row) => metricMap.get(row.transit_date))
+    .filter((v): v is number => typeof v === "number");
+  const offshore = outboundVals.length > 0
+    ? Math.round(outboundVals.reduce((sum, v) => sum + v, 0) / outboundVals.length)
+    : null;
+  const total = avg(rows as unknown as Record<string, unknown>[], "n_total");
+
+  return {
+    status_level: statusFromTotal(total),
+    latest_date: latestDate,
+    total_vessels: total,
+    tanker_vessels: avg(rows as unknown as Record<string, unknown>[], "n_tanker"),
+    container_vessels: avg(rows as unknown as Record<string, unknown>[], "n_container"),
+    dry_bulk_vessels: avg(rows as unknown as Record<string, unknown>[], "n_dry_bulk"),
+    general_cargo_vessels: avg(rows as unknown as Record<string, unknown>[], "n_general_cargo"),
+    offshore_exit_count: offshore,
+    inland_entry_count: total != null && offshore != null ? Math.max(total - offshore, 0) : null,
+    source: rows[0].source ?? null,
+  };
 }
 
 export async function fetchOilPriceSeries(
@@ -141,11 +202,28 @@ export async function fetchTransitSeries(days = 90): Promise<TransitRecord[]> {
   const since = new Date(Date.now() - days * 86_400_000).toISOString().slice(0, 10);
   const { data } = await supabase
     .from("chokepoint_transits")
-    .select("transit_date,n_total,n_tanker,n_container,n_dry_bulk,n_general_cargo,capacity_total,capacity_tanker")
+    .select("transit_date,n_total,n_tanker,n_container,n_dry_bulk,n_general_cargo,capacity_total,capacity_tanker,source")
     .eq("portid", "chokepoint6")
     .gte("transit_date", since)
     .order("transit_date", { ascending: true });
-  return data ?? [];
+
+  const rows = (data ?? []) as TransitRecord[];
+  const { data: metrics } = await supabase
+    .from("strait_metrics")
+    .select("period_start,offshore_exit_count")
+    .gte("period_start", `${since}T00:00:00+00:00`)
+    .order("period_start", { ascending: true });
+  const offshoreMap = new Map(
+    ((metrics ?? []) as { period_start: string; offshore_exit_count: number | null }[]).map((m) => [
+      m.period_start.slice(0, 10),
+      m.offshore_exit_count,
+    ])
+  );
+
+  return rows.map((row) => ({
+    ...row,
+    offshore_exit_count: offshoreMap.get(row.transit_date) ?? null,
+  }));
 }
 
 export async function fetchGasolinePrices(days = 90): Promise<GasolinePrice[]> {

@@ -6,16 +6,26 @@
     "vesselCount": "통행 선박",
     "lngVessels": "LNG 탱커",
     "crudeVessels": "원유 탱커",
+    "tankerVessels": "탱커",
+    "containerVessels": "컨테이너",
+    "dryBulkVessels": "벌크선",
+    "generalCargoVessels": "일반화물",
     "inlandEntry": "내해 진입",
     "offshoreExit": "외해 출항",
     "oilPrice": "브렌트유",
     "riskLevel": "위험 수준",
     "insideStrait": "해협 내부",
     "persianGulf": "페르시아만",
-    "arabianSea": "아라비아해"
+    "arabianSea": "아라비아해",
+    "notTracked": "미집계",
+    "weeklyAverage": "7일 평균",
+    "aisEstimated": "AIS 추정",
+    "confirmed": "확정",
+    "estimated": "추정"
   },
   "sections": {
     "statusCards": "현재 상태",
+    "weeklyTransit": "주간 평균 통행량",
     "transitFlow": "통행 흐름 (90일)",
     "oilPrices": "유가 (90일 이력)",
     "oilRealtime": "유가 (실시간)",
@@ -47,6 +57,9 @@
     "container": "컨테이너",
     "dryBulk": "벌크선",
     "general": "일반화물",
+    "offshoreExitEstimate": "외해 출항 추정",
+    "confirmed": "확정",
+    "estimated": "추정",
     "noData": "통행 데이터 없음"
   },
   "events": {
@@ -98,7 +111,7 @@
     "shareCopied": "복사됨!",
     "shareSource": "출처: 호르무즈 모니터",
     "shareService": "호르무즈 모니터",
-    "shareServiceUrl": "https://hormuz-monitor.vercel.app"
+    "shareServiceUrl": "https://www.hrmz.today"
   },
   "loading": "로딩 중...",
   "noData": "데이터 없음"

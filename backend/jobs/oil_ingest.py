@@ -11,8 +11,8 @@ from utils.logger import get_logger
 
 logger = get_logger(__name__)
 
-# 매일 실행 시 최근 7일치를 수집 (누락 보완)
-_LOOKBACK_DAYS = 7
+# EIA spot series can publish with a lag and revise recent rows.
+_LOOKBACK_DAYS = 45
 
 
 def run() -> None:

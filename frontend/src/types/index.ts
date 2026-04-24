@@ -13,6 +13,19 @@ export interface StraitMetric {
   status_level: StatusLevel;
 }
 
+export interface WeeklyTransitSummary {
+  status_level: StatusLevel;
+  latest_date: string | null;
+  total_vessels: number | null;
+  tanker_vessels: number | null;
+  container_vessels: number | null;
+  dry_bulk_vessels: number | null;
+  general_cargo_vessels: number | null;
+  inland_entry_count: number | null;
+  offshore_exit_count: number | null;
+  source: string | null;
+}
+
 export interface OilPriceSeries {
   symbol: string;
   price_date: string;
@@ -38,6 +51,8 @@ export interface TransitRecord {
   n_general_cargo: number;
   capacity_total: number | null;
   capacity_tanker: number | null;
+  source: "portwatch" | "aisstream_estimate" | string;
+  offshore_exit_count?: number | null;
 }
 
 export interface TrumpPost {

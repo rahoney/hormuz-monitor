@@ -1,0 +1,120 @@
+"""AISStream raw positions -> provisional daily Hormuz transit estimates."""
+from collections import defaultdict
+from datetime import datetime, timezone, timedelta
+from typing import Any
+
+from db.select import fetch
+from db.upsert import upsert
+
+_HORMUZ_ID = "chokepoint6"
+_HORMUZ_NAME = "Strait of Hormuz"
+_ESTIMATE_SOURCE = "aisstream_estimate"
+
+
+def _parse_ts(value: str) -> datetime:
+    return datetime.fromisoformat(value.replace("Z", "+00:00"))
+
+
+def _latest_portwatch_date() -> str | None:
+    rows = fetch(
+        "chokepoint_transits",
+        columns="transit_date",
+        filters={"portid": f"eq.{_HORMUZ_ID}", "source": "eq.portwatch"},
+        order="transit_date.desc",
+        limit=1,
+    )
+    return rows[0]["transit_date"] if rows else None
+
+
+def _first_last_zones(rows: list[dict[str, Any]]) -> tuple[str | None, str | None]:
+    zones = [r.get("zone_status") for r in rows if r.get("zone_status") in {"persian_gulf_side", "arabian_sea_side"}]
+    if len(zones) < 2:
+        return None, None
+    return zones[0], zones[-1]
+
+
+def estimate_direction_counts(days: int = 10) -> dict[str, dict[str, int]]:
+    """Return daily AIS direction estimates based on MMSI zone transitions."""
+    since = (datetime.now(timezone.utc) - timedelta(days=days)).isoformat()
+    rows = fetch(
+        "vessels_normalized",
+        columns="mmsi,ship_type_label,raw_timestamp,speed_knots,zone_status",
+        filters={"raw_timestamp": f"gte.{since}"},
+        order="raw_timestamp.asc",
+        limit=10000,
+    )
+
+    by_vessel_day: dict[tuple[str, str], list[dict[str, Any]]] = defaultdict(list)
+    for row in rows:
+        mmsi = row.get("mmsi")
+        raw_timestamp = row.get("raw_timestamp")
+        if not mmsi or not raw_timestamp:
+            continue
+        speed = row.get("speed_knots")
+        if speed is not None and float(speed) < 1.0:
+            continue
+        transit_date = _parse_ts(raw_timestamp).date().isoformat()
+        by_vessel_day[(transit_date, mmsi)].append(row)
+
+    counts: dict[str, dict[str, int]] = defaultdict(lambda: {
+        "inland_entry": 0,
+        "offshore_exit": 0,
+        "total": 0,
+        "tanker": 0,
+    })
+    for (transit_date, _mmsi), vessel_rows in by_vessel_day.items():
+        first_zone, last_zone = _first_last_zones(vessel_rows)
+        if first_zone == "persian_gulf_side" and last_zone == "arabian_sea_side":
+            counts[transit_date]["offshore_exit"] += 1
+        elif first_zone == "arabian_sea_side" and last_zone == "persian_gulf_side":
+            counts[transit_date]["inland_entry"] += 1
+        else:
+            continue
+
+        counts[transit_date]["total"] += 1
+        if any(r.get("ship_type_label") in {"tanker", "lng_tanker", "crude_tanker"} for r in vessel_rows):
+            counts[transit_date]["tanker"] += 1
+
+    return dict(counts)
+
+
+def estimate_recent_transits(days: int = 10) -> int:
+    """Fill missing post-PortWatch dates with AISStream direction-based estimates."""
+    latest_portwatch = _latest_portwatch_date()
+    by_date = estimate_direction_counts(days)
+
+    transit_records = []
+    metric_records = []
+    for transit_date, counts in sorted(by_date.items()):
+        total = counts["total"]
+        if total == 0:
+            continue
+        metric_records.append({
+            "period_start": f"{transit_date}T00:00:00+00:00",
+            "period_end": f"{transit_date}T23:59:59+00:00",
+            "total_vessels": total,
+            "lng_vessels": 0,
+            "crude_vessels": counts["tanker"],
+            "inland_entry_count": counts["inland_entry"],
+            "offshore_exit_count": counts["offshore_exit"],
+            "status_level": "restricted" if total == 0 else ("high_risk" if total < 5 else "normal"),
+        })
+        if latest_portwatch and transit_date <= latest_portwatch:
+            continue
+        transit_records.append({
+            "portid": _HORMUZ_ID,
+            "portname": _HORMUZ_NAME,
+            "transit_date": transit_date,
+            "n_total": total,
+            "n_tanker": counts["tanker"],
+            "n_container": 0,
+            "n_dry_bulk": 0,
+            "n_general_cargo": 0,
+            "capacity_total": None,
+            "capacity_tanker": None,
+            "source": _ESTIMATE_SOURCE,
+        })
+
+    saved = upsert("strait_metrics", metric_records, on_conflict="period_start,period_end") if metric_records else 0
+    saved += upsert("chokepoint_transits", transit_records, on_conflict="portid,transit_date") if transit_records else 0
+    return saved

@@ -8,7 +8,7 @@ const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"]
 const gaId = process.env.NEXT_PUBLIC_GA_ID;
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL ?? "https://hormuz-monitor.vercel.app"),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL ?? "https://www.hrmz.today"),
   title: "Hormuz Monitor",
   description: "Real-time Hormuz Strait vessel traffic, oil prices, and geopolitical intelligence",
   icons: {

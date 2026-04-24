@@ -7,6 +7,7 @@ from db.select import fetch, fetch_latest
 from db.upsert import upsert
 from db.run_repo import start_run, finish_run
 from db.error_repo import log_error
+from collectors.shipping.aisstream_estimator import estimate_direction_counts
 from utils.logger import get_logger
 
 logger = get_logger(__name__)
@@ -65,8 +66,7 @@ def _save_risk_score_today() -> None:
     today = datetime.now(timezone.utc).date().isoformat()
 
     # 통행량
-    latest_transit = fetch_latest("chokepoint_transits", "transit_date")
-    vessels = latest_transit.get("n_total") if latest_transit else None
+    vessels = _weekly_average_transit().get("n_total")
 
     # 브렌트유
     brent_rows = fetch("oil_price_series", columns="price_usd",
@@ -100,6 +100,36 @@ def _status_level(total: int) -> str:
     return "normal"
 
 
+def _weekly_average_transit() -> dict[str, int | None]:
+    rows = fetch(
+        "chokepoint_transits",
+        columns="transit_date,n_total,n_tanker,n_container,n_dry_bulk,n_general_cargo",
+        filters={"portid": "eq.chokepoint6"},
+        order="transit_date.desc",
+        limit=7,
+    )
+    if not rows:
+        return {
+            "n_total": None,
+            "n_tanker": None,
+            "n_container": None,
+            "n_dry_bulk": None,
+            "n_general_cargo": None,
+        }
+
+    def avg(key: str) -> int:
+        vals = [int(row.get(key) or 0) for row in rows]
+        return round(sum(vals) / len(vals))
+
+    return {
+        "n_total": avg("n_total"),
+        "n_tanker": avg("n_tanker"),
+        "n_container": avg("n_container"),
+        "n_dry_bulk": avg("n_dry_bulk"),
+        "n_general_cargo": avg("n_general_cargo"),
+    }
+
+
 def run() -> None:
     run_id = start_run("summary_rebuild")
 
@@ -112,8 +142,13 @@ def run() -> None:
             return
 
         transit_date = latest["transit_date"]
-        total = latest.get("n_total") or 0
-        tanker = latest.get("n_tanker") or 0
+        weekly = _weekly_average_transit()
+        total = weekly.get("n_total") or 0
+        tanker = weekly.get("n_tanker") or 0
+        directions = estimate_direction_counts()
+        direction = directions.get(transit_date, {})
+        offshore_exit = int(direction.get("offshore_exit") or 0)
+        inland_entry = max(total - offshore_exit, 0) if direction else 0
 
         # strait_metrics는 period 기반이므로 transit_date를 하루 범위로 매핑
         period_start = f"{transit_date}T00:00:00+00:00"
@@ -123,18 +158,18 @@ def run() -> None:
             "period_start":        period_start,
             "period_end":          period_end,
             "total_vessels":       total,
-            "lng_vessels":         0,
+            "lng_vessels":         weekly.get("n_container") or 0,
             "crude_vessels":       tanker,
-            "inland_entry_count":  0,
-            "offshore_exit_count": 0,
+            "inland_entry_count":  inland_entry,
+            "offshore_exit_count": offshore_exit,
             "status_level":        _status_level(total),
         }
 
         upsert("strait_metrics", [metric], on_conflict="period_start,period_end")
         _save_risk_score_today()
         finish_run(run_id, "success", total, 1)
-        logger.info("summary 저장 완료 — %s 총 %d척 (탱커:%d) status:%s",
-                    transit_date, total, tanker, metric["status_level"])
+        logger.info("summary 저장 완료 — %s 주간평균 %d척 (탱커:%d, 외해출항:%d) status:%s",
+                    transit_date, total, tanker, offshore_exit, metric["status_level"])
 
     except Exception as exc:
         finish_run(run_id, "failed", 0, 0)
