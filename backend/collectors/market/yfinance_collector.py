@@ -1,4 +1,4 @@
-"""yfinance에서 VIX/Nasdaq/S&P500 일별 스냅샷·OHLCV를 수집한다."""
+"""yfinance에서 시장 지표 스냅샷·5분봉·일봉 OHLCV를 수집한다."""
 from datetime import date, timedelta
 from typing import Any
 import yfinance as yf
