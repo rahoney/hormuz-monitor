@@ -7,7 +7,7 @@ import { formatPrice, formatChangePct, changePctColor } from "@/lib/formatters";
 import type { MarketOHLCV, MarketSnapshot } from "@/types";
 import MarketCustomChart from "./MarketCustomChart";
 
-const SYMBOLS = ["SP500", "NASDAQ", "ES_FUTURES", "NQ_FUTURES", "VIX", "VKOSPI", "KOSPI", "KOSDAQ"] as const;
+const SYMBOLS = ["SP500", "NASDAQ", "ES_FUTURES", "NQ_FUTURES", "VIX", "KOSPI", "KOSDAQ"] as const;
 
 const DISPLAY_NAMES: Record<string, string> = {
   SP500:      "S&P 500",
@@ -24,7 +24,7 @@ const DISPLAY_NAMES_KO: Record<string, string> = {
   KOSDAQ:     "코스닥",
 };
 
-const DECIMAL_2 = new Set(["VIX", "VKOSPI"]);
+const DECIMAL_2 = new Set(["VIX"]);
 
 type Props = {
   snapshots: Record<string, MarketSnapshot>;

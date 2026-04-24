@@ -125,15 +125,15 @@ CREATE POLICY "public read" ON gasoline_prices FOR SELECT USING (true);
 
 
 -- ============================================================
--- 시장 지표 일별 스냅샷 (yfinance: VIX/NASDAQ/SP500, pykrx: KOSPI/KOSDAQ)
+-- 시장 지표 일별 스냅샷 (yfinance)
 -- ============================================================
 CREATE TABLE IF NOT EXISTS market_snapshots (
     id            bigserial        PRIMARY KEY,
-    symbol        text             NOT NULL,   -- VIX | NASDAQ | SP500 | KOSPI | KOSDAQ | ES_FUTURES | NQ_FUTURES | VKOSPI
+    symbol        text             NOT NULL,   -- VIX | NASDAQ | SP500 | KOSPI | KOSDAQ | ES_FUTURES | NQ_FUTURES
     snapshot_date date             NOT NULL,
     price         double precision NOT NULL,
     change_pct    real,                        -- 전일 대비 변동률 (%)
-    source        text             NOT NULL,   -- yfinance | pykrx
+    source        text             NOT NULL,   -- yfinance
     created_at    timestamptz      NOT NULL DEFAULT now(),
     UNIQUE (symbol, snapshot_date)
 );
@@ -286,7 +286,7 @@ CREATE POLICY "public read" ON risk_score_history FOR SELECT USING (true);
 -- ============================================================
 CREATE TABLE IF NOT EXISTS source_runs (
     id              bigserial   PRIMARY KEY,
-    source_name     text        NOT NULL,   -- eia_oil | aisstream | yfinance | pykrx | rss_events | oilpriceapi
+    source_name     text        NOT NULL,   -- eia_oil | aisstream | yfinance | rss_events | oilpriceapi
     run_start       timestamptz NOT NULL,
     run_end         timestamptz,
     status          text        NOT NULL DEFAULT 'running',  -- running | success | partial | failed

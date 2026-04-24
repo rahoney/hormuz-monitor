@@ -62,7 +62,7 @@ export async function fetchLatestOilPrices(): Promise<Record<string, OilPriceSer
 }
 
 export async function fetchLatestMarketSnapshots(): Promise<Record<string, MarketSnapshot>> {
-  const symbols = ["VIX", "NASDAQ", "SP500", "KOSPI", "KOSDAQ", "ES_FUTURES", "NQ_FUTURES", "VKOSPI"];
+  const symbols = ["VIX", "NASDAQ", "SP500", "KOSPI", "KOSDAQ", "ES_FUTURES", "NQ_FUTURES"];
   const result: Record<string, MarketSnapshot> = {};
   for (const symbol of symbols) {
     const { data } = await supabase
@@ -103,7 +103,7 @@ export async function fetchMarketIntraday(): Promise<Record<string, { time: stri
 
 export async function fetchMarketOHLCV(): Promise<Record<string, MarketOHLCV[]>> {
   const since = new Date(Date.now() - 35 * 86_400_000).toISOString().slice(0, 10);
-  const symbols = ["VIX", "NASDAQ", "SP500", "KOSPI", "KOSDAQ", "ES_FUTURES", "NQ_FUTURES", "VKOSPI"];
+  const symbols = ["VIX", "NASDAQ", "SP500", "KOSPI", "KOSDAQ", "ES_FUTURES", "NQ_FUTURES"];
   const { data } = await supabase
     .from("market_ohlcv")
     .select("symbol, price_date, open, high, low, close")
@@ -121,7 +121,7 @@ export async function fetchMarketOHLCV(): Promise<Record<string, MarketOHLCV[]>>
 
 export async function fetchMarketHistory(days = 30): Promise<Record<string, { date: string; price: number }[]>> {
   const since = new Date(Date.now() - days * 86_400_000).toISOString().slice(0, 10);
-  const symbols = ["VIX", "NASDAQ", "SP500", "KOSPI", "KOSDAQ", "ES_FUTURES", "NQ_FUTURES", "VKOSPI"];
+  const symbols = ["VIX", "NASDAQ", "SP500", "KOSPI", "KOSDAQ", "ES_FUTURES", "NQ_FUTURES"];
   const { data } = await supabase
     .from("market_snapshots")
     .select("symbol, snapshot_date, price")
