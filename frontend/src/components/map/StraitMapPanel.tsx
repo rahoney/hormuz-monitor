@@ -49,6 +49,7 @@ export default function StraitMapPanel() {
 
       {/* MarineTraffic */}
       <div
+        className="relative"
         style={{
           height: MAP_HEIGHT,
           overflow: "hidden",
@@ -59,27 +60,31 @@ export default function StraitMapPanel() {
           src={MARINE_TRAFFIC_URL}
           title="MarineTraffic Live Map"
           className="w-full border-0"
-          style={{ height: MAP_HEIGHT + MT_EXTRA, display: "block" }}
+          style={{ height: MAP_HEIGHT + MT_EXTRA, display: "block", pointerEvents: "none" }}
+          referrerPolicy="strict-origin-when-cross-origin"
           allowFullScreen
         />
       </div>
 
       {/* MyShipTracking */}
-      <div
-        style={{
-          height: MAP_HEIGHT,
-          overflow: "hidden",
-          display: activeTab === "mst" ? "block" : "none",
-        }}
-      >
-        <iframe
-          src={MY_SHIP_TRACKING_URL}
-          title="MyShipTracking Live Map"
-          className="w-full border-0"
-          style={{ height: MAP_HEIGHT, display: "block" }}
-          referrerPolicy="no-referrer"
-        />
-      </div>
+      {activeTab === "mst" && (
+        <div
+          className="relative"
+          style={{
+            height: MAP_HEIGHT,
+            overflow: "hidden",
+          }}
+        >
+          <iframe
+            key="myshiptracking-active"
+            src={MY_SHIP_TRACKING_URL}
+            title="MyShipTracking Live Map"
+            className="w-full border-0"
+            style={{ height: MAP_HEIGHT, display: "block", pointerEvents: "none" }}
+            referrerPolicy="no-referrer"
+          />
+        </div>
+      )}
     </div>
   );
 }

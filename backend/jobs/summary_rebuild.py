@@ -1,133 +1,16 @@
 """chokepoint_transits 최신 1일 데이터로 strait_metrics summary를 재계산해 저장하는 잡."""
 import sys
-from datetime import datetime, timezone, timedelta
 sys.path.insert(0, ".")
 
-from db.select import fetch, fetch_latest
+from db.select import fetch_latest
 from db.upsert import upsert
 from db.run_repo import start_run, finish_run
 from db.error_repo import log_error
-from collectors.shipping.aisstream_estimator import estimate_direction_counts
+from services.risk_score_service import save_risk_score_today
+from services.transit_summary_service import build_strait_metric
 from utils.logger import get_logger
 
 logger = get_logger(__name__)
-
-
-def _compute_risk_score(
-    vessels: int | None,
-    brent: float | None,
-    vix: float | None,
-    geo_raw: int | None,
-) -> dict:
-    """가중치: 통행량 40% + 지정학 30% + 브렌트유 15% + VIX 15% (0~100)"""
-    if vessels is not None:
-        v_score = min(vessels / 70, 1.0) * 40
-    else:
-        v_score = 20.0  # fallback: 절반
-
-    if brent is not None:
-        b_score = 15.0 if brent <= 80 else (0.0 if brent >= 120 else ((120 - brent) / 40) * 15)
-    else:
-        b_score = 7.5
-
-    if vix is not None:
-        vix_score = 15.0 if vix <= 15 else (0.0 if vix >= 35 else ((35 - vix) / 20) * 15)
-    else:
-        vix_score = 7.5
-
-    if geo_raw is not None:
-        # geo_raw 1(안전)→30점 기여, geo_raw 30(위험)→0점 기여
-        g_score = ((30 - geo_raw) / 29) * 30
-    else:
-        # geo_score 없으면 나머지 가중치를 70%로 올려 fallback
-        total = round(min(vessels / 70, 1.0) * 70 + b_score + vix_score, 1) if vessels is not None else round(b_score + vix_score + 35, 1)
-        return {
-            "vessel_score": round(v_score, 1),
-            "geo_score": None,
-            "brent_score": round(b_score, 1),
-            "vix_score": round(vix_score, 1),
-            "total_score": round(total, 1),
-            "geo_raw": None,
-        }
-        g_score = 15.0
-
-    total = round(v_score + g_score + b_score + vix_score, 1)
-    return {
-        "vessel_score": round(v_score, 1),
-        "geo_score": round(g_score, 1),
-        "brent_score": round(b_score, 1),
-        "vix_score": round(vix_score, 1),
-        "total_score": min(total, 100.0),
-        "geo_raw": geo_raw,
-    }
-
-
-def _save_risk_score_today() -> None:
-    today = datetime.now(timezone.utc).date().isoformat()
-
-    # 통행량
-    vessels = _weekly_average_transit().get("n_total")
-
-    # 브렌트유
-    brent_rows = fetch("oil_price_series", columns="price_usd",
-                       filters={"symbol": "eq.BRENT"}, order="price_date.desc", limit=1)
-    brent = brent_rows[0].get("price_usd") if brent_rows else None
-
-    # VIX
-    vix_rows = fetch("market_snapshots", columns="price",
-                     filters={"symbol": "eq.VIX"}, order="snapshot_date.desc", limit=1)
-    vix = vix_rows[0].get("price") if vix_rows else None
-
-    # 지정학 점수 (최신 situation_summaries)
-    geo_rows = fetch("situation_summaries", columns="geo_score",
-                     order="generated_at.desc", limit=1)
-    geo_raw = geo_rows[0].get("geo_score") if geo_rows else None
-
-    scores = _compute_risk_score(vessels, brent, vix, geo_raw)
-    upsert("risk_score_history", [{
-        "score_date": today,
-        "updated_at": datetime.now(timezone.utc).isoformat(),
-        **scores,
-    }], on_conflict="score_date")
-    logger.info("리스크 점수 저장 — %s total=%.1f geo_raw=%s", today, scores["total_score"], geo_raw)
-
-
-def _status_level(total: int) -> str:
-    if total == 0:
-        return "restricted"
-    if total < 5:
-        return "high_risk"
-    return "normal"
-
-
-def _weekly_average_transit() -> dict[str, int | None]:
-    rows = fetch(
-        "chokepoint_transits",
-        columns="transit_date,n_total,n_tanker,n_container,n_dry_bulk,n_general_cargo",
-        filters={"portid": "eq.chokepoint6"},
-        order="transit_date.desc",
-        limit=7,
-    )
-    if not rows:
-        return {
-            "n_total": None,
-            "n_tanker": None,
-            "n_container": None,
-            "n_dry_bulk": None,
-            "n_general_cargo": None,
-        }
-
-    def avg(key: str) -> int:
-        vals = [int(row.get(key) or 0) for row in rows]
-        return round(sum(vals) / len(vals))
-
-    return {
-        "n_total": avg("n_total"),
-        "n_tanker": avg("n_tanker"),
-        "n_container": avg("n_container"),
-        "n_dry_bulk": avg("n_dry_bulk"),
-        "n_general_cargo": avg("n_general_cargo"),
-    }
 
 
 def run() -> None:
@@ -142,34 +25,14 @@ def run() -> None:
             return
 
         transit_date = latest["transit_date"]
-        weekly = _weekly_average_transit()
-        total = weekly.get("n_total") or 0
-        tanker = weekly.get("n_tanker") or 0
-        directions = estimate_direction_counts()
-        direction = directions.get(transit_date, {})
-        offshore_exit = int(direction.get("offshore_exit") or 0)
-        inland_entry = max(total - offshore_exit, 0) if direction else 0
-
-        # strait_metrics는 period 기반이므로 transit_date를 하루 범위로 매핑
-        period_start = f"{transit_date}T00:00:00+00:00"
-        period_end   = f"{transit_date}T23:59:59+00:00"
-
-        metric = {
-            "period_start":        period_start,
-            "period_end":          period_end,
-            "total_vessels":       total,
-            "lng_vessels":         weekly.get("n_container") or 0,
-            "crude_vessels":       tanker,
-            "inland_entry_count":  inland_entry,
-            "offshore_exit_count": offshore_exit,
-            "status_level":        _status_level(total),
-        }
+        metric = build_strait_metric(transit_date)
 
         upsert("strait_metrics", [metric], on_conflict="period_start,period_end")
-        _save_risk_score_today()
-        finish_run(run_id, "success", total, 1)
+        save_risk_score_today()
+        finish_run(run_id, "success", metric["total_vessels"], 1)
         logger.info("summary 저장 완료 — %s 주간평균 %d척 (탱커:%d, 외해출항:%d) status:%s",
-                    transit_date, total, tanker, offshore_exit, metric["status_level"])
+                    transit_date, metric["total_vessels"], metric["crude_vessels"],
+                    metric["offshore_exit_count"], metric["status_level"])
 
     except Exception as exc:
         finish_run(run_id, "failed", 0, 0)

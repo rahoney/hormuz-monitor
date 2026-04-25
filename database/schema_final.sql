@@ -30,7 +30,7 @@ CREATE INDEX IF NOT EXISTS idx_vessels_raw_timestamp ON vessels_normalized (raw_
 CREATE INDEX IF NOT EXISTS idx_vessels_zone_status   ON vessels_normalized (zone_status);
 
 ALTER TABLE vessels_normalized ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "public read" ON vessels_normalized FOR SELECT USING (true);
+-- Raw AIS rows are service-only. Public UI reads aggregated transit tables instead.
 
 
 -- ============================================================
@@ -299,7 +299,7 @@ CREATE INDEX IF NOT EXISTS idx_source_runs_name  ON source_runs (source_name, ru
 CREATE INDEX IF NOT EXISTS idx_source_runs_start ON source_runs (run_start DESC);
 
 ALTER TABLE source_runs ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "public read" ON source_runs FOR SELECT USING (true);
+-- Internal run logs are service-only.
 
 
 -- ============================================================
@@ -317,4 +317,4 @@ CREATE TABLE IF NOT EXISTS source_errors (
 CREATE INDEX IF NOT EXISTS idx_source_errors_source ON source_errors (source_name, occurred_at DESC);
 
 ALTER TABLE source_errors ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "public read" ON source_errors FOR SELECT USING (true);
+-- Internal error logs are service-only.

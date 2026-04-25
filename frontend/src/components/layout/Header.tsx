@@ -39,7 +39,7 @@ export default function Header() {
       <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4 sm:px-6">
         {/* 로고 */}
         <Link href="/" className="flex items-center gap-2 text-slate-100 hover:text-white">
-          <Image src="/logo.jpg" alt="Hormuz Monitor" width={32} height={32} className="rounded" />
+          <Image src="/logo.jpg" alt="Hormuz Monitor" width={41} height={32} className="h-8 w-auto rounded" />
           <span className="text-xl font-bold tracking-wider uppercase text-amber-400">Hormuz Monitor</span>
         </Link>
 
