@@ -25,6 +25,8 @@ const DISPLAY_NAMES_KO: Record<string, string> = {
 };
 
 const DECIMAL_2 = new Set(["VIX"]);
+const POPOVER_WIDTH = 480;
+const POPOVER_MARGIN = 12;
 
 type Props = {
   snapshots: Record<string, MarketSnapshot>;
@@ -43,6 +45,8 @@ type CardProps = {
 
 function MarketCard({ sym, snap, spark, ohlcv, noDataLabel, displayName }: CardProps) {
   const [open, setOpen] = useState(false);
+  const [popoverStyle, setPopoverStyle] = useState<React.CSSProperties>({});
+  const wrapperRef = useRef<HTMLDivElement>(null);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isPositive = snap?.change_pct != null && snap.change_pct >= 0;
 
@@ -59,20 +63,60 @@ function MarketCard({ sym, snap, spark, ohlcv, noDataLabel, displayName }: CardP
   };
   const scheduleClose = () => {
     cancelClose();
-    closeTimer.current = setTimeout(() => setOpen(false), 150);
+    closeTimer.current = setTimeout(() => setOpen(false), 250);
   };
+
+  const updatePopoverPosition = () => {
+    if (!wrapperRef.current || typeof window === "undefined") return;
+    const rect = wrapperRef.current.getBoundingClientRect();
+    const width = Math.min(POPOVER_WIDTH, window.innerWidth - POPOVER_MARGIN * 2);
+    const clampedLeft = Math.min(
+      Math.max(rect.left, POPOVER_MARGIN),
+      window.innerWidth - width - POPOVER_MARGIN
+    );
+
+    setPopoverStyle({
+      position: "fixed",
+      top: rect.bottom + 6,
+      left: clampedLeft,
+      width,
+    });
+  };
+
+  const openPopover = () => {
+    updatePopoverPosition();
+    setOpen(true);
+  };
+
+  useEffect(() => {
+    if (!open) return;
+    updatePopoverPosition();
+    window.addEventListener("resize", updatePopoverPosition);
+    window.addEventListener("scroll", updatePopoverPosition, true);
+    return () => {
+      window.removeEventListener("resize", updatePopoverPosition);
+      window.removeEventListener("scroll", updatePopoverPosition, true);
+    };
+  }, [open]);
 
   useEffect(() => () => cancelClose(), []);
 
   return (
     <div
+      ref={wrapperRef}
       className={`relative ${open ? "z-50" : ""}`}
-      onMouseEnter={() => { cancelClose(); setOpen(true); }}
+      onMouseEnter={() => { cancelClose(); openPopover(); }}
       onMouseLeave={scheduleClose}
     >
       {/* 카드 본체 */}
       <div
-        onClick={() => setOpen((v) => !v)}
+        onClick={() => {
+          if (open) {
+            setOpen(false);
+          } else {
+            openPopover();
+          }
+        }}
         className={[
           "overflow-hidden rounded-lg border p-3 cursor-pointer",
           "transition-all duration-200",
@@ -116,8 +160,8 @@ function MarketCard({ sym, snap, spark, ohlcv, noDataLabel, displayName }: CardP
       {/* 카드 바로 아래 커스텀 차트 (절대 위치) */}
       {open && (
         <div
-          className="absolute top-full left-0 z-50 mt-1.5 rounded-lg border border-slate-700/50 bg-slate-900 p-3 shadow-xl"
-          style={{ width: "min(480px, 92vw)" }}
+          className="z-50 rounded-lg border border-slate-700/50 bg-slate-900 p-3 shadow-xl"
+          style={popoverStyle}
           onMouseEnter={cancelClose}
           onMouseLeave={scheduleClose}
         >
