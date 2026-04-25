@@ -17,6 +17,7 @@ export default async function ContactPage() {
             marginHeight={0}
             marginWidth={0}
             className="block"
+            referrerPolicy="strict-origin-when-cross-origin"
           >
             로드 중…
           </iframe>

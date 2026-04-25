@@ -61,6 +61,7 @@ export default function StraitMapPanel() {
           title="MarineTraffic Live Map"
           className="w-full border-0"
           style={{ height: MAP_HEIGHT + MT_EXTRA, display: "block", pointerEvents: "none" }}
+          referrerPolicy="strict-origin-when-cross-origin"
           allowFullScreen
         />
       </div>
