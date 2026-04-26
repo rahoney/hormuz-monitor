@@ -11,13 +11,19 @@ logger = get_logger(__name__)
 
 def compute_risk_score(
     vessels: int | None,
+    inland_entry: int | None,
+    offshore_exit: int | None,
     brent: float | None,
     brent_change_pct_7d: float | None,
     vix: float | None,
     geo_raw: int | None,
 ) -> dict:
     """가중치: 통행량 40% + 지정학 30% + 브렌트유 20% + VIX 10% (0~100 위험점수)."""
-    if vessels is not None:
+    if inland_entry is not None or offshore_exit is not None:
+        inland_score = (1.0 - min((inland_entry or 0) / 35, 1.0)) * 15
+        offshore_score = (1.0 - min((offshore_exit or 0) / 35, 1.0)) * 25
+        v_score = inland_score + offshore_score
+    elif vessels is not None:
         v_score = (1.0 - min(vessels / 70, 1.0)) * 40
     else:
         v_score = 20.0
@@ -41,7 +47,15 @@ def compute_risk_score(
     if geo_raw is not None:
         g_score = ((geo_raw - 1) / 29) * 30
     else:
-        total = round((1.0 - min(vessels / 70, 1.0)) * 70 + b_score + vix_score, 1) if vessels is not None else round(b_score + vix_score + 35, 1)
+        if inland_entry is not None or offshore_exit is not None:
+            inland_fallback = (1.0 - min((inland_entry or 0) / 35, 1.0)) * 26.25
+            offshore_fallback = (1.0 - min((offshore_exit or 0) / 35, 1.0)) * 43.75
+            vessel_fallback = inland_fallback + offshore_fallback
+        elif vessels is not None:
+            vessel_fallback = (1.0 - min(vessels / 70, 1.0)) * 70
+        else:
+            vessel_fallback = 35
+        total = round(vessel_fallback + b_score + vix_score, 1)
         return {
             "vessel_score": round(v_score, 1),
             "geo_score": None,
@@ -87,7 +101,10 @@ def _brent_change_pct_7d(latest_price: float | None) -> float | None:
 
 def save_risk_score_today() -> None:
     today = datetime.now(timezone.utc).date().isoformat()
-    vessels = weekly_average_transit().get("n_total")
+    transit = weekly_average_transit()
+    vessels = transit.get("n_total")
+    inland_entry = transit.get("inland_entry_count")
+    offshore_exit = transit.get("offshore_exit_count")
 
     brent_rows = fetch("oil_price_series", columns="price_usd",
                        filters={"symbol": "eq.BRENT"}, order="price_date.desc", limit=1)
@@ -102,7 +119,7 @@ def save_risk_score_today() -> None:
                      order="generated_at.desc", limit=1)
     geo_raw = geo_rows[0].get("geo_score") if geo_rows else None
 
-    scores = compute_risk_score(vessels, brent, brent_change_pct_7d, vix, geo_raw)
+    scores = compute_risk_score(vessels, inland_entry, offshore_exit, brent, brent_change_pct_7d, vix, geo_raw)
     upsert("risk_score_history", [{
         "score_date": today,
         "updated_at": datetime.now(timezone.utc).isoformat(),
