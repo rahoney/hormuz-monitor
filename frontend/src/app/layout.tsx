@@ -11,14 +11,14 @@ const gaId = process.env.NEXT_PUBLIC_GA_ID;
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL ?? "https://www.hrmz.today"),
   title: "Hormuz Monitor",
-  description: "Real-time Hormuz Strait vessel traffic, oil prices, and geopolitical intelligence",
+  description: "Key information is gathered in one place so you can assess the strait situation at a glance.",
   icons: {
     icon: "/logo.jpg",
     apple: "/logo.jpg",
   },
   openGraph: {
     title: "Hormuz Monitor",
-    description: "Real-time Hormuz Strait vessel traffic, oil prices, and geopolitical intelligence",
+    description: "Key information is gathered in one place so you can assess the strait situation at a glance.",
     url: "/",
     siteName: "Hormuz Monitor",
     images: [{ url: "/og-image.png", width: 1734, height: 907, alt: "Hormuz Monitor" }],
@@ -27,7 +27,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "Hormuz Monitor",
-    description: "Real-time Hormuz Strait vessel traffic, oil prices, and geopolitical intelligence",
+    description: "Key information is gathered in one place so you can assess the strait situation at a glance.",
     images: ["/og-image.png"],
   },
 };

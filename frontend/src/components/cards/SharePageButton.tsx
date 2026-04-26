@@ -11,8 +11,11 @@ export default function SharePageButton() {
   const menuRef = useRef<HTMLDivElement>(null);
 
   const serviceName = locale === "ko" ? "호르무즈 모니터" : "Hormuz Monitor";
-  const serviceUrl = t("shareServiceUrl");
-  const shareText = `${serviceName}\n${serviceUrl}`;
+  const serviceDescription = locale === "ko"
+    ? "해협 상황을 한눈에 파악할 수 있도록 주요 정보를 한 곳에 모았습니다."
+    : "Key information is gathered in one place so you can assess the strait situation at a glance.";
+  const serviceUrl = `${t("shareServiceUrl")}/${locale}`;
+  const shareText = `${serviceName}\n${serviceDescription}\n${serviceUrl}`;
 
   useEffect(() => {
     if (!open) return;
@@ -41,7 +44,7 @@ export default function SharePageButton() {
 
   const webShare = async () => {
     if (navigator.share) {
-      try { await navigator.share({ title: serviceName, url: serviceUrl }); }
+      try { await navigator.share({ title: serviceName, text: serviceDescription, url: serviceUrl }); }
       catch { /* cancelled */ }
     } else {
       await copy();

@@ -1,6 +1,6 @@
 {
   "title": "Hormuz Strait Monitor",
-  "subtitle": "Real-time vessel traffic, oil prices, and geopolitical events",
+  "subtitle": "Key information is gathered in one place so you can assess the strait situation at a glance.",
   "cards": {
     "straitStatus": "Strait Status",
     "vesselCount": "Active Vessels",
