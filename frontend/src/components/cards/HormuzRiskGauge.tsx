@@ -39,12 +39,17 @@ function geoRawColor(raw: number) {
 
 function computeScore(
   vessels: number | null,
+  inlandEntry: number | null,
+  offshoreExit: number | null,
   brent: number | null,
   brentChangePct7d: number | null,
   vix: number | null,
   geoScore: number | null,
 ): number {
-  const v = vessels !== null ? (1 - Math.min(vessels / 70, 1)) * 40 : 20;
+  const v = inlandEntry !== null || offshoreExit !== null
+    ? (1 - Math.min((inlandEntry ?? 0) / 35, 1)) * 15
+      + (1 - Math.min((offshoreExit ?? 0) / 35, 1)) * 25
+    : vessels !== null ? (1 - Math.min(vessels / 70, 1)) * 40 : 20;
   const brentPriceScore = brent !== null
     ? brent <= 80 ? 0 : brent >= 120 ? 20 : ((brent - 80) / 40) * 20
     : 10;
@@ -61,7 +66,10 @@ function computeScore(
     return Math.round(Math.min(v + g + b + vi, 100));
   }
   // fallback: geo 없으면 통행량 70%로
-  const vFallback = vessels !== null ? (1 - Math.min(vessels / 70, 1)) * 70 : 35;
+  const vFallback = inlandEntry !== null || offshoreExit !== null
+    ? (1 - Math.min((inlandEntry ?? 0) / 35, 1)) * 26.25
+      + (1 - Math.min((offshoreExit ?? 0) / 35, 1)) * 43.75
+    : vessels !== null ? (1 - Math.min(vessels / 70, 1)) * 70 : 35;
   return Math.round(Math.min(vFallback + b + vi, 100));
 }
 
@@ -79,6 +87,8 @@ function findClosest(history: RiskScoreHistory[], daysAgo: number): RiskScoreHis
 
 type Props = {
   vessels: number | null;
+  inlandEntry: number | null;
+  offshoreExit: number | null;
   brent: number | null;
   brentChangePct7d: number | null;
   vix: number | null;
@@ -86,9 +96,9 @@ type Props = {
   history: RiskScoreHistory[];
 };
 
-export default function HormuzRiskGauge({ vessels, brent, brentChangePct7d, vix, geoScore, history }: Props) {
+export default function HormuzRiskGauge({ vessels, inlandEntry, offshoreExit, brent, brentChangePct7d, vix, geoScore, history }: Props) {
   const t = useTranslations("dashboard.gauge");
-  const score = computeScore(vessels, brent, brentChangePct7d, vix, geoScore);
+  const score = computeScore(vessels, inlandEntry, offshoreExit, brent, brentChangePct7d, vix, geoScore);
   const color = scoreColor(score);
   const tip = pt(score, RO - 6);
 

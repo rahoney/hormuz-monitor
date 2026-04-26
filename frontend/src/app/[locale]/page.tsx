@@ -99,6 +99,8 @@ export default async function DashboardPage() {
         <Card title={t("gauge.title")}>
           <HormuzRiskGauge
             vessels={weeklyTransitData?.total_vessels ?? metricData?.total_vessels ?? null}
+            inlandEntry={weeklyTransitData?.inland_entry_count ?? metricData?.inland_entry_count ?? null}
+            offshoreExit={weeklyTransitData?.offshore_exit_count ?? metricData?.offshore_exit_count ?? null}
             brent={latestBrent}
             brentChangePct7d={latestBrentChangePct7d}
             vix={latestVix}
