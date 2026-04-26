@@ -18,9 +18,7 @@ def run() -> None:
     try:
         result = generate()
         if not result:
-            logger.warning("요약 생성 실패 또는 빈 결과")
-            finish_run(run_id, "success", 0, 0)
-            return
+            raise RuntimeError("요약 생성 실패 또는 빈 결과")
 
         ko, en, geo_score = result
         record: dict = {"summary_ko": ko, "summary_en": en}

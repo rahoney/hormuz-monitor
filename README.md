@@ -50,6 +50,13 @@ AISSTREAM_API_KEY=
 GOOGLE_GEMINI_API_KEY=
 ```
 
+Optional Gemini fallback override variables:
+
+```env
+GEMINI_SUMMARY_MODELS=gemini-3.1-flash-lite-preview,gemini-3-flash-preview,gemini-2.5-flash,gemma-3-27b-it
+GEMINI_TRANSLATION_MODELS=gemini-3.1-flash-lite-preview,gemini-2.5-flash,gemma-3-27b-it
+```
+
 ### Backend Jobs
 
 Run collector jobs from the `backend` directory:

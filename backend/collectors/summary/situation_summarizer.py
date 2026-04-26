@@ -1,18 +1,16 @@
 """Gemini를 이용해 호르무즈 상황 요약을 생성한다."""
-import os
 from datetime import datetime, timezone, timedelta
 from typing import Any
 
-import httpx
 from dotenv import load_dotenv
 
 from db.select import fetch
+from utils.gemini_client import GeminiError, generate_text, summary_models
+from utils.logger import get_logger
 
 load_dotenv()
 
-_API_KEY = os.getenv("GOOGLE_GEMINI_API_KEY", "")
-_MODEL = "models/gemini-3.1-flash-lite-preview"
-_BASE = "https://generativelanguage.googleapis.com/v1beta"
+logger = get_logger(__name__)
 
 # 미국 동부 기준 pre-market~after-hours: UTC 08:00~01:00 (weekday)
 # UTC 01:00~08:00 구간(심야)에는 시장 데이터 미포함
@@ -115,7 +113,7 @@ def _build_prompt(events: list, trump: list, oil: dict,
                 chg = f" ({c:+.2f}%)" if c is not None else ""
                 parts.append(f"{label}: {p}{chg}")
         if parts:
-            market_block = f"\n[Market Indices (live session)]\n" + " | ".join(parts)
+            market_block = "\n[Market Indices (live session)]\n" + " | ".join(parts)
 
     return f"""You are a concise analyst for the Hormuz Monitor dashboard.
 
@@ -160,18 +158,18 @@ def generate() -> tuple[str, str, int | None] | None:
     prompt = _build_prompt(events, trump, oil, gasoline, market)
 
     try:
-        resp = httpx.post(
-            f"{_BASE}/{_MODEL}:generateContent",
-            params={"key": _API_KEY},
-            json={
-                "contents": [{"parts": [{"text": prompt}]}],
-                "generationConfig": {"maxOutputTokens": 1024, "temperature": 0.3},
-            },
+        result = generate_text(
+            prompt,
+            task="situation_summary",
+            models=summary_models(),
+            max_output_tokens=1024,
+            temperature=0.3,
             timeout=30.0,
         )
-        resp.raise_for_status()
-        text = resp.json()["candidates"][0]["content"]["parts"][0]["text"].strip()
-    except Exception:
+        text = result.text
+        logger.info("상황 요약 Gemini 모델: %s (%d attempts)", result.model, result.attempts)
+    except GeminiError as exc:
+        logger.error("상황 요약 Gemini 호출 실패: %s", exc)
         return None
 
     ko, en, geo_score = "", "", None
