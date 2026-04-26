@@ -37,7 +37,7 @@ export default function TransitOilComparisonChart({ transitRecords, oilSeries }:
 
   return (
     <ResponsiveContainer width="100%" height={260}>
-      <ComposedChart data={data} margin={{ top: 4, right: 48, bottom: 0, left: 0 }}>
+      <ComposedChart data={data} margin={{ top: 4, right: 8, bottom: 0, left: 0 }}>
         <XAxis
           dataKey="date"
           tick={{ fill: "#94a3b8", fontSize: 10 }}
@@ -61,7 +61,7 @@ export default function TransitOilComparisonChart({ transitRecords, oilSeries }:
           tick={{ fill: "#34d399", fontSize: 10 }}
           tickLine={false}
           axisLine={false}
-          width={48}
+          width={34}
           tickFormatter={(v) => `$${v}`}
           label={{ value: "USD/bbl", angle: 90, position: "insideRight", fill: "#34d399", fontSize: 10, dy: -30 }}
         />

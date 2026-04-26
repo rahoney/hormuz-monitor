@@ -71,10 +71,10 @@ export default function TransitCombinedChart({ records, oilSeries }: Props) {
 
       {active === "comparison" && (
         <ResponsiveContainer width="100%" height={260}>
-          <ComposedChart data={data} margin={{ top: 4, right: 48, bottom: 0, left: 0 }}>
+          <ComposedChart data={data} margin={{ top: 4, right: 8, bottom: 0, left: 0 }}>
             <XAxis dataKey="date" tick={{ fill: "#94a3b8", fontSize: 10 }} tickLine={false} interval="preserveStartEnd" />
             <YAxis yAxisId="vessels" orientation="left"  tick={{ fill: "#60a5fa", fontSize: 10 }} tickLine={false} axisLine={false} width={28} />
-            <YAxis yAxisId="brent"   orientation="right" tick={{ fill: "#34d399", fontSize: 10 }} tickLine={false} axisLine={false} width={48} tickFormatter={(v) => `$${v}`} />
+            <YAxis yAxisId="brent"   orientation="right" tick={{ fill: "#34d399", fontSize: 10 }} tickLine={false} axisLine={false} width={34} tickFormatter={(v) => `$${v}`} />
             <Tooltip
               contentStyle={{ background: "#1e293b", border: "1px solid #334155", borderRadius: 6 }}
               labelStyle={{ color: "#94a3b8", fontSize: 11 }}

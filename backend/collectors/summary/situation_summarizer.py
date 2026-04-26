@@ -120,8 +120,12 @@ def _build_prompt(events: list, trump: list, oil: dict,
 Generate a situation summary AND a geopolitical tension score based on the data below.
 - FOCUS: US-Iran war/negotiations and Trump's statements are the PRIMARY topic.
 - Oil prices and market indices are SECONDARY (mention briefly).
-- Korean: 150~400 characters (자).
-- English: 60~150 words.
+- Korean: 150~400 characters (자), with length proportional to information density.
+  If the situation is quiet or repetitive, 150~220 characters is enough.
+  If there are multiple distinct headlines, Trump statements, risk changes, or market/oil moves
+  that need context, use 250~400 characters and explain the causal links.
+- English: 60~150 words, also proportional to information density.
+- Do NOT compress every case to the minimum length. Use the available range when needed.
 - SCORE: integer 1~30 measuring geopolitical tension for the Hormuz Strait.
   1~7 = Safe (peace agreement, strait open, ceasefire holding, normalization confirmed)
   8~15 = Caution (negotiations ongoing, talks in progress, ceasefire active but unresolved)
