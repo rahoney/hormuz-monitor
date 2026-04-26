@@ -29,6 +29,19 @@ import {
   fetchMarketOHLCV,
 } from "@/lib/api/dashboard";
 
+function brentChangePct7d(oilData: { symbol: string; price_date: string; price_usd: number }[]): number | null {
+  const brentRows = oilData
+    .filter((r) => r.symbol === "BRENT")
+    .sort((a, b) => b.price_date.localeCompare(a.price_date));
+  const latest = brentRows[0];
+  if (!latest) return null;
+
+  const targetTime = new Date(latest.price_date).getTime() - 7 * 86_400_000;
+  const base = brentRows.find((row) => new Date(row.price_date).getTime() <= targetTime);
+  if (!base || base.price_usd === 0) return null;
+  return ((latest.price_usd - base.price_usd) / base.price_usd) * 100;
+}
+
 export default async function DashboardPage() {
   const t = await getTranslations("dashboard");
 
@@ -63,6 +76,7 @@ export default async function DashboardPage() {
   const latestBrent = oilData
     .filter((r) => r.symbol === "BRENT")
     .sort((a, b) => b.price_date.localeCompare(a.price_date))[0]?.price_usd ?? null;
+  const latestBrentChangePct7d = brentChangePct7d(oilData);
   const latestVix = (marketData as Record<string, { price: number }>)["VIX"]?.price ?? null;
 
   return (
@@ -86,6 +100,7 @@ export default async function DashboardPage() {
           <HormuzRiskGauge
             vessels={weeklyTransitData?.total_vessels ?? metricData?.total_vessels ?? null}
             brent={latestBrent}
+            brentChangePct7d={latestBrentChangePct7d}
             vix={latestVix}
             geoScore={summaryData?.geo_score ?? null}
             history={riskHistory}
