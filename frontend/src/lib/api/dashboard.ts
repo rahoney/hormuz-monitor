@@ -139,7 +139,7 @@ export async function fetchLatestMarketSnapshots(): Promise<Record<string, Marke
 }
 
 export async function fetchMarketIntraday(): Promise<Record<string, { time: string; price: number }[]>> {
-  const since = new Date(Date.now() - 2 * 86_400_000).toISOString();
+  const since = new Date(Date.now() - 5 * 86_400_000).toISOString();
   const symbols = ["VIX", "NASDAQ", "SP500", "KOSPI", "KOSDAQ", "ES_FUTURES", "NQ_FUTURES"];
 
   // 심볼별 병렬 쿼리 — 단일 쿼리 시 기본 1000행 limit에 걸려 선물 심볼이 결과를 독점하는 문제 방지

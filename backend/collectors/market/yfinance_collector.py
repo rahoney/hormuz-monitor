@@ -58,14 +58,14 @@ def collect_ohlcv(days: int = 35) -> list[dict[str, Any]]:
 
 
 def collect_intraday() -> list[dict[str, Any]]:
-    """5분봉 데이터 수집. 선물 티커는 period=5d fallback 사용."""
+    """5분봉 데이터 수집. 가능한 티커는 프리마켓/애프터마켓까지 포함한다."""
     records: list[dict[str, Any]] = []
     for s in _SYMBOLS:
         try:
             ticker = yf.Ticker(s["ticker"])
-            hist = ticker.history(period="1d", interval="5m")
+            hist = ticker.history(period="1d", interval="5m", prepost=True)
             if hist.empty:
-                hist = ticker.history(period="5d", interval="5m")
+                hist = ticker.history(period="5d", interval="5m", prepost=True)
             if hist.empty:
                 continue
             for ts, row in hist.iterrows():
