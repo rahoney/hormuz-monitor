@@ -34,7 +34,7 @@ def run() -> None:
 
     try:
         cutoff_40 = (datetime.now(timezone.utc) - timedelta(days=40)).date().isoformat()
-        cutoff_intraday = (datetime.now(timezone.utc) - timedelta(days=3)).isoformat()
+        cutoff_intraday = (datetime.now(timezone.utc) - timedelta(days=7)).isoformat()
         targets = [
             ("situation_summaries",  "generated_at", cutoff),
             ("events",               "published_at",  cutoff),
