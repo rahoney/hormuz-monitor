@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 
 type Props = { text: string };
 
@@ -9,11 +9,13 @@ const SERVICE_URL = "https://www.hrmz.today";
 
 export default function ShareSummaryButton({ text }: Props) {
   const t = useTranslations("dashboard.summary");
+  const locale = useLocale();
   const [open, setOpen] = useState(false);
   const [copied, setCopied] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
-  const shareText = `[${t("shareSource")}]\n${text}\n${SERVICE_URL}`;
+  const serviceUrl = `${SERVICE_URL}/${locale}`;
+  const shareText = `[${t("shareSource")}]\n${text}\n${serviceUrl}`;
 
   useEffect(() => {
     if (!open) return;
@@ -42,7 +44,7 @@ export default function ShareSummaryButton({ text }: Props) {
 
   const webShare = async () => {
     if (navigator.share) {
-      try { await navigator.share({ title: t("shareService"), text: shareText, url: SERVICE_URL }); }
+      try { await navigator.share({ title: t("shareService"), text: shareText, url: serviceUrl }); }
       catch { /* cancelled */ }
     } else {
       await copy();
@@ -56,7 +58,7 @@ export default function ShareSummaryButton({ text }: Props) {
   };
 
   const enc = encodeURIComponent(shareText);
-  const encUrl = encodeURIComponent(SERVICE_URL);
+  const encUrl = encodeURIComponent(serviceUrl);
   const encTitle = encodeURIComponent(text.slice(0, 100));
 
   const targets = [

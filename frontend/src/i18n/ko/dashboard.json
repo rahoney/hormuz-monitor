@@ -1,6 +1,6 @@
 {
   "title": "호르무즈 해협 모니터",
-  "subtitle": "실시간 선박 통행량, 유가, 지정학적 이벤트",
+  "subtitle": "해협 상황을 한눈에 파악할 수 있도록 주요 정보를 한 곳에 모았습니다.",
   "cards": {
     "straitStatus": "해협 상태",
     "vesselCount": "통행 선박",
@@ -98,6 +98,7 @@
     "geoLabel": "지정학 긴장도",
     "histLabel": "과거 비교",
     "hist1d": "어제",
+    "hist2d": "2일 전",
     "hist1w": "1주 전",
     "hist2w": "2주 전",
     "hist1m": "1개월 전"

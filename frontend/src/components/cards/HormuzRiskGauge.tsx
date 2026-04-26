@@ -24,10 +24,10 @@ const ZONES = [
 ];
 
 function scoreColor(s: number) {
-  if (s >= 76) return "#22c55e";
-  if (s >= 51) return "#eab308";
-  if (s >= 26) return "#f97316";
-  return "#ef4444";
+  if (s >= 76) return "#ef4444";
+  if (s >= 51) return "#f97316";
+  if (s >= 26) return "#eab308";
+  return "#22c55e";
 }
 
 function geoRawColor(raw: number) {
@@ -40,23 +40,28 @@ function geoRawColor(raw: number) {
 function computeScore(
   vessels: number | null,
   brent: number | null,
+  brentChangePct7d: number | null,
   vix: number | null,
   geoScore: number | null,
 ): number {
-  const v = vessels !== null ? Math.min(vessels / 70, 1) * 40 : 20;
-  const b = brent !== null
-    ? brent <= 80 ? 15 : brent >= 120 ? 0 : ((120 - brent) / 40) * 15
-    : 7.5;
+  const v = vessels !== null ? (1 - Math.min(vessels / 70, 1)) * 40 : 20;
+  const brentPriceScore = brent !== null
+    ? brent <= 80 ? 0 : brent >= 120 ? 20 : ((brent - 80) / 40) * 20
+    : 10;
+  const brentChangeScore = brentChangePct7d !== null
+    ? brentChangePct7d < 1 ? 0 : Math.min(Math.floor(brentChangePct7d), 20)
+    : 0;
+  const b = Math.max(brentPriceScore, brentChangeScore);
   const vi = vix !== null
-    ? vix <= 15 ? 15 : vix >= 35 ? 0 : ((35 - vix) / 20) * 15
-    : 7.5;
+    ? vix <= 15 ? 0 : vix >= 35 ? 10 : ((vix - 15) / 20) * 10
+    : 5;
 
   if (geoScore !== null) {
-    const g = ((30 - geoScore) / 29) * 30;
+    const g = ((geoScore - 1) / 29) * 30;
     return Math.round(Math.min(v + g + b + vi, 100));
   }
   // fallback: geo 없으면 통행량 70%로
-  const vFallback = vessels !== null ? Math.min(vessels / 70, 1) * 70 : 35;
+  const vFallback = vessels !== null ? (1 - Math.min(vessels / 70, 1)) * 70 : 35;
   return Math.round(Math.min(vFallback + b + vi, 100));
 }
 
@@ -75,14 +80,15 @@ function findClosest(history: RiskScoreHistory[], daysAgo: number): RiskScoreHis
 type Props = {
   vessels: number | null;
   brent: number | null;
+  brentChangePct7d: number | null;
   vix: number | null;
   geoScore: number | null;
   history: RiskScoreHistory[];
 };
 
-export default function HormuzRiskGauge({ vessels, brent, vix, geoScore, history }: Props) {
+export default function HormuzRiskGauge({ vessels, brent, brentChangePct7d, vix, geoScore, history }: Props) {
   const t = useTranslations("dashboard.gauge");
-  const score = computeScore(vessels, brent, vix, geoScore);
+  const score = computeScore(vessels, brent, brentChangePct7d, vix, geoScore);
   const color = scoreColor(score);
   const tip = pt(score, RO - 6);
 
@@ -90,13 +96,14 @@ export default function HormuzRiskGauge({ vessels, brent, vix, geoScore, history
   const gapLen = (C - (ZW - GAP)).toFixed(2);
 
   const riskLabel =
-    score >= 76 ? t("safe")
-    : score >= 51 ? t("caution")
-    : score >= 26 ? t("warning")
-    : t("danger");
+    score >= 76 ? t("danger")
+    : score >= 51 ? t("warning")
+    : score >= 26 ? t("caution")
+    : t("safe");
 
   const comparisons = [
     { labelKey: "hist1d",  daysAgo: 1  },
+    { labelKey: "hist2d",  daysAgo: 2  },
     { labelKey: "hist1w",  daysAgo: 7  },
     { labelKey: "hist2w",  daysAgo: 14 },
     { labelKey: "hist1m",  daysAgo: 30 },
@@ -174,7 +181,7 @@ export default function HormuzRiskGauge({ vessels, brent, vix, geoScore, history
                   <>
                     <span className="font-semibold" style={{ color: scoreColor(past) }}>{past}</span>
                     {diff !== null && diff !== 0 && (
-                      <span className={`text-xs font-medium ${diff > 0 ? "text-emerald-400" : "text-red-400"}`}>
+                      <span className={`text-xs font-medium ${diff > 0 ? "text-red-400" : "text-emerald-400"}`}>
                         {diff > 0 ? `▲${diff}` : `▼${Math.abs(diff)}`}
                       </span>
                     )}
