@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import type { CandlestickData, IChartApi, LineData, UTCTimestamp } from "lightweight-charts";
+import type { CandlestickData, IChartApi, LineData, Time, UTCTimestamp } from "lightweight-charts";
+import { useLocale } from "next-intl";
 import type { MarketOHLCV } from "@/types";
 
 type IntradayPoint = { time: string; price: number };
@@ -26,6 +27,39 @@ const CHART_OPTIONS = {
   timeScale: { borderColor: "rgba(51,65,85,0.5)", timeVisible: true },
 };
 
+function marketTimeZone(locale: string): string {
+  const browserTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  if (browserTimeZone === "Asia/Seoul") {
+    return "Asia/Seoul";
+  }
+  return locale.startsWith("ko") ? "Asia/Seoul" : "America/New_York";
+}
+
+function formatIntradayTime(timestamp: UTCTimestamp, locale: string): string {
+  const timeZone = marketTimeZone(locale);
+  return new Intl.DateTimeFormat(locale.startsWith("ko") ? "ko-KR" : "en-US", {
+    timeZone,
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  }).format(new Date(timestamp * 1000));
+}
+
+function formatChartTime(time: Time, tab: "5m" | "1d", locale: string): string {
+  if (tab === "5m" && typeof time === "number") {
+    return formatIntradayTime(time as UTCTimestamp, locale);
+  }
+  if (typeof time === "string") {
+    return time;
+  }
+  if (typeof time === "object" && time !== null) {
+    return `${time.year}-${String(time.month).padStart(2, "0")}-${String(time.day).padStart(2, "0")}`;
+  }
+  return String(time);
+}
+
 function prepareIntraday(intraday: IntradayPoint[]): LineData<UTCTimestamp>[] {
   const seen = new Set<number>();
   return intraday
@@ -43,6 +77,7 @@ function prepareIntraday(intraday: IntradayPoint[]): LineData<UTCTimestamp>[] {
 }
 
 export default function MarketCustomChart({ symbol, intraday, ohlcv }: Props) {
+  const locale = useLocale();
   const has5m = prepareIntraday(intraday).length > 0;
   const [tab, setTab] = useState<"5m" | "1d">(has5m ? "5m" : "1d");
   const containerRef = useRef<HTMLDivElement>(null);
@@ -73,6 +108,10 @@ export default function MarketCustomChart({ symbol, intraday, ohlcv }: Props) {
             ...CHART_OPTIONS.timeScale,
             timeVisible: tab === "5m",
             secondsVisible: false,
+            tickMarkFormatter: (time: Time) => formatChartTime(time, tab, locale),
+          },
+          localization: {
+            timeFormatter: (time: Time) => formatChartTime(time, tab, locale),
           },
         });
 
@@ -129,7 +168,7 @@ export default function MarketCustomChart({ symbol, intraday, ohlcv }: Props) {
       ro?.disconnect();
       chart?.remove();
     };
-  }, [tab, symbol, intraday, ohlcv]);
+  }, [tab, symbol, intraday, ohlcv, locale]);
 
   const has1d = ohlcv.length > 0;
 

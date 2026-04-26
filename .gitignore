@@ -39,3 +39,4 @@ Thumbs.db
 
 # 임시 테스트 폴더 (깃허브 업로드 제외)
 tmp_test/
+tmp_live_tests/
