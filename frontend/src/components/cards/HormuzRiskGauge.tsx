@@ -17,10 +17,10 @@ function pt(score: number, r: number) {
 }
 
 const ZONES = [
-  { color: "#ef4444", idx: 0 },
-  { color: "#f97316", idx: 1 },
-  { color: "#eab308", idx: 2 },
-  { color: "#22c55e", idx: 3 },
+  { color: "#22c55e", idx: 0 },
+  { color: "#eab308", idx: 1 },
+  { color: "#f97316", idx: 2 },
+  { color: "#ef4444", idx: 3 },
 ];
 
 function scoreColor(s: number) {
