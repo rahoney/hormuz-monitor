@@ -64,6 +64,7 @@ export default function TransitOilComparisonChart({ transitRecords, oilSeries }:
           width={34}
           tickFormatter={(v) => `$${v}`}
           label={{ value: "USD/bbl", angle: 90, position: "insideRight", fill: "#34d399", fontSize: 10, dy: -30 }}
+          domain={[(dataMin: number) => Math.min(dataMin, 40), 'auto']}
         />
         <Tooltip
           contentStyle={{ background: "#1e293b", border: "1px solid #334155", borderRadius: 6 }}
