@@ -20,7 +20,7 @@ function buildChartData(transit: TransitRecord[], oil: OilPriceSeries[]) {
   return transit.map((r) => ({
     date:    r.transit_date.slice(5),
     vessels: r.n_total,
-    brent:   brentMap.get(r.transit_date) ?? null,
+    brent:   brentMap.has(r.transit_date) ? brentMap.get(r.transit_date) : undefined,
   }));
 }
 
@@ -34,6 +34,10 @@ export default function TransitOilComparisonChart({ transitRecords, oilSeries }:
       </div>
     );
   }
+
+  const brentValues = data.map((d) => d.brent).filter((v): v is number => v !== null && v !== undefined);
+  const actualMin = brentValues.length > 0 ? Math.min(...brentValues) : 0;
+  const brentYMin = actualMin > 0 ? Math.floor(Math.min(actualMin, 40) / 10) * 10 : 40;
 
   return (
     <ResponsiveContainer width="100%" height={260}>
@@ -57,6 +61,7 @@ export default function TransitOilComparisonChart({ transitRecords, oilSeries }:
         {/* 우측 Y축: Brent 유가 */}
         <YAxis
           yAxisId="brent"
+          type="number"
           orientation="right"
           tick={{ fill: "#34d399", fontSize: 10 }}
           tickLine={false}
@@ -64,6 +69,8 @@ export default function TransitOilComparisonChart({ transitRecords, oilSeries }:
           width={34}
           tickFormatter={(v) => `$${v}`}
           label={{ value: "USD/bbl", angle: 90, position: "insideRight", fill: "#34d399", fontSize: 10, dy: -30 }}
+          domain={[brentYMin, 'auto']}
+          allowDataOverflow={true}
         />
         <Tooltip
           contentStyle={{ background: "#1e293b", border: "1px solid #334155", borderRadius: 6 }}
