@@ -7,24 +7,35 @@ import { formatPrice, formatChangePct, changePctColor } from "@/lib/formatters";
 import type { MarketOHLCV, MarketSnapshot } from "@/types";
 import MarketCustomChart from "./MarketCustomChart";
 
-const SYMBOLS = ["SP500", "NASDAQ", "ES_FUTURES", "NQ_FUTURES", "VIX", "KOSPI", "KOSDAQ"] as const;
+const SYMBOLS = [
+  "SP500", "NASDAQ", "ES_FUTURES", "NQ_FUTURES", "VIX", "KOSPI", "KOSDAQ",
+  "GOLD_FUTURES", "USD_INDEX", "GASOLINE_FUTURES", "HEATING_OIL_FUTURES"
+] as const;
 
 const DISPLAY_NAMES: Record<string, string> = {
-  SP500:      "S&P 500",
-  ES_FUTURES: "S&P Fut.",
-  NQ_FUTURES: "NASDAQ Fut.",
+  SP500:               "S&P 500",
+  ES_FUTURES:          "S&P Fut.",
+  NQ_FUTURES:          "NASDAQ Fut.",
+  GOLD_FUTURES:        "Gold Fut.",
+  USD_INDEX:           "USD Index",
+  GASOLINE_FUTURES:    "Gasoline Fut.",
+  HEATING_OIL_FUTURES: "Diesel Fut.",
 };
 
 const DISPLAY_NAMES_KO: Record<string, string> = {
-  SP500:      "S&P 500",
-  NASDAQ:     "나스닥",
-  ES_FUTURES: "S&P 선물",
-  NQ_FUTURES: "나스닥 선물",
-  KOSPI:      "코스피",
-  KOSDAQ:     "코스닥",
+  SP500:               "S&P 500",
+  NASDAQ:              "나스닥",
+  ES_FUTURES:          "S&P 선물",
+  NQ_FUTURES:          "나스닥 선물",
+  KOSPI:               "코스피",
+  KOSDAQ:              "코스닥",
+  GOLD_FUTURES:        "금 선물",
+  USD_INDEX:           "달러 인덱스",
+  GASOLINE_FUTURES:    "휘발유 선물",
+  HEATING_OIL_FUTURES: "경유 선물",
 };
 
-const DECIMAL_2 = new Set(["VIX"]);
+const DECIMAL_2 = new Set(["VIX", "USD_INDEX"]);
 const POPOVER_WIDTH = 480;
 const POPOVER_MARGIN = 12;
 

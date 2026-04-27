@@ -88,6 +88,15 @@
     "region": "region",
     "noData": "No gasoline price data"
   },
+  "status": {
+    "normal": "Normal",
+    "slightly_delayed": "Slightly Delayed",
+    "congested": "Congested",
+    "high_risk": "High Risk",
+    "critical": "Critical",
+    "blockade_level": "Blockade Level",
+    "unknown": "Unknown"
+  },
   "gauge": {
     "title": "Hormuz Risk Index",
     "safe": "SAFE",

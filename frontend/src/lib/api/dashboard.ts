@@ -31,11 +31,25 @@ export async function fetchLatestStraitMetric(): Promise<StraitMetric | null> {
   return data ?? null;
 }
 
-function statusFromTotal(total: number | null): "normal" | "restricted" | "high_risk" | "unknown" {
-  if (total == null) return "unknown";
-  if (total === 0) return "restricted";
-  if (total < 5) return "high_risk";
-  return "normal";
+function statusFromTransit(inland_entry: number | null, offshore_exit: number | null, total: number | null): string {
+  if (inland_entry === null && offshore_exit === null && total === null) return "unknown";
+  
+  const inlandScore = inland_entry !== null ? (1.0 - Math.min(inland_entry / 35.0, 1.0)) * 30.0 : 0.0;
+  const offshoreScore = offshore_exit !== null ? (1.0 - Math.min(offshore_exit / 35.0, 1.0)) * 70.0 : 0.0;
+  
+  let riskScore = 0;
+  if (inland_entry === null && offshore_exit === null && total !== null) {
+      riskScore = (1.0 - Math.min(total / 70.0, 1.0)) * 100.0;
+  } else {
+      riskScore = inlandScore + offshoreScore;
+  }
+
+  if (riskScore <= 15) return "normal";
+  if (riskScore <= 35) return "slightly_delayed";
+  if (riskScore <= 55) return "congested";
+  if (riskScore <= 75) return "high_risk";
+  if (riskScore <= 90) return "critical";
+  return "blockade_level";
 }
 
 function avg(rows: Record<string, unknown>[], key: string): number | null {
@@ -77,9 +91,10 @@ export async function fetchWeeklyTransitSummary(): Promise<WeeklyTransitSummary 
     ? Math.round(outboundVals.reduce((sum, v) => sum + v, 0) / outboundVals.length)
     : null;
   const total = avg(rows as unknown as Record<string, unknown>[], "n_total");
+  const inland = total != null && offshore != null ? Math.max(total - offshore, 0) : null;
 
   return {
-    status_level: statusFromTotal(total),
+    status_level: statusFromTransit(inland, offshore, total),
     latest_date: latestDate,
     total_vessels: total,
     tanker_vessels: avg(rows as unknown as Record<string, unknown>[], "n_tanker"),
@@ -87,7 +102,7 @@ export async function fetchWeeklyTransitSummary(): Promise<WeeklyTransitSummary 
     dry_bulk_vessels: avg(rows as unknown as Record<string, unknown>[], "n_dry_bulk"),
     general_cargo_vessels: avg(rows as unknown as Record<string, unknown>[], "n_general_cargo"),
     offshore_exit_count: offshore,
-    inland_entry_count: total != null && offshore != null ? Math.max(total - offshore, 0) : null,
+    inland_entry_count: inland,
     source: rows[0].source ?? null,
   };
 }
@@ -123,7 +138,7 @@ export async function fetchLatestOilPrices(): Promise<Record<string, OilPriceSer
 }
 
 export async function fetchLatestMarketSnapshots(): Promise<Record<string, MarketSnapshot>> {
-  const symbols = ["VIX", "NASDAQ", "SP500", "KOSPI", "KOSDAQ", "ES_FUTURES", "NQ_FUTURES"];
+  const symbols = ["VIX", "NASDAQ", "SP500", "KOSPI", "KOSDAQ", "ES_FUTURES", "NQ_FUTURES", "GOLD_FUTURES", "USD_INDEX", "GASOLINE_FUTURES", "HEATING_OIL_FUTURES"];
   const result: Record<string, MarketSnapshot> = {};
   for (const symbol of symbols) {
     const { data } = await supabase
@@ -140,7 +155,7 @@ export async function fetchLatestMarketSnapshots(): Promise<Record<string, Marke
 
 export async function fetchMarketIntraday(): Promise<Record<string, { time: string; price: number }[]>> {
   const since = new Date(Date.now() - 5 * 86_400_000).toISOString();
-  const symbols = ["VIX", "NASDAQ", "SP500", "KOSPI", "KOSDAQ", "ES_FUTURES", "NQ_FUTURES"];
+  const symbols = ["VIX", "NASDAQ", "SP500", "KOSPI", "KOSDAQ", "ES_FUTURES", "NQ_FUTURES", "GOLD_FUTURES", "USD_INDEX", "GASOLINE_FUTURES", "HEATING_OIL_FUTURES"];
 
   // 심볼별 병렬 쿼리 — 단일 쿼리 시 기본 1000행 limit에 걸려 선물 심볼이 결과를 독점하는 문제 방지
   const fetches = await Promise.all(
@@ -164,7 +179,7 @@ export async function fetchMarketIntraday(): Promise<Record<string, { time: stri
 
 export async function fetchMarketOHLCV(): Promise<Record<string, MarketOHLCV[]>> {
   const since = new Date(Date.now() - 35 * 86_400_000).toISOString().slice(0, 10);
-  const symbols = ["VIX", "NASDAQ", "SP500", "KOSPI", "KOSDAQ", "ES_FUTURES", "NQ_FUTURES"];
+  const symbols = ["VIX", "NASDAQ", "SP500", "KOSPI", "KOSDAQ", "ES_FUTURES", "NQ_FUTURES", "GOLD_FUTURES", "USD_INDEX", "GASOLINE_FUTURES", "HEATING_OIL_FUTURES"];
   const { data } = await supabase
     .from("market_ohlcv")
     .select("symbol, price_date, open, high, low, close")
@@ -182,7 +197,7 @@ export async function fetchMarketOHLCV(): Promise<Record<string, MarketOHLCV[]>>
 
 export async function fetchMarketHistory(days = 30): Promise<Record<string, { date: string; price: number }[]>> {
   const since = new Date(Date.now() - days * 86_400_000).toISOString().slice(0, 10);
-  const symbols = ["VIX", "NASDAQ", "SP500", "KOSPI", "KOSDAQ", "ES_FUTURES", "NQ_FUTURES"];
+  const symbols = ["VIX", "NASDAQ", "SP500", "KOSPI", "KOSDAQ", "ES_FUTURES", "NQ_FUTURES", "GOLD_FUTURES", "USD_INDEX", "GASOLINE_FUTURES", "HEATING_OIL_FUTURES"];
   const { data } = await supabase
     .from("market_snapshots")
     .select("symbol, snapshot_date, price")

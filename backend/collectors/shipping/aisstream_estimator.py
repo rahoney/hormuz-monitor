@@ -89,6 +89,17 @@ def estimate_recent_transits(days: int = 10) -> int:
         total = counts["total"]
         if total == 0:
             continue
+        inland_score = (1.0 - min(counts["inland_entry"] / 35.0, 1.0)) * 30.0
+        offshore_score = (1.0 - min(counts["offshore_exit"] / 35.0, 1.0)) * 70.0
+        risk_score = inland_score + offshore_score
+        
+        status_level_str = "normal"
+        if risk_score > 90: status_level_str = "blockade_level"
+        elif risk_score > 75: status_level_str = "critical"
+        elif risk_score > 55: status_level_str = "high_risk"
+        elif risk_score > 35: status_level_str = "congested"
+        elif risk_score > 15: status_level_str = "slightly_delayed"
+
         metric_records.append({
             "period_start": f"{transit_date}T00:00:00+00:00",
             "period_end": f"{transit_date}T23:59:59+00:00",
@@ -97,7 +108,7 @@ def estimate_recent_transits(days: int = 10) -> int:
             "crude_vessels": counts["tanker"],
             "inland_entry_count": counts["inland_entry"],
             "offshore_exit_count": counts["offshore_exit"],
-            "status_level": "restricted" if total == 0 else ("high_risk" if total < 5 else "normal"),
+            "status_level": status_level_str,
         })
         if latest_portwatch and transit_date <= latest_portwatch:
             continue
