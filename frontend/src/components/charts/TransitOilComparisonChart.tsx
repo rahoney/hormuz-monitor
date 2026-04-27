@@ -20,7 +20,7 @@ function buildChartData(transit: TransitRecord[], oil: OilPriceSeries[]) {
   return transit.map((r) => ({
     date:    r.transit_date.slice(5),
     vessels: r.n_total,
-    brent:   brentMap.get(r.transit_date) ?? null,
+    brent:   brentMap.has(r.transit_date) ? brentMap.get(r.transit_date) : undefined,
   }));
 }
 
@@ -69,6 +69,7 @@ export default function TransitOilComparisonChart({ transitRecords, oilSeries }:
           tickFormatter={(v) => `$${v}`}
           label={{ value: "USD/bbl", angle: 90, position: "insideRight", fill: "#34d399", fontSize: 10, dy: -30 }}
           domain={[brentYMin, 'auto']}
+          allowDataOverflow={true}
         />
         <Tooltip
           contentStyle={{ background: "#1e293b", border: "1px solid #334155", borderRadius: 6 }}
