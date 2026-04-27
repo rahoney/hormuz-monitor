@@ -134,11 +134,12 @@ Generate a situation summary AND a geopolitical tension score based on the data 
   Use the full range — e.g. score 5 vs 3 or 20 vs 17 to reflect degrees within each band.
 - Formatting: Use Markdown (bullet points, bold text, etc.) to make the summary structured and readable.
 - Output ONLY these three sections, nothing else. The summaries can be multi-line:
-KO:
+### KO
 [Korean Markdown summary]
-EN:
+### EN
 [English Markdown summary]
-SCORE: [integer 1-30]
+### SCORE
+[integer 1-30]
 
 [Recent News Headlines (last 24h)]
 {news_block}
@@ -179,37 +180,23 @@ def generate() -> tuple[str, str, int | None] | None:
         logger.error("상황 요약 Gemini 호출 실패: %s", exc)
         return None
 
-    ko_lines = []
-    en_lines = []
-    geo_score = None
+    import re
     
-    current_block = None
+    # AI가 헤더에 굵은 글씨나 공백을 넣어도 무시하고 잡아내는 정규식
+    ko_match = re.search(r'###\s*\*?KO\b\*?:?(.*?)(?=###\s*\*?EN\b|\Z)', text, re.IGNORECASE | re.DOTALL)
+    en_match = re.search(r'###\s*\*?EN\b\*?:?(.*?)(?=###\s*\*?SCORE\b|\Z)', text, re.IGNORECASE | re.DOTALL)
+    score_match = re.search(r'###\s*\*?SCORE\b\*?:?\s*(\d+)', text, re.IGNORECASE)
 
-    for line in text.splitlines():
-        if line.startswith("KO:"):
-            current_block = "KO"
-            content = line[3:].strip()
-            if content: ko_lines.append(content)
-        elif line.startswith("EN:"):
-            current_block = "EN"
-            content = line[3:].strip()
-            if content: en_lines.append(content)
-        elif line.startswith("SCORE:"):
-            current_block = "SCORE"
-            raw = line[6:].strip()
-            try:
-                val = int(raw)
-                geo_score = max(1, min(30, val))
-            except ValueError:
-                pass
-        else:
-            if current_block == "KO":
-                ko_lines.append(line)
-            elif current_block == "EN":
-                en_lines.append(line)
-
-    ko = "\n".join(ko_lines).strip()
-    en = "\n".join(en_lines).strip()
+    ko = ko_match.group(1).strip() if ko_match else ""
+    en = en_match.group(1).strip() if en_match else ""
+    
+    geo_score = None
+    if score_match:
+        try:
+            val = int(score_match.group(1))
+            geo_score = max(1, min(30, val))
+        except ValueError:
+            pass
 
     if not ko:
         return None
