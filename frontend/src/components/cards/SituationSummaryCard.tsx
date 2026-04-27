@@ -12,7 +12,7 @@ export default function SituationSummaryCard({ summary }: Props) {
   const locale = useLocale();
 
   const text = summary
-    ? (locale === "ko" ? summary.summary_ko : summary.summary_en ?? summary.summary_ko)
+    ? (locale === "ko" ? summary.summary_ko : (summary.summary_en || summary.summary_ko))
     : null;
 
   const updatedAt = summary
