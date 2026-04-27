@@ -18,30 +18,6 @@ from utils.logger import get_logger
 
 logger = get_logger(__name__)
 
-# 미국 pre-market~after-hours: UTC 08:00~01:00 (weekday)
-_MARKET_EXCLUDED_UTC_HOURS = set(range(1, 8))
-_DAILY_OHLCV_UTC_HOUR = 22
-
-
-def _is_market_session() -> bool:
-    now = datetime.now(timezone.utc)
-    if now.weekday() >= 5:
-        return False
-    return now.hour not in _MARKET_EXCLUDED_UTC_HOURS
-
-
-def _should_run_daily_ohlcv(force: bool = False) -> bool:
-    if force:
-        return True
-
-    now = datetime.now(timezone.utc)
-    if now.hour < _DAILY_OHLCV_UTC_HOUR:
-        return False
-
-    today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
-    return not has_successful_run_since("market_ohlcv", today_start)
-
-
 def _run_snapshot() -> bool:
     run_id = start_run("market")
     logger.info("시장 지표 실시간 수집 시작")
@@ -76,39 +52,52 @@ def _run_intraday() -> bool:
         return False
 
 
-def _run_ohlcv() -> bool:
-    run_id = start_run("market_ohlcv")
-    logger.info("일봉 OHLCV 수집 시작")
+def _run_ohlcv(exchange: str) -> bool:
+    run_id = start_run(f"market_ohlcv_{exchange}")
+    logger.info(f"일봉 OHLCV ({exchange}) 수집 시작")
 
     try:
-        records = yf_collect_ohlcv()
+        records = yf_collect_ohlcv(exchange)
         saved = upsert("market_ohlcv", records, on_conflict="symbol,price_date")
         finish_run(run_id, "success", len(records), saved)
         logger.info("완료: %d건 수집, %d건 저장", len(records), saved)
         return True
     except Exception as exc:
         finish_run(run_id, "failed", 0, 0)
-        log_error("market_ohlcv", "unknown", str(exc), run_id)
-        logger.error("수집 실패: %s", exc)
+        log_error(f"market_ohlcv_{exchange}", "unknown", str(exc), run_id)
+        logger.error(f"수집 실패 ({exchange}): %s", exc)
         return False
 
 
 def run(force: bool = False) -> None:
     failures: list[str] = []
 
-    if force or _is_market_session():
-        if not _run_snapshot():
-            failures.append("market")
-        if not _run_intraday():
-            failures.append("market_intraday")
-    else:
-        logger.info("장외 시간 — snapshot/intraday 수집 건너뜀")
+    # 1. 5분봉 및 스냅샷 (yfinance_collector 내부에서 개장일인 거래소만 필터링하여 수집)
+    if not _run_snapshot():
+        failures.append("market")
+    if not _run_intraday():
+        failures.append("market_intraday")
 
-    if _should_run_daily_ohlcv(force):
-        if not _run_ohlcv():
-            failures.append("market_ohlcv")
-    else:
-        logger.info("일봉 OHLCV는 실행 조건 미충족 또는 오늘 이미 성공 — 건너뜀")
+    # 2. 거래소별 일봉(OHLCV) 수집 타겟 시간 (UTC 기준)
+    # KRX: 한국 밤 11시 (14:00 UTC)
+    # NYSE/CME: 미국장 종료 후 (한국 오전 10시 = 01:00 UTC)
+    now = datetime.now(timezone.utc)
+    exchanges = {
+        "KRX": 14,
+        "NYSE": 1,
+        "CME": 1,
+        "ICE": 1,
+    }
+
+    for exc, target_hour in exchanges.items():
+        # 타겟 시간이 지났고, 해당 타겟 시간 이후로 성공한 기록이 없는 경우에만 실행
+        target_time = now.replace(hour=target_hour, minute=0, second=0, microsecond=0)
+        
+        if force or (now.hour >= target_hour and not has_successful_run_since(f"market_ohlcv_{exc}", target_time)):
+            if not _run_ohlcv(exc):
+                failures.append(f"market_ohlcv_{exc}")
+        else:
+            logger.info(f"일봉 OHLCV ({exc})는 실행 조건 미충족(타겟:{target_hour}시, 현재:{now.hour}시) 또는 오늘 이미 완료 — 건너뜀")
 
     if failures:
         raise RuntimeError(f"시장 통합 수집 일부 실패: {', '.join(failures)}")

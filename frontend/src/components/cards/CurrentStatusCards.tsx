@@ -2,7 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import StatusCard from "./StatusCard";
-import { statusLevelColor, statusLevelLabel } from "@/lib/formatters";
+import { statusLevelColor } from "@/lib/formatters";
 import type { WeeklyTransitSummary } from "@/types";
 
 type Props = { summary: WeeklyTransitSummary | null };
@@ -16,7 +16,7 @@ export default function CurrentStatusCards({ summary }: Props) {
     <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-8">
       <StatusCard
         label={t("cards.straitStatus")}
-        value={statusLevelLabel(status)}
+        value={t(`status.${status}`)}
         valueClassName={statusLevelColor(status)}
         sub={summary?.source === "aisstream_estimate" ? t("cards.estimated") : t("cards.confirmed")}
       />

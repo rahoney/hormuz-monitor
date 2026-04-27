@@ -132,9 +132,12 @@ Generate a situation summary AND a geopolitical tension score based on the data 
   16~22 = Warning (diplomatic breakdown, negotiations failed/suspended, escalating threats, sanctions increased)
   23~30 = Danger (military action imminent or underway, attack/seizure/blockade occurring or just confirmed)
   Use the full range — e.g. score 5 vs 3 or 20 vs 17 to reflect degrees within each band.
-- Output ONLY these three lines, nothing else:
-KO: [Korean summary]
-EN: [English summary]
+- Formatting: Use Markdown (bullet points, bold text, etc.) to make the summary structured and readable.
+- Output ONLY these three sections, nothing else. The summaries can be multi-line:
+KO:
+[Korean Markdown summary]
+EN:
+[English Markdown summary]
 SCORE: [integer 1-30]
 
 [Recent News Headlines (last 24h)]
@@ -176,20 +179,38 @@ def generate() -> tuple[str, str, int | None] | None:
         logger.error("상황 요약 Gemini 호출 실패: %s", exc)
         return None
 
-    ko, en, geo_score = "", "", None
+    ko_lines = []
+    en_lines = []
+    geo_score = None
+    
+    current_block = None
+
     for line in text.splitlines():
         if line.startswith("KO:"):
-            ko = line[3:].strip()
+            current_block = "KO"
+            content = line[3:].strip()
+            if content: ko_lines.append(content)
         elif line.startswith("EN:"):
-            en = line[3:].strip()
+            current_block = "EN"
+            content = line[3:].strip()
+            if content: en_lines.append(content)
         elif line.startswith("SCORE:"):
+            current_block = "SCORE"
             raw = line[6:].strip()
             try:
                 val = int(raw)
                 geo_score = max(1, min(30, val))
             except ValueError:
                 pass
+        else:
+            if current_block == "KO":
+                ko_lines.append(line)
+            elif current_block == "EN":
+                en_lines.append(line)
+
+    ko = "\n".join(ko_lines).strip()
+    en = "\n".join(en_lines).strip()
 
     if not ko:
         return None
-    return ko, en or "", geo_score
+    return ko, en, geo_score

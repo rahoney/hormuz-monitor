@@ -20,18 +20,12 @@ export function changePctColor(value: number | null): string {
 
 export function statusLevelColor(level: string): string {
   switch (level) {
-    case "normal":      return "text-emerald-400";
-    case "restricted":  return "text-blue-400";
-    case "high_risk":   return "text-red-400";
-    default:            return "text-slate-400";
-  }
-}
-
-export function statusLevelLabel(level: string): string {
-  switch (level) {
-    case "normal":      return "Normal";
-    case "restricted":  return "Restricted";
-    case "high_risk":   return "High Risk";
-    default:            return "Unknown";
+    case "normal":            return "text-emerald-400";
+    case "slightly_delayed":  return "text-lime-400";
+    case "congested":         return "text-yellow-400";
+    case "high_risk":         return "text-orange-400";
+    case "critical":          return "text-red-500";
+    case "blockade_level":    return "text-rose-800";
+    default:                  return "text-slate-400";
   }
 }

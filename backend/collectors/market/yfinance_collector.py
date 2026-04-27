@@ -1,19 +1,50 @@
 """yfinance에서 시장 지표 스냅샷·5분봉·일봉 OHLCV를 수집한다."""
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta
 import math
 from typing import Any
 import yfinance as yf
+import pandas_market_calendars as mcal
+import pytz
+from utils.logger import get_logger
+
+logger = get_logger(__name__)
 
 _SYMBOLS: list[dict[str, str]] = [
-    {"symbol": "VIX",        "ticker": "^VIX"},
-    {"symbol": "NASDAQ",     "ticker": "^IXIC"},
-    {"symbol": "SP500",      "ticker": "^GSPC"},
-    {"symbol": "KOSPI",      "ticker": "^KS11"},
-    {"symbol": "KOSDAQ",     "ticker": "^KQ11"},
-    {"symbol": "ES_FUTURES", "ticker": "ES=F"},
-    {"symbol": "NQ_FUTURES", "ticker": "NQ=F"},
+    {"symbol": "VIX",        "ticker": "^VIX",  "exchange": "NYSE"},
+    {"symbol": "NASDAQ",     "ticker": "^IXIC", "exchange": "NYSE"},
+    {"symbol": "SP500",      "ticker": "^GSPC", "exchange": "NYSE"},
+    {"symbol": "KOSPI",      "ticker": "^KS11", "exchange": "KRX"},
+    {"symbol": "KOSDAQ",     "ticker": "^KQ11", "exchange": "KRX"},
+    {"symbol": "ES_FUTURES", "ticker": "ES=F",  "exchange": "CME"},
+    {"symbol": "NQ_FUTURES", "ticker": "NQ=F",  "exchange": "CME"},
+    {"symbol": "GOLD_FUTURES", "ticker": "GC=F", "exchange": "CME"},
+    {"symbol": "USD_INDEX",    "ticker": "DX-Y.NYB", "exchange": "ICE"},
+    {"symbol": "GASOLINE_FUTURES", "ticker": "RB=F", "exchange": "CME"},
+    {"symbol": "HEATING_OIL_FUTURES", "ticker": "HO=F", "exchange": "CME"},
 ]
 
+# 캐시된 캘린더 인스턴스
+_CALENDARS = {
+    "NYSE": mcal.get_calendar('XNYS'),
+    "KRX":  mcal.get_calendar('XKRX'),
+    "CME":  mcal.get_calendar('CME_Equity'),
+    "ICE":  mcal.get_calendar('ICEUS'),
+}
+
+def _is_trading_day(exchange: str) -> bool:
+    try:
+        cal = _CALENDARS.get(exchange)
+        if not cal:
+            return True # 모르는 거래소는 일단 수집 시도
+        
+        # 거래소의 로컬 타임존 기준으로 '오늘'이 개장일인지 확인
+        tz = cal.tz.zone
+        today_local = datetime.now(pytz.timezone(tz)).date()
+        schedule = cal.schedule(start_date=today_local, end_date=today_local)
+        return not schedule.empty
+    except Exception as e:
+        logger.warning(f"캘린더 확인 실패 ({exchange}): {e}")
+        return True # 실패 시 폴백으로 수집 시도
 
 def _finite_float(value: Any) -> float | None:
     raw = value.iloc[0] if hasattr(value, "iloc") else value
@@ -23,14 +54,15 @@ def _finite_float(value: Any) -> float | None:
         return None
     return number if math.isfinite(number) else None
 
-
-def collect_ohlcv(days: int = 35) -> list[dict[str, Any]]:
-    """일봉 OHLCV 수집 (최근 N일)."""
+def collect_ohlcv(exchange: str, days: int = 35) -> list[dict[str, Any]]:
+    """특정 거래소의 일봉 OHLCV 수집 (최근 N일)."""
     end = date.today()
     start = end - timedelta(days=days)
     records: list[dict[str, Any]] = []
 
-    for s in _SYMBOLS:
+    symbols_to_fetch = [s for s in _SYMBOLS if s["exchange"] == exchange]
+    
+    for s in symbols_to_fetch:
         try:
             df = yf.download(s["ticker"], start=start.isoformat(), end=end.isoformat(),
                              progress=False, auto_adjust=True)
@@ -52,15 +84,19 @@ def collect_ohlcv(days: int = 35) -> list[dict[str, Any]]:
                     "close":      round(close, 4),
                     "source":     "yfinance",
                 })
-        except Exception:
+        except Exception as e:
+            logger.error(f"OHLCV 수집 에러 ({s['symbol']}): {e}")
             continue
     return records
 
-
 def collect_intraday() -> list[dict[str, Any]]:
-    """5분봉 데이터 수집. 가능한 티커는 프리마켓/애프터마켓까지 포함한다."""
+    """5분봉 데이터 수집. 개장일인 거래소의 티커만 수집한다."""
     records: list[dict[str, Any]] = []
+    
     for s in _SYMBOLS:
+        if not _is_trading_day(s["exchange"]):
+            continue
+            
         try:
             ticker = yf.Ticker(s["ticker"])
             hist = ticker.history(period="1d", interval="5m", prepost=True)
@@ -78,16 +114,20 @@ def collect_intraday() -> list[dict[str, Any]]:
                     "price":       round(close, 4),
                     "source":      "yfinance",
                 })
-        except Exception:
+        except Exception as e:
+            logger.error(f"Intraday 수집 에러 ({s['symbol']}): {e}")
             continue
     return records
 
-
 def collect_live() -> list[dict[str, Any]]:
-    """현재 시장 실시간 가격을 수집한다 (장중/장후용)."""
+    """현재 시장 실시간 가격을 수집한다. 개장일인 거래소만 수집."""
     today = date.today().isoformat()
     records: list[dict[str, Any]] = []
+    
     for s in _SYMBOLS:
+        if not _is_trading_day(s["exchange"]):
+            continue
+            
         try:
             ticker = yf.Ticker(s["ticker"])
             hist = ticker.history(period="5d", interval="1d")
@@ -109,7 +149,8 @@ def collect_live() -> list[dict[str, Any]]:
                 "change_pct":    chg,
                 "source":        "yfinance",
             })
-        except Exception:
+        except Exception as e:
+            logger.error(f"Live 수집 에러 ({s['symbol']}): {e}")
             continue
     return records
 

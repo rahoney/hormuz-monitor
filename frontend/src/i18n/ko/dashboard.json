@@ -88,6 +88,15 @@
     "region": "지역",
     "noData": "휘발유 가격 데이터 없음"
   },
+  "status": {
+    "normal": "원활",
+    "slightly_delayed": "약간 지연",
+    "congested": "다소 정체",
+    "high_risk": "위험",
+    "critical": "심각",
+    "blockade_level": "봉쇄 수준",
+    "unknown": "알 수 없음"
+  },
   "gauge": {
     "title": "호르무즈 위험 지수",
     "safe": "안전",

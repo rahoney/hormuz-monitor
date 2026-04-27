@@ -3,6 +3,7 @@
 import { useTranslations, useLocale } from "next-intl";
 import type { SituationSummary } from "@/types";
 import ShareSummaryButton from "./ShareSummaryButton";
+import ReactMarkdown from "react-markdown";
 
 type Props = { summary: SituationSummary | null };
 
@@ -45,9 +46,22 @@ export default function SituationSummaryCard({ summary }: Props) {
           )}
         </div>
       </div>
-      <p className="text-slate-200 leading-7 whitespace-pre-wrap" style={{ fontSize: "16px" }}>
-        {text ?? t("noData")}
-      </p>
+      <div className="text-slate-200 leading-7" style={{ fontSize: "16px" }}>
+        {text ? (
+          <ReactMarkdown
+            components={{
+              p: ({ node, ...props }) => <p className="mb-4 last:mb-0" {...props} />,
+              strong: ({ node, ...props }) => <strong className="font-semibold text-white" {...props} />,
+              ul: ({ node, ...props }) => <ul className="list-disc pl-5 mb-4 last:mb-0" {...props} />,
+              li: ({ node, ...props }) => <li className="mb-1" {...props} />,
+            }}
+          >
+            {text}
+          </ReactMarkdown>
+        ) : (
+          <p className="whitespace-pre-wrap">{t("noData")}</p>
+        )}
+      </div>
     </div>
   );
 }
