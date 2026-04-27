@@ -29,7 +29,7 @@ export default function TransitCombinedChart({ records, oilSeries }: Props) {
     vessels:   r.n_total,
     offshore:  Math.min(r.offshore_exit_count ?? 0, r.n_total),
     nonOffshore: Math.max(r.n_total - (r.offshore_exit_count ?? 0), 0),
-    brent:     brentMap.get(r.transit_date) ?? null,
+    brent:     brentMap.has(r.transit_date) ? brentMap.get(r.transit_date) : undefined,
     tanker:    r.n_tanker,
     container: r.n_container,
     dry_bulk:  r.n_dry_bulk,
@@ -69,36 +69,42 @@ export default function TransitCombinedChart({ records, oilSeries }: Props) {
         ))}
       </div>
 
-      {active === "comparison" && (
-        <ResponsiveContainer width="100%" height={260}>
-          <ComposedChart data={data} margin={{ top: 4, right: 8, bottom: 0, left: 0 }}>
-            <XAxis dataKey="date" tick={{ fill: "#94a3b8", fontSize: 10 }} tickLine={false} interval="preserveStartEnd" />
-            <YAxis yAxisId="vessels" orientation="left"  tick={{ fill: "#60a5fa", fontSize: 10 }} tickLine={false} axisLine={false} width={28} />
-            <YAxis yAxisId="brent"   orientation="right" tick={{ fill: "#34d399", fontSize: 10 }} tickLine={false} axisLine={false} width={34} tickFormatter={(v) => `$${v}`} />
-            <Tooltip
-              contentStyle={{ background: "#1e293b", border: "1px solid #334155", borderRadius: 6 }}
-              labelStyle={{ color: "#94a3b8", fontSize: 11 }}
-              formatter={(value, name) => {
-                if (name === t("brent")) return [`$${Number(value).toFixed(2)}`, t("brent")];
-                if (name === t("offshoreExitEstimate")) return [value, t("offshoreExitEstimate")];
-                return [value, t("totalVessels")];
-              }}
-              labelFormatter={(label, payload) => {
-                const estimated = payload?.[0]?.payload?.estimated;
-                return `${label} · ${estimated ? t("estimated") : t("confirmed")}`;
-              }}
-            />
-            <Legend wrapperStyle={{ fontSize: 11, color: "#94a3b8" }} />
-            <Bar yAxisId="vessels" dataKey="offshore" stackId="transit" name={t("offshoreExitEstimate")} fill="#92400e" opacity={0.85} radius={[0,0,0,0]} />
-            <Bar  yAxisId="vessels" dataKey="nonOffshore" stackId="transit" name={t("totalVessels")} fill="#60a5fa" opacity={0.7} radius={[2,2,0,0]}>
-              {data.map((entry) => (
-                <Cell key={entry.date} fill={entry.estimated ? "#f59e0b" : "#60a5fa"} />
-              ))}
-            </Bar>
-            <Line yAxisId="brent"   dataKey="brent"   name={t("brent")}       stroke="#34d399" strokeWidth={1.5} dot={false} connectNulls />
-          </ComposedChart>
-        </ResponsiveContainer>
-      )}
+      {active === "comparison" && (() => {
+        const brentValues = data.map((d) => d.brent).filter((v): v is number => v !== null && v !== undefined);
+        const actualMin = brentValues.length > 0 ? Math.min(...brentValues) : 0;
+        const brentYMin = actualMin > 0 ? Math.min(actualMin, 40) : 40;
+
+        return (
+          <ResponsiveContainer width="100%" height={260}>
+            <ComposedChart data={data} margin={{ top: 4, right: 8, bottom: 0, left: 0 }}>
+              <XAxis dataKey="date" tick={{ fill: "#94a3b8", fontSize: 10 }} tickLine={false} interval="preserveStartEnd" />
+              <YAxis yAxisId="vessels" orientation="left"  tick={{ fill: "#60a5fa", fontSize: 10 }} tickLine={false} axisLine={false} width={28} />
+              <YAxis yAxisId="brent"   orientation="right" tick={{ fill: "#34d399", fontSize: 10 }} tickLine={false} axisLine={false} width={34} tickFormatter={(v) => `$${v}`} domain={[brentYMin, 'auto']} allowDataOverflow={true} />
+              <Tooltip
+                contentStyle={{ background: "#1e293b", border: "1px solid #334155", borderRadius: 6 }}
+                labelStyle={{ color: "#94a3b8", fontSize: 11 }}
+                formatter={(value, name) => {
+                  if (name === t("brent")) return [`$${Number(value).toFixed(2)}`, t("brent")];
+                  if (name === t("offshoreExitEstimate")) return [value, t("offshoreExitEstimate")];
+                  return [value, t("totalVessels")];
+                }}
+                labelFormatter={(label, payload) => {
+                  const estimated = payload?.[0]?.payload?.estimated;
+                  return `${label} · ${estimated ? t("estimated") : t("confirmed")}`;
+                }}
+              />
+              <Legend wrapperStyle={{ fontSize: 11, color: "#94a3b8" }} />
+              <Bar yAxisId="vessels" dataKey="offshore" stackId="transit" name={t("offshoreExitEstimate")} fill="#92400e" opacity={0.85} radius={[0,0,0,0]} />
+              <Bar  yAxisId="vessels" dataKey="nonOffshore" stackId="transit" name={t("totalVessels")} fill="#60a5fa" opacity={0.7} radius={[2,2,0,0]}>
+                {data.map((entry) => (
+                  <Cell key={entry.date} fill={entry.estimated ? "#f59e0b" : "#60a5fa"} />
+                ))}
+              </Bar>
+              <Line yAxisId="brent"   dataKey="brent"   name={t("brent")}       stroke="#34d399" strokeWidth={1.5} dot={false} connectNulls />
+            </ComposedChart>
+          </ResponsiveContainer>
+        );
+      })()}
 
       {active === "total" && (
         <ResponsiveContainer width="100%" height={260}>
