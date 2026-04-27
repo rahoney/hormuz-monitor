@@ -117,23 +117,21 @@ def _build_prompt(events: list, trump: list, oil: dict,
 
     return f"""You are a concise analyst for the Hormuz Monitor dashboard.
 
-Generate a situation summary AND a geopolitical tension score based on the data below.
-- FOCUS: US-Iran war/negotiations and Trump's statements are the PRIMARY topic.
-- Oil prices and market indices are SECONDARY (mention briefly).
-- Korean: 150~400 characters (자), with length proportional to information density.
-  If the situation is quiet or repetitive, 150~220 characters is enough.
-  If there are multiple distinct headlines, Trump statements, risk changes, or market/oil moves
-  that need context, use 250~400 characters and explain the causal links.
-- English: 60~150 words, also proportional to information density.
-- Do NOT compress every case to the minimum length. Use the available range when needed.
-- SCORE: integer 1~30 measuring geopolitical tension for the Hormuz Strait.
-  1~7 = Safe (peace agreement, strait open, ceasefire holding, normalization confirmed)
-  8~15 = Caution (negotiations ongoing, talks in progress, ceasefire active but unresolved)
-  16~22 = Warning (diplomatic breakdown, negotiations failed/suspended, escalating threats, sanctions increased)
-  23~30 = Danger (military action imminent or underway, attack/seizure/blockade occurring or just confirmed)
-  Use the full range — e.g. score 5 vs 3 or 20 vs 17 to reflect degrees within each band.
-- Formatting: Use Markdown (bullet points, bold text, etc.) to make the summary structured and readable.
-- Output ONLY these three sections, nothing else. The summaries can be multi-line:
+주어진 데이터를 바탕으로 한국어 요약을 먼저 작성하라.
+한국어 요약은 내용이 간단하더라도 최소 150자 이상으로 작성하고, 내용이 다양하거나 추가 설명이 필요한 경우에는 450자 이내에서 충분히 길게 작성하라. 이 글자 수 기준은 한국어 요약문에만 적용한다. 150자는 최소 기준일 뿐이며, 가능한 한 짧게 쓰라는 의미가 아니다. 핵심 내용, 배경, 주요 수치, 관련 주체, 영향 또는 전망 등 중요한 정보는 글자 수를 줄이기 위해 과도하게 생략하지 말라.
+- FOCUS: US-Iran war/negotiations and Trump's statements are the PRIMARY topic. Oil prices and market indices are SECONDARY.
+
+요약문은 마크다운 문법을 사용해 읽기 좋게 정돈하되, 제목·불릿·강조 표시는 내용의 구조를 이해하는 데 도움이 되도록 적절히 사용하라. 형식이 요약보다 과하게 부각되지 않도록 하며, 내용이 짧거나 단일 문단으로 충분한 경우에는 자연스러운 문단형 요약으로 작성하라.
+
+그다음, 작성한 한국어 요약문을 내용 누락, 추가, 변형 없이 영어로 정확히 번역하라. 영어 번역은 한국어 요약문의 의미와 구조를 가능한 한 그대로 유지하되, 영어로 자연스럽게 읽히도록 작성하라.
+
+마지막으로, 현재 호르무즈 해협의 지정학적 긴장도를 나타내는 SCORE(정수 1~30)를 산출하라.
+- 1~7 = Safe (peace agreement, strait open, ceasefire holding, normalization confirmed)
+- 8~15 = Caution (negotiations ongoing, talks in progress, ceasefire active but unresolved)
+- 16~22 = Warning (diplomatic breakdown, negotiations failed/suspended, escalating threats, sanctions increased)
+- 23~30 = Danger (military action imminent or underway, attack/seizure/blockade occurring or just confirmed)
+
+Output ONLY these three sections, nothing else. The summaries can be multi-line:
 ### KO
 [Korean Markdown summary]
 ### EN
