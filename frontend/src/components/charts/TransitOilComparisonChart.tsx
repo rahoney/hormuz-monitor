@@ -35,6 +35,10 @@ export default function TransitOilComparisonChart({ transitRecords, oilSeries }:
     );
   }
 
+  const brentValues = data.map((d) => d.brent).filter((v): v is number => v !== null);
+  const actualMin = brentValues.length > 0 ? Math.min(...brentValues) : 0;
+  const brentYMin = actualMin > 0 ? Math.min(actualMin, 40) : 40;
+
   return (
     <ResponsiveContainer width="100%" height={260}>
       <ComposedChart data={data} margin={{ top: 4, right: 8, bottom: 0, left: 0 }}>
@@ -64,7 +68,7 @@ export default function TransitOilComparisonChart({ transitRecords, oilSeries }:
           width={34}
           tickFormatter={(v) => `$${v}`}
           label={{ value: "USD/bbl", angle: 90, position: "insideRight", fill: "#34d399", fontSize: 10, dy: -30 }}
-          domain={[(dataMin: number) => Math.min(dataMin, 40), 'auto']}
+          domain={[brentYMin, 'auto']}
         />
         <Tooltip
           contentStyle={{ background: "#1e293b", border: "1px solid #334155", borderRadius: 6 }}
