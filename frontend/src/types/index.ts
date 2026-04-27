@@ -1,4 +1,4 @@
-export type StatusLevel = "normal" | "restricted" | "high_risk" | "unknown";
+export type StatusLevel = "normal" | "slightly_delayed" | "congested" | "high_risk" | "critical" | "blockade_level" | "unknown";
 export type DirectionStatus = "inland_entry" | "offshore_exit" | "stationary" | "unknown";
 export type ZoneStatus = "inside_strait" | "persian_gulf_side" | "arabian_sea_side" | "unknown";
 

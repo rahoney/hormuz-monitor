@@ -1,5 +1,5 @@
 import { supabase } from "@/lib/supabase";
-import type { Event, GasolinePrice, MarketOHLCV, MarketSnapshot, OilPriceSeries, RiskScoreHistory, SituationSummary, StraitMetric, TransitRecord, TrumpPost, WeeklyTransitSummary } from "@/types";
+import type { Event, GasolinePrice, MarketOHLCV, MarketSnapshot, OilPriceSeries, RiskScoreHistory, SituationSummary, StraitMetric, TransitRecord, TrumpPost, WeeklyTransitSummary, StatusLevel } from "@/types";
 
 export async function fetchLatestSummary(): Promise<SituationSummary | null> {
   const { data } = await supabase
@@ -31,7 +31,7 @@ export async function fetchLatestStraitMetric(): Promise<StraitMetric | null> {
   return data ?? null;
 }
 
-function statusFromTransit(inland_entry: number | null, offshore_exit: number | null, total: number | null): string {
+function statusFromTransit(inland_entry: number | null, offshore_exit: number | null, total: number | null): StatusLevel {
   if (inland_entry === null && offshore_exit === null && total === null) return "unknown";
   
   const inlandScore = inland_entry !== null ? (1.0 - Math.min(inland_entry / 35.0, 1.0)) * 30.0 : 0.0;
