@@ -72,14 +72,14 @@ export default function TransitCombinedChart({ records, oilSeries }: Props) {
       {active === "comparison" && (() => {
         const brentValues = data.map((d) => d.brent).filter((v): v is number => v !== null && v !== undefined);
         const actualMin = brentValues.length > 0 ? Math.min(...brentValues) : 0;
-        const brentYMin = actualMin > 0 ? Math.min(actualMin, 40) : 40;
+        const brentYMin = actualMin > 0 ? Math.floor(Math.min(actualMin, 40) / 10) * 10 : 40;
 
         return (
           <ResponsiveContainer width="100%" height={260}>
             <ComposedChart data={data} margin={{ top: 4, right: 8, bottom: 0, left: 0 }}>
               <XAxis dataKey="date" tick={{ fill: "#94a3b8", fontSize: 10 }} tickLine={false} interval="preserveStartEnd" />
               <YAxis yAxisId="vessels" orientation="left"  tick={{ fill: "#60a5fa", fontSize: 10 }} tickLine={false} axisLine={false} width={28} />
-              <YAxis yAxisId="brent"   orientation="right" tick={{ fill: "#34d399", fontSize: 10 }} tickLine={false} axisLine={false} width={34} tickFormatter={(v) => `$${v}`} domain={[brentYMin, 'auto']} allowDataOverflow={true} />
+              <YAxis yAxisId="brent" type="number" orientation="right" tick={{ fill: "#34d399", fontSize: 10 }} tickLine={false} axisLine={false} width={34} tickFormatter={(v) => `$${v}`} domain={[brentYMin, 'auto']} allowDataOverflow={true} />
               <Tooltip
                 contentStyle={{ background: "#1e293b", border: "1px solid #334155", borderRadius: 6 }}
                 labelStyle={{ color: "#94a3b8", fontSize: 11 }}
