@@ -13,6 +13,9 @@ _SOURCES = [
     {"name": "CNBC Energy",      "url": "https://search.cnbc.com/rs/search/combinedcms/view.xml?partnerId=wrss01&id=19836768",               "lang": "en"},
     {"name": "CNBC World",       "url": "https://search.cnbc.com/rs/search/combinedcms/view.xml?partnerId=wrss01&id=100727362",              "lang": "en"},
     {"name": "CNBC Asia",        "url": "https://search.cnbc.com/rs/search/combinedcms/view.xml?partnerId=wrss01&id=19832390",               "lang": "en"},
+    # 공식 RSS가 없는 로이터/AP통신은 구글 뉴스 RSS의 site: 연산자 활용
+    {"name": "Reuters",          "url": "https://news.google.com/rss/search?q=site%3Areuters.com%2Fworld%2Fmiddle-east+(Hormuz+OR+Iran+OR+Trump+OR+%22oil+price%22)+when%3A7d&hl=en-US&gl=US&ceid=US%3Aen", "lang": "en"},
+    {"name": "AP News",          "url": "https://news.google.com/rss/search?q=site%3Aapnews.com%2Farticle+(Hormuz+OR+Iran+OR+Trump+OR+%22oil+price%22)+when%3A7d&hl=en-US&gl=US&ceid=US%3Aen",           "lang": "en"},
     {"name": "연합뉴스",          "url": "https://www.yna.co.kr/rss/international.xml",                                                      "lang": "ko"},
     {"name": "한국경제",          "url": "https://www.hankyung.com/feed/international",                                                      "lang": "ko"},
     {"name": "매일경제",          "url": "https://www.mk.co.kr/rss/50200011/",                                                               "lang": "ko"},
