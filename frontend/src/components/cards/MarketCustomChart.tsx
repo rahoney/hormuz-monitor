@@ -41,27 +41,45 @@ function marketTimeZone(locale: string): string {
   return locale.startsWith("ko") ? "Asia/Seoul" : "America/New_York";
 }
 
-function formatIntradayTime(timestamp: UTCTimestamp, locale: string): string {
+function formatIntradayTime(timestamp: UTCTimestamp, locale: string, detail = false): string {
   const timeZone = marketTimeZone(locale);
   return new Intl.DateTimeFormat(locale.startsWith("ko") ? "ko-KR" : "en-US", {
     timeZone,
-    month: "2-digit",
-    day: "2-digit",
+    ...(detail ? { month: "2-digit", day: "2-digit" } : {}),
     hour: "2-digit",
     minute: "2-digit",
     hour12: false,
   }).format(new Date(timestamp * 1000));
 }
 
-function formatChartTime(time: Time, tab: "5m" | "1d", locale: string): string {
+function formatDailyTime(time: Time, detail = false): string {
+  if (typeof time === "string") {
+    return detail ? time : time.slice(5);
+  }
+  if (typeof time === "object" && time !== null) {
+    const month = String(time.month).padStart(2, "0");
+    const day = String(time.day).padStart(2, "0");
+    return detail ? `${time.year}-${month}-${day}` : `${month}-${day}`;
+  }
+  return String(time);
+}
+
+function formatChartTick(time: Time, tab: "5m" | "1d", locale: string): string {
   if (tab === "5m" && typeof time === "number") {
     return formatIntradayTime(time as UTCTimestamp, locale);
   }
-  if (typeof time === "string") {
-    return time;
+  if (tab === "1d") {
+    return formatDailyTime(time);
   }
-  if (typeof time === "object" && time !== null) {
-    return `${time.year}-${String(time.month).padStart(2, "0")}-${String(time.day).padStart(2, "0")}`;
+  return String(time);
+}
+
+function formatChartDetail(time: Time, tab: "5m" | "1d", locale: string): string {
+  if (tab === "5m" && typeof time === "number") {
+    return formatIntradayTime(time as UTCTimestamp, locale, true);
+  }
+  if (tab === "1d") {
+    return formatDailyTime(time, true);
   }
   return String(time);
 }
@@ -146,10 +164,11 @@ export default function MarketCustomChart({ symbol, intraday, ohlcv }: Props) {
             ...CHART_OPTIONS.timeScale,
             timeVisible: tab === "5m",
             secondsVisible: false,
-            tickMarkFormatter: (time: Time) => formatChartTime(time, tab, locale),
+            tickMarkMaxCharacterLength: tab === "5m" ? 5 : 5,
+            tickMarkFormatter: (time: Time) => formatChartTick(time, tab, locale),
           },
           localization: {
-            timeFormatter: (time: Time) => formatChartTime(time, tab, locale),
+            timeFormatter: (time: Time) => formatChartDetail(time, tab, locale),
           },
         });
 
