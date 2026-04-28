@@ -28,16 +28,16 @@ export default function TrumpPostsFeed({ posts, fullPage = false }: Props) {
       {posts.map((post) => (
         <div
           key={post.id}
-          className="rounded-lg border border-slate-700/50 bg-slate-800/50 p-4 flex flex-col gap-2 transition-all duration-200 hover:bg-white/[0.03] hover:border-white/[0.10]"
+          className="min-w-0 rounded-lg border border-slate-700/50 bg-slate-800/50 p-4 flex flex-col gap-2 transition-all duration-200 hover:bg-white/[0.03] hover:border-white/[0.10]"
         >
-          <div className="flex items-center justify-between gap-2">
-            <div className="flex items-center gap-2">
+          <div className="flex min-w-0 items-center justify-between gap-2">
+            <div className="flex min-w-0 items-center gap-2">
               <span className="text-xs font-bold text-red-400">@realDonaldTrump</span>
-              <span className="text-xs text-slate-500">{post.source_name}</span>
+              <span className="truncate text-xs text-slate-500">{post.source_name}</span>
             </div>
             <span className="text-xs text-slate-500 shrink-0">{post.post_date}</span>
           </div>
-          <p className="text-sm text-slate-200 leading-6 whitespace-pre-wrap">
+          <p className="min-w-0 text-sm text-slate-200 leading-6 whitespace-pre-wrap [overflow-wrap:anywhere]">
             {locale === "ko" && post.content_ko ? post.content_ko : post.content}
           </p>
           {post.source_url && (
