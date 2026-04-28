@@ -102,6 +102,16 @@ def collect(since: date | None = None) -> list[dict[str, Any]]:
             summary = getattr(entry, "summary", "") or ""
             link = getattr(entry, "link", "") or ""
 
+            # 구글 뉴스 RSS의 경우 title 끝에 " - 언론사명"이 붙으므로 제거 (예: " - Reuters")
+            if " - " in title:
+                title = " - ".join(title.split(" - ")[:-1])
+
+            # 구글 뉴스 RSS의 summary는 HTML 태그(<a href=...>...</a>)로 되어 있으므로, 태그를 제거하고 순수 텍스트만 추출
+            import re
+            summary = re.sub(r'<[^>]+>', '', summary).strip()
+            # HTML 엔티티(&nbsp; 등) 정리
+            summary = summary.replace("&nbsp;", " ")
+
             if not _is_relevant(title, lang):
                 continue
             if link in seen_urls:
