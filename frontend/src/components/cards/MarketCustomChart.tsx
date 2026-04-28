@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import type { CandlestickData, IChartApi, LineData, Time, UTCTimestamp } from "lightweight-charts";
+import type { CandlestickData, IChartApi, LineData, LogicalRange, Time, UTCTimestamp } from "lightweight-charts";
 import { useLocale } from "next-intl";
 import type { MarketOHLCV } from "@/types";
 
@@ -24,7 +24,13 @@ const CHART_OPTIONS = {
   },
   crosshair: { mode: 1 },
   rightPriceScale: { borderColor: "rgba(51,65,85,0.5)" },
-  timeScale: { borderColor: "rgba(51,65,85,0.5)", timeVisible: true },
+  timeScale: {
+    borderColor: "rgba(51,65,85,0.5)",
+    fixLeftEdge: true,
+    fixRightEdge: true,
+    rightOffset: 0,
+    timeVisible: true,
+  },
 };
 
 function marketTimeZone(locale: string): string {
@@ -76,6 +82,37 @@ function prepareIntraday(intraday: IntradayPoint[]): LineData<UTCTimestamp>[] {
     });
 }
 
+function clampLogicalRange(range: LogicalRange | null, dataLength: number): LogicalRange | null {
+  if (!range || dataLength <= 1) return null;
+
+  const max = dataLength - 1;
+  const rangeFrom = Number(range.from);
+  const rangeTo = Number(range.to);
+  const width = rangeTo - rangeFrom;
+
+  if (width >= max) {
+    return rangeFrom === 0 && rangeTo === max ? null : { from: 0, to: max } as LogicalRange;
+  }
+
+  let from = rangeFrom;
+  let to = rangeTo;
+
+  if (from < 0) {
+    to -= from;
+    from = 0;
+  }
+  if (to > max) {
+    from -= to - max;
+    to = max;
+  }
+  if (from < 0) {
+    from = 0;
+  }
+
+  if (from === rangeFrom && to === rangeTo) return null;
+  return { from, to } as LogicalRange;
+}
+
 export default function MarketCustomChart({ symbol, intraday, ohlcv }: Props) {
   const locale = useLocale();
   const has5m = prepareIntraday(intraday).length > 0;
@@ -87,6 +124,7 @@ export default function MarketCustomChart({ symbol, intraday, ohlcv }: Props) {
 
     let chart: IChartApi | null = null;
     let ro: ResizeObserver | null = null;
+    let logicalRangeHandler: ((range: LogicalRange | null) => void) | null = null;
     let cancelled = false;
 
     import("lightweight-charts").then(({ createChart, ColorType, LineSeries, CandlestickSeries }) => {
@@ -115,8 +153,11 @@ export default function MarketCustomChart({ symbol, intraday, ohlcv }: Props) {
           },
         });
 
+        let dataLength = 0;
+
         if (tab === "5m") {
           const chartData = prepareIntraday(intraday);
+          dataLength = chartData.length;
           if (chartData.length > 0) {
             const series = chart.addSeries(LineSeries, {
               color: "#3b82f6",
@@ -129,6 +170,14 @@ export default function MarketCustomChart({ symbol, intraday, ohlcv }: Props) {
             }
           }
         } else if (tab === "1d" && ohlcv.length > 0) {
+          const chartData = ohlcv.map((d) => ({
+            time:  d.price_date,
+            open:  d.open,
+            high:  d.high,
+            low:   d.low,
+            close: d.close,
+          })) as CandlestickData[];
+          dataLength = chartData.length;
           const series = chart.addSeries(CandlestickSeries, {
             upColor:         "#22c55e",
             downColor:       "#ef4444",
@@ -138,21 +187,25 @@ export default function MarketCustomChart({ symbol, intraday, ohlcv }: Props) {
             wickDownColor:   "#ef4444",
           });
           try {
-            series.setData(
-              ohlcv.map((d) => ({
-                time:  d.price_date,
-                open:  d.open,
-                high:  d.high,
-                low:   d.low,
-                close: d.close,
-              })) as CandlestickData[]
-            );
+            series.setData(chartData);
           } catch {
             // 데이터 형식 문제 시 무시
           }
         }
 
         chart.timeScale().fitContent();
+        if (dataLength > 1) {
+          let adjusting = false;
+          logicalRangeHandler = (range) => {
+            if (adjusting || !chart) return;
+            const clamped = clampLogicalRange(range, dataLength);
+            if (!clamped) return;
+            adjusting = true;
+            chart.timeScale().setVisibleLogicalRange(clamped);
+            adjusting = false;
+          };
+          chart.timeScale().subscribeVisibleLogicalRangeChange(logicalRangeHandler);
+        }
 
         ro = new ResizeObserver(() => {
           if (containerRef.current && chart) {
@@ -166,6 +219,9 @@ export default function MarketCustomChart({ symbol, intraday, ohlcv }: Props) {
     return () => {
       cancelled = true;
       ro?.disconnect();
+      if (chart && logicalRangeHandler) {
+        chart.timeScale().unsubscribeVisibleLogicalRangeChange(logicalRangeHandler);
+      }
       chart?.remove();
     };
   }, [tab, symbol, intraday, ohlcv, locale]);
