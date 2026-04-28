@@ -10,7 +10,6 @@ const MY_SHIP_TRACKING_URL =
   "https://embed.myshiptracking.com/embed?myst&zoom=8&lat=26.5&lng=56.2&show_names=1&map_style=simple";
 
 const MT_EXTRA = 44; // MarineTraffic 하단 밴드 높이
-const MAP_HEIGHT = 480;
 
 export default function StraitMapPanel() {
   const t = useTranslations("dashboard.map");
@@ -49,10 +48,8 @@ export default function StraitMapPanel() {
 
       {/* MarineTraffic */}
       <div
-        className="relative"
+        className="relative h-[300px] overflow-hidden sm:h-[420px] lg:h-[480px]"
         style={{
-          height: MAP_HEIGHT,
-          overflow: "hidden",
           display: activeTab === "mt" ? "block" : "none",
         }}
       >
@@ -60,29 +57,27 @@ export default function StraitMapPanel() {
           src={MARINE_TRAFFIC_URL}
           title="MarineTraffic Live Map"
           className="w-full border-0"
-          style={{ height: MAP_HEIGHT + MT_EXTRA, display: "block", pointerEvents: "none" }}
+          style={{ height: `calc(100% + ${MT_EXTRA}px)`, display: "block", pointerEvents: "none" }}
           referrerPolicy="strict-origin-when-cross-origin"
           allowFullScreen
         />
+        <div className="absolute inset-0 bg-transparent" style={{ touchAction: "pan-y" }} aria-hidden="true" />
       </div>
 
       {/* MyShipTracking */}
       {activeTab === "mst" && (
         <div
-          className="relative"
-          style={{
-            height: MAP_HEIGHT,
-            overflow: "hidden",
-          }}
+          className="relative h-[300px] overflow-hidden sm:h-[420px] lg:h-[480px]"
         >
           <iframe
             key="myshiptracking-active"
             src={MY_SHIP_TRACKING_URL}
             title="MyShipTracking Live Map"
             className="w-full border-0"
-            style={{ height: MAP_HEIGHT, display: "block", pointerEvents: "none" }}
+            style={{ height: "100%", display: "block", pointerEvents: "none" }}
             referrerPolicy="no-referrer"
           />
+          <div className="absolute inset-0 bg-transparent" style={{ touchAction: "pan-y" }} aria-hidden="true" />
         </div>
       )}
     </div>
