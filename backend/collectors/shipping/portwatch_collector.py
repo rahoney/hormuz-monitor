@@ -28,7 +28,7 @@ def collect(portid: str = _HORMUZ_ID, days: int = 90) -> list[dict[str, Any]]:
         ts = a.get("date")
         if ts is None:
             continue
-        transit_date = datetime.fromtimestamp(ts / 1000, tz=timezone.utc).date().isoformat()
+        transit_date = datetime.fromtimestamp(int(ts) / 1000, tz=timezone.utc).date().isoformat()
         records.append({
             "portid":          a.get("portid", portid),
             "portname":        a.get("portname", "Strait of Hormuz"),
