@@ -5,6 +5,7 @@ sys.path.insert(0, ".")
 
 from collectors.oil.eia_collector import collect as collect_oil
 from collectors.oil.gasoline_collector import collect as collect_gasoline
+from collectors.oil.yfinance_futures_collector import collect as collect_oil_futures
 from db.upsert import upsert
 from db.run_repo import start_run, finish_run
 from db.error_repo import log_error
@@ -23,10 +24,22 @@ def _run_oil(end: date) -> None:
     logger.info("EIA 유가 수집 시작 (%s ~ %s)", start, end)
 
     try:
-        records = collect_oil(start, end)
+        eia_records = collect_oil(start, end)
+        eia_keys = {(record["symbol"], record["price_date"]) for record in eia_records}
+        futures_records = [
+            record
+            for record in collect_oil_futures(start, end)
+            if (record["symbol"], record["price_date"]) not in eia_keys
+        ]
+        records = eia_records + futures_records
         saved = upsert("oil_price_series", records, on_conflict="symbol,price_date")
         finish_run(run_id, "success", len(records), saved)
-        logger.info("EIA 유가 완료: %d건 수집, %d건 저장", len(records), saved)
+        logger.info(
+            "유가 완료: EIA %d건, Yahoo futures 보조 %d건, 저장 %d건",
+            len(eia_records),
+            len(futures_records),
+            saved,
+        )
     except Exception as exc:
         finish_run(run_id, "failed", 0, 0)
         log_error("eia_oil", "unknown", str(exc), run_id)
