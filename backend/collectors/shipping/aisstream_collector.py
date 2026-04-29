@@ -106,9 +106,21 @@ async def _collect_async(max_vessels: int = 200) -> list[dict[str, Any]]:
                     continue
 
                 sdata = static.get(mmsi, {})
-                type_code = sdata.get("ship_type_code")
+                def _safe_float(val: Any) -> float | None:
+                    try:
+                        return float(val)
+                    except (TypeError, ValueError):
+                        return None
+
+                def _safe_int(val: Any) -> int | None:
+                    try:
+                        return int(val)
+                    except (TypeError, ValueError):
+                        return None
+
+                type_code = _safe_int(sdata.get("ship_type_code"))
                 zone = _zone_status(lat, lng)
-                cog = pos.get("Cog")
+                cog = _safe_float(pos.get("Cog"))
 
                 records.append({
                     "mmsi":             mmsi,
@@ -117,9 +129,9 @@ async def _collect_async(max_vessels: int = 200) -> list[dict[str, Any]]:
                     "ship_type_label":  _classify_ship(type_code),
                     "lat":              lat,
                     "lng":              lng,
-                    "speed_knots":      pos.get("Sog"),
+                    "speed_knots":      _safe_float(pos.get("Sog")),
                     "course_deg":       cog,
-                    "heading_deg":      pos.get("TrueHeading"),
+                    "heading_deg":      _safe_float(pos.get("TrueHeading")),
                     "zone_status":      zone,
                     "direction_status": _direction_status(cog, zone),
                     "source":           "aisstream",
