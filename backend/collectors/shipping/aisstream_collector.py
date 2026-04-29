@@ -83,7 +83,7 @@ async def _collect_async(max_vessels: int = 200) -> list[dict[str, Any]]:
             try:
                 raw = await asyncio.wait_for(ws.recv(), timeout=5.0)
             except asyncio.TimeoutError:
-                break
+                continue
             msg = json.loads(raw)
             mtype = msg.get("MessageType", "")
 
