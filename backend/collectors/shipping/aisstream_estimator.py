@@ -15,6 +15,20 @@ def _parse_ts(value: str) -> datetime:
     return datetime.fromisoformat(value.replace("Z", "+00:00"))
 
 
+def _direction_from_course(value: Any) -> str | None:
+    try:
+        cog = float(value)
+    except (TypeError, ValueError):
+        return None
+    if cog < 10 or cog > 350:
+        return None
+    if 80 <= cog <= 180:
+        return "offshore_exit"
+    if 240 <= cog <= 340:
+        return "inland_entry"
+    return None
+
+
 def _latest_portwatch_date() -> str | None:
     rows = fetch(
         "chokepoint_transits",
@@ -26,19 +40,32 @@ def _latest_portwatch_date() -> str | None:
     return rows[0]["transit_date"] if rows else None
 
 
-def _first_last_zones(rows: list[dict[str, Any]]) -> tuple[str | None, str | None]:
-    zones = [r.get("zone_status") for r in rows if r.get("zone_status") in {"persian_gulf_side", "arabian_sea_side"}]
-    if len(zones) < 2:
-        return None, None
-    return zones[0], zones[-1]
+def _classify_direction(rows: list[dict[str, Any]]) -> str | None:
+    gates = [
+        row.get("zone_status")
+        for row in rows
+        if row.get("zone_status") in {"inland_gate", "offshore_gate"}
+    ]
+    if gates:
+        return "inland_entry" if gates[-1] == "inland_gate" else "offshore_exit"
+
+    directions = [direction for row in rows if (direction := _direction_from_course(row.get("course_deg")))]
+    if not directions:
+        return None
+
+    inland = directions.count("inland_entry")
+    offshore = directions.count("offshore_exit")
+    if inland == offshore:
+        return directions[-1]
+    return "inland_entry" if inland > offshore else "offshore_exit"
 
 
 def estimate_direction_counts(days: int = 10) -> dict[str, dict[str, int]]:
-    """Return daily AIS direction estimates based on MMSI zone transitions."""
+    """Return daily AIS direction estimates based on MMSI gate movement."""
     since = (datetime.now(timezone.utc) - timedelta(days=days)).isoformat()
     rows = fetch(
         "vessels_normalized",
-        columns="mmsi,ship_type_label,raw_timestamp,speed_knots,zone_status",
+        columns="mmsi,ship_type_label,raw_timestamp,speed_knots,zone_status,course_deg",
         filters={"raw_timestamp": f"gte.{since}"},
         order="raw_timestamp.asc",
         limit=10000,
@@ -63,14 +90,11 @@ def estimate_direction_counts(days: int = 10) -> dict[str, dict[str, int]]:
         "tanker": 0,
     })
     for (transit_date, _mmsi), vessel_rows in by_vessel_day.items():
-        first_zone, last_zone = _first_last_zones(vessel_rows)
-        if first_zone == "persian_gulf_side" and last_zone == "arabian_sea_side":
-            counts[transit_date]["offshore_exit"] += 1
-        elif first_zone == "arabian_sea_side" and last_zone == "persian_gulf_side":
-            counts[transit_date]["inland_entry"] += 1
-        else:
+        direction = _classify_direction(vessel_rows)
+        if direction is None:
             continue
 
+        counts[transit_date][direction] += 1
         counts[transit_date]["total"] += 1
         if any(r.get("ship_type_label") in {"tanker", "lng_tanker", "crude_tanker"} for r in vessel_rows):
             counts[transit_date]["tanker"] += 1

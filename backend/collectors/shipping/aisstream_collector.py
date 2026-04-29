@@ -14,8 +14,8 @@ load_dotenv()
 
 _API_KEY = os.getenv("AISSTREAM_API_KEY", "")
 
-# 호르무즈 해협 바운딩 박스 [[minLat, minLon], [maxLat, maxLon]]
-_BOUNDING_BOX = [[24.0, 55.5], [27.5, 60.5]]
+# 호르무즈 해협 핵심 바운딩 박스 [[minLat, minLon], [maxLat, maxLon]]
+_BOUNDING_BOX = [[25.75, 55.75], [27.1, 57.45]]
 
 # AIS 선종 코드 → 내부 레이블 매핑
 _TYPE_MAP: dict[range, str] = {
@@ -24,7 +24,7 @@ _TYPE_MAP: dict[range, str] = {
 _LNG_TYPES = {84, 85}             # 84: LNG tanker
 _CRUDE_TYPES = {83, 84}           # 83: crude oil tanker
 
-_TIMEOUT_SECONDS = 30
+_TIMEOUT_SECONDS = 240
 
 
 def _classify_ship(type_code: int | None) -> str:
@@ -41,14 +41,13 @@ def _classify_ship(type_code: int | None) -> str:
 
 
 def _zone_status(lat: float, lng: float) -> str:
-    # 해협 내부: 25.8~27.0°N, 56.0~59.0°E
-    if 25.8 <= lat <= 27.0 and 56.0 <= lng <= 59.0:
-        return "inside_strait"
-    # 페르시아만 쪽
-    if lng < 56.5:
-        return "persian_gulf_side"
-    # 아라비아해 쪽
-    return "arabian_sea_side"
+    if 55.75 <= lng <= 56.15 and 25.75 <= lat <= 27.1:
+        return "inland_gate"
+    if 56.15 <= lng <= 57.45 and 25.75 <= lat <= 26.0:
+        return "offshore_gate"
+    if 56.15 <= lng <= 57.45 and 26.0 <= lat <= 27.1:
+        return "strait_core"
+    return "outside_box"
 
 
 def _direction_status(cog: float | None, zone: str) -> str:
@@ -56,11 +55,11 @@ def _direction_status(cog: float | None, zone: str) -> str:
         return "unknown"
     if cog < 10 or cog > 350:
         return "stationary"
-    # COG 서쪽(240~300) → 아라비아해로 나가는 방향 = offshore_exit
-    if 240 <= cog <= 300:
+    # COG 동쪽~남쪽(80~180) → 오만만/외해 방향
+    if 80 <= cog <= 180:
         return "offshore_exit"
-    # COG 동쪽(60~120) → 페르시아만으로 들어가는 방향 = inland_entry
-    if 60 <= cog <= 120:
+    # COG 서쪽~북서쪽(240~340) → 페르시아만/내해 방향
+    if 240 <= cog <= 340:
         return "inland_entry"
     return "unknown"
 
