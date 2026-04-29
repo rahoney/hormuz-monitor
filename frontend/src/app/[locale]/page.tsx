@@ -15,19 +15,19 @@ import GasolinePricesPanel from "@/components/charts/GasolinePricesPanel";
 import TrumpPostsFeed from "@/components/cards/TrumpPostsFeed";
 import SituationSummaryCard from "@/components/cards/SituationSummaryCard";
 import {
-  fetchLatestStraitMetric,
-  fetchWeeklyTransitSummary,
-  fetchOilPriceSeries,
-  fetchLatestMarketSnapshots,
-  fetchRecentEvents,
-  fetchTransitSeries,
-  fetchGasolinePrices,
-  fetchTrumpPosts,
-  fetchLatestSummary,
-  fetchRiskScoreHistory,
-  fetchMarketIntraday,
-  fetchMarketOHLCV,
-} from "@/lib/api/dashboard";
+  getCachedGasolinePrices,
+  getCachedLatestMarketSnapshots,
+  getCachedLatestStraitMetric,
+  getCachedLatestSummary,
+  getCachedMarketIntraday,
+  getCachedMarketOHLCV,
+  getCachedOilPriceSeries,
+  getCachedRecentEvents,
+  getCachedRiskScoreHistory,
+  getCachedTransitSeries,
+  getCachedTrumpPosts,
+  getCachedWeeklyTransitSummary,
+} from "@/lib/api/dashboard-cache";
 
 function brentChangePct7d(oilData: { symbol: string; price_date: string; price_usd: number }[]): number | null {
   const brentRows = oilData
@@ -46,18 +46,18 @@ export default async function DashboardPage() {
   const t = await getTranslations("dashboard");
 
   const [metric, weeklyTransit, oilSeries, marketSnapshots, marketIntradayResult, marketOHLCVResult, recentEvents, transitSeries, gasolineSeries, trumpPosts, summaryResult, riskHistoryResult] = await Promise.allSettled([
-    fetchLatestStraitMetric(),
-    fetchWeeklyTransitSummary(),
-    fetchOilPriceSeries(["WTI", "BRENT", "NATURAL_GAS"], 90),
-    fetchLatestMarketSnapshots(),
-    fetchMarketIntraday(),
-    fetchMarketOHLCV(),
-    fetchRecentEvents(15),
-    fetchTransitSeries(90),
-    fetchGasolinePrices(90),
-    fetchTrumpPosts(20),
-    fetchLatestSummary(),
-    fetchRiskScoreHistory(),
+    getCachedLatestStraitMetric(),
+    getCachedWeeklyTransitSummary(),
+    getCachedOilPriceSeries(["WTI", "BRENT", "NATURAL_GAS"], 90),
+    getCachedLatestMarketSnapshots(),
+    getCachedMarketIntraday(),
+    getCachedMarketOHLCV(),
+    getCachedRecentEvents(15),
+    getCachedTransitSeries(90),
+    getCachedGasolinePrices(90),
+    getCachedTrumpPosts(20),
+    getCachedLatestSummary(),
+    getCachedRiskScoreHistory(),
   ]);
 
   const metricData      = metric.status              === "fulfilled" ? metric.value              : null;
