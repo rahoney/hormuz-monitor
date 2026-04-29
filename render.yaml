@@ -14,7 +14,7 @@ services:
       - key: DATABASE_URL
         sync: false
 
-  # 유가 수집 잡 (EIA API → Supabase, 매일 06:00 UTC)
+  # EIA 유가·휘발유 수집 잡 (매일 06:00 UTC)
   - type: cron
     name: hormuz-oil-ingest
     runtime: python
@@ -116,22 +116,6 @@ services:
       - key: SUPABASE_SERVICE_ROLE_KEY
         sync: false
       - key: GOOGLE_GEMINI_API_KEY
-        sync: false
-
-  # 휘발유 가격 수집 잡 (EIA 주간 데이터, 매주 화요일 08:00 UTC — EIA 월요일 발표)
-  - type: cron
-    name: hormuz-gasoline-ingest
-    runtime: python
-    rootDir: backend
-    schedule: "0 8 * * 2"
-    buildCommand: pip install -r requirements.txt
-    startCommand: python -m jobs.gasoline_ingest
-    envVars:
-      - key: SUPABASE_URL
-        sync: false
-      - key: SUPABASE_SERVICE_ROLE_KEY
-        sync: false
-      - key: EIA_API_KEY
         sync: false
 
   # 상황 요약 생성 잡 (Gemini, 매 1시간 :10분 — 뉴스 수집 직후)
