@@ -32,7 +32,7 @@
     "map": "Strait Map",
     "transitFlow": "Transit Flow (90 days)",
     "oilPrices": "Oil Prices (90-day history)",
-    "oilRealtime": "Oil Prices (Real-time · TradingView)",
+    "oilRealtime": "Oil Prices (Real-time)",
     "transitOilComparison": "Transit vs Oil Price (90 days)",
     "marketSnapshot": "Market Snapshot",
     "recentEvents": "Related Issues"

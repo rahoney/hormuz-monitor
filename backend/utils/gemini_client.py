@@ -5,6 +5,7 @@ import os
 import random
 import time
 from dataclasses import dataclass
+from collections.abc import Callable
 from typing import Any, Iterable
 
 import httpx
@@ -41,6 +42,9 @@ class GeminiResult:
     text: str
     model: str
     attempts: int
+
+
+TextValidator = Callable[[str], bool]
 
 
 def _models_from_env(name: str, defaults: Iterable[str]) -> list[str]:
@@ -82,6 +86,14 @@ def _extract_text(data: dict[str, Any]) -> str:
     return "".join(part.get("text", "") for part in parts).strip()
 
 
+def _finish_reason(data: dict[str, Any]) -> str | None:
+    candidates = data.get("candidates") or []
+    if not candidates:
+        return None
+    reason = candidates[0].get("finishReason")
+    return str(reason) if reason else None
+
+
 def generate_text(
     prompt: str,
     *,
@@ -92,6 +104,7 @@ def generate_text(
     timeout: float = 30.0,
     retries_per_model: int = 3,
     extra_generation_config: dict[str, Any] | None = None,
+    validate_text: TextValidator | None = None,
 ) -> GeminiResult:
     """Generate text, retrying transient failures before trying fallback models."""
     api_key = os.getenv("GOOGLE_GEMINI_API_KEY", "")
@@ -138,8 +151,17 @@ def generate_text(
                         break
 
                     resp.raise_for_status()
-                    text = _extract_text(resp.json())
+                    data = resp.json()
+                    finish_reason = _finish_reason(data)
+                    if finish_reason and finish_reason != "STOP":
+                        failures.append(f"{model} finishReason={finish_reason}")
+                        break
+
+                    text = _extract_text(data)
                     if text:
+                        if validate_text and not validate_text(text):
+                            failures.append(f"{model} returned invalid {task} text")
+                            break
                         if model != DEFAULT_PRIMARY_MODEL:
                             logger.warning("Gemini %s succeeded with fallback model %s", task, model)
                         return GeminiResult(text=text, model=model, attempts=total_attempts)
