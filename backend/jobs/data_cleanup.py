@@ -40,6 +40,7 @@ def run() -> None:
             ("situation_summaries",  "generated_at", cutoff),
             ("events",               "published_at",  cutoff),
             ("trump_posts",          "post_date",     cutoff_date),
+            ("event_article_summaries", "created_at",  cutoff),
             ("risk_score_history",   "score_date",    cutoff_40),
             ("market_intraday",      "recorded_at",   cutoff_intraday),
             ("market_ohlcv",         "price_date",    cutoff_ohlcv),

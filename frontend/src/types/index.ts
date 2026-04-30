@@ -117,3 +117,13 @@ export interface Event {
   source_url: string | null;
   severity: string | null;
 }
+
+export interface EventArticleSummary {
+  event_id: number;
+  source_url: string | null;
+  locale: "ko" | "en" | string;
+  summary: string;
+  model: string | null;
+  created_at: string | null;
+  cached: boolean;
+}

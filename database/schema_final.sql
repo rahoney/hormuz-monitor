@@ -208,6 +208,29 @@ CREATE POLICY "public read" ON events FOR SELECT USING (true);
 
 
 -- ============================================================
+-- 관련 이슈 기사 요약 캐시
+-- ============================================================
+CREATE TABLE IF NOT EXISTS event_article_summaries (
+    id          bigserial   PRIMARY KEY,
+    event_id    bigint      NOT NULL REFERENCES events (id) ON DELETE CASCADE,
+    source_url  text,
+    locale      text        NOT NULL CHECK (locale IN ('ko', 'en')),
+    summary     text        NOT NULL,
+    model       text,
+    created_at  timestamptz NOT NULL DEFAULT now(),
+    UNIQUE (event_id, locale)
+);
+
+CREATE INDEX IF NOT EXISTS idx_event_article_summaries_event_locale
+    ON event_article_summaries (event_id, locale);
+CREATE INDEX IF NOT EXISTS idx_event_article_summaries_created_at
+    ON event_article_summaries (created_at DESC);
+
+ALTER TABLE event_article_summaries ENABLE ROW LEVEL SECURITY;
+-- Service-role only. Public UI reads through backend API.
+
+
+-- ============================================================
 -- 차트용 이벤트 마커
 -- ============================================================
 CREATE TABLE IF NOT EXISTS event_timeline_markers (

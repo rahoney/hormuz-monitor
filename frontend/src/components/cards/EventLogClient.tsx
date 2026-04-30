@@ -1,7 +1,9 @@
 "use client";
 
+import { useState } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import type { Event } from "@/types";
+import EventArticleSummaryModal from "./EventArticleSummaryModal";
 
 const KO_SOURCES = new Set(["연합뉴스", "한국경제", "매일경제"]);
 
@@ -27,6 +29,7 @@ type Props = { events: Event[] };
 export default function EventLogClient({ events }: Props) {
   const t = useTranslations("events");
   const locale = useLocale();
+  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const filtered = locale === "ko" ? events : events.filter((e) => !KO_SOURCES.has(e.source_name ?? ""));
 
   const eventTypeLabel = (type: string) => {
@@ -61,6 +64,7 @@ export default function EventLogClient({ events }: Props) {
   }
 
   return (
+    <>
     <div className="flex flex-col gap-3">
       {filtered.map((ev) => (
         <div
@@ -80,14 +84,13 @@ export default function EventLogClient({ events }: Props) {
               )}
             </div>
             {ev.source_url ? (
-              <a
-                href={ev.source_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="block text-sm text-slate-200 hover:text-blue-300 font-medium mb-1"
+              <button
+                type="button"
+                onClick={() => setSelectedEvent(ev)}
+                className="mb-1 block w-full text-left text-sm font-medium text-slate-200 hover:text-blue-300"
               >
                 {ev.title}
-              </a>
+              </button>
             ) : (
               <p className="text-sm text-slate-200 font-medium mb-1">{ev.title}</p>
             )}
@@ -101,5 +104,7 @@ export default function EventLogClient({ events }: Props) {
         </div>
       ))}
     </div>
+    <EventArticleSummaryModal event={selectedEvent} onClose={() => setSelectedEvent(null)} />
+    </>
   );
 }

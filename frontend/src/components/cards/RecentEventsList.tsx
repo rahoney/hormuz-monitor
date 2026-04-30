@@ -1,10 +1,12 @@
 "use client";
 
+import { useState } from "react";
 import { useTranslations, useLocale } from "next-intl";
 
 const KO_SOURCES = new Set(["연합뉴스", "한국경제", "매일경제"]);
 import { Link } from "@/i18n/navigation";
 import type { Event } from "@/types";
+import EventArticleSummaryModal from "./EventArticleSummaryModal";
 
 const TYPE_COLORS: Record<string, string> = {
   attack:           "bg-red-900/60 text-red-300",
@@ -22,6 +24,7 @@ export default function RecentEventsList({ events }: Props) {
   const t = useTranslations("dashboard");
   const te = useTranslations("events");
   const locale = useLocale();
+  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const filtered = (locale === "ko" ? events : events.filter((e) => !KO_SOURCES.has(e.source_name ?? ""))).slice(0, 5);
   const eventTypeLabel = (type: string) => {
     switch (type) {
@@ -43,6 +46,7 @@ export default function RecentEventsList({ events }: Props) {
   }
 
   return (
+    <>
     <div className="flex flex-col gap-3">
       {filtered.map((ev) => (
         <div
@@ -60,14 +64,13 @@ export default function RecentEventsList({ events }: Props) {
           </div>
           <div className="min-w-0 flex-1">
             {ev.source_url ? (
-              <a
-                href={ev.source_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="block truncate text-sm text-slate-200 hover:text-blue-300"
+              <button
+                type="button"
+                onClick={() => setSelectedEvent(ev)}
+                className="block w-full truncate text-left text-sm text-slate-200 hover:text-blue-300"
               >
                 {ev.title}
-              </a>
+              </button>
             ) : (
               <p className="truncate text-sm text-slate-200">{ev.title}</p>
             )}
@@ -82,5 +85,7 @@ export default function RecentEventsList({ events }: Props) {
         {t("events.viewAll")}
       </Link>
     </div>
+    <EventArticleSummaryModal event={selectedEvent} onClose={() => setSelectedEvent(null)} />
+    </>
   );
 }
