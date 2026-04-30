@@ -27,6 +27,37 @@ _CRUDE_TYPES = {83, 84}           # 83: crude oil tanker
 _TIMEOUT_SECONDS = 240
 
 
+def _safe_float(val: Any) -> float | None:
+    try:
+        return float(val)
+    except (TypeError, ValueError):
+        return None
+
+
+def _safe_int(val: Any) -> int | None:
+    try:
+        return int(val)
+    except (TypeError, ValueError):
+        return None
+
+
+def _parse_ais_timestamp(value: Any) -> str:
+    if not value:
+        return datetime.now(timezone.utc).isoformat()
+    raw = str(value).strip()
+    try:
+        if raw.endswith(" UTC"):
+            raw = raw[:-4]
+        parsed = datetime.strptime(raw[:32], "%Y-%m-%d %H:%M:%S.%f %z")
+        return parsed.isoformat()
+    except ValueError:
+        pass
+    try:
+        return datetime.fromisoformat(raw.replace("Z", "+00:00")).isoformat()
+    except ValueError:
+        return datetime.now(timezone.utc).isoformat()
+
+
 def _classify_ship(type_code: int | None) -> str:
     if type_code is None:
         return "unknown"
@@ -99,24 +130,12 @@ async def _collect_async(max_vessels: int = 200) -> list[dict[str, Any]]:
                 meta = msg.get("MetaData", {})
                 pos = msg.get("Message", {}).get("PositionReport", {})
                 mmsi = str(meta.get("MMSI", ""))
-                lat = pos.get("Latitude")
-                lng = pos.get("Longitude")
+                lat = _safe_float(pos.get("Latitude"))
+                lng = _safe_float(pos.get("Longitude"))
                 if lat is None or lng is None:
                     continue
 
                 sdata = static.get(mmsi, {})
-                def _safe_float(val: Any) -> float | None:
-                    try:
-                        return float(val)
-                    except (TypeError, ValueError):
-                        return None
-
-                def _safe_int(val: Any) -> int | None:
-                    try:
-                        return int(val)
-                    except (TypeError, ValueError):
-                        return None
-
                 type_code = _safe_int(sdata.get("ship_type_code"))
                 zone = _zone_status(lat, lng)
                 cog = _safe_float(pos.get("Cog"))
@@ -134,7 +153,7 @@ async def _collect_async(max_vessels: int = 200) -> list[dict[str, Any]]:
                     "zone_status":      zone,
                     "direction_status": _direction_status(cog, zone),
                     "source":           "aisstream",
-                    "raw_timestamp":    meta.get("time_utc") or datetime.now(timezone.utc).isoformat(),
+                    "raw_timestamp":    _parse_ais_timestamp(meta.get("time_utc")),
                 })
 
     return records

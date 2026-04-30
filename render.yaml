@@ -13,6 +13,10 @@ services:
         sync: false
       - key: DATABASE_URL
         sync: false
+      - key: GOOGLE_GEMINI_API_KEY
+        sync: false
+      - key: ARTICLE_SUMMARY_MODELS
+        value: models/gemma-3-27b-it
 
   # 일일 유지보수 잡: PortWatch, EIA 유가·휘발유, 오래된 데이터 정리 (매일 06:00 UTC)
   - type: cron

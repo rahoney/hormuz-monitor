@@ -14,6 +14,7 @@ import SharePageButton from "@/components/cards/SharePageButton";
 import GasolinePricesPanel from "@/components/charts/GasolinePricesPanel";
 import TrumpPostsFeed from "@/components/cards/TrumpPostsFeed";
 import SituationSummaryCard from "@/components/cards/SituationSummaryCard";
+import SectionJumpSelect from "@/components/navigation/SectionJumpSelect";
 import {
   getCachedGasolinePrices,
   getCachedLatestMarketSnapshots,
@@ -44,6 +45,18 @@ function brentChangePct7d(oilData: { symbol: string; price_date: string; price_u
 
 export default async function DashboardPage() {
   const t = await getTranslations("dashboard");
+  const sections = [
+    { id: "summary", label: t("sections.summary") },
+    { id: "risk", label: t("gauge.title") },
+    { id: "weekly-transit", label: t("sections.weeklyTransit") },
+    { id: "map", label: t("sections.map") },
+    { id: "transit-flow", label: t("sections.transitFlow") },
+    { id: "oil", label: t("sections.oilRealtime") },
+    { id: "gasoline", label: t("gasoline.title") },
+    { id: "market", label: t("sections.marketSnapshot") },
+    { id: "events", label: t("sections.recentEvents") },
+    { id: "trump", label: t("trump.title") },
+  ];
 
   const [metric, weeklyTransit, oilSeries, marketSnapshots, marketIntradayResult, marketOHLCVResult, recentEvents, transitSeries, gasolineSeries, trumpPosts, summaryResult, riskHistoryResult] = await Promise.allSettled([
     getCachedLatestStraitMetric(),
@@ -92,11 +105,15 @@ export default async function DashboardPage() {
           <p className="mt-1 text-sm text-slate-400">{t("subtitle")}</p>
         </div>
 
+        <SectionJumpSelect label={t("sections.jump")} sections={sections} />
+
         {/* 상황 요약 */}
-        <SituationSummaryCard summary={summaryData} />
+        <section id="summary" className="scroll-mt-32">
+          <SituationSummaryCard summary={summaryData} />
+        </section>
 
         {/* 호르무즈 위험 지수 게이지 */}
-        <Card title={t("gauge.title")}>
+        <Card title={t("gauge.title")} className="scroll-mt-32" id="risk">
           <HormuzRiskGauge
             vessels={weeklyTransitData?.total_vessels ?? metricData?.total_vessels ?? null}
             inlandEntry={weeklyTransitData?.inland_entry_count ?? metricData?.inland_entry_count ?? null}
@@ -110,7 +127,7 @@ export default async function DashboardPage() {
         </Card>
 
         {/* 현재 상태 카드 */}
-        <section className="rounded-lg border border-slate-700/50 bg-slate-900 p-4">
+        <section id="weekly-transit" className="scroll-mt-32 rounded-lg border border-slate-700/50 bg-slate-900 p-4">
           <h2 className="inline-block rounded-md border-2 border-blue-400 px-3 py-1 mb-4 text-lg font-bold text-white">
             {t("sections.weeklyTransit")}
           </h2>
@@ -118,25 +135,27 @@ export default async function DashboardPage() {
         </section>
 
         {/* 지도 */}
-        <StraitMapPanel />
+        <section id="map" className="scroll-mt-32">
+          <StraitMapPanel />
+        </section>
 
         {/* 통행 흐름 통합 차트 (통행량+유가 / 통행량 / 유형별) */}
-        <Card title={t("sections.transitFlow")}>
+        <Card title={t("sections.transitFlow")} className="scroll-mt-32" id="transit-flow">
           <TransitCombinedChart records={transitData} oilSeries={oilData} />
         </Card>
 
         {/* 유가 (TradingView 실시간) */}
-        <Card title={t("sections.oilRealtime")}>
+        <Card title={t("sections.oilRealtime")} className="scroll-mt-32" id="oil">
           <TradingViewChart />
         </Card>
 
         {/* 미국 휘발유 가격 */}
-        <Card title={t("gasoline.title")}>
+        <Card title={t("gasoline.title")} className="scroll-mt-32" id="gasoline">
           <GasolinePricesPanel data={gasolineData} />
         </Card>
 
         {/* 시장 스냅샷 */}
-        <section className="rounded-lg border border-slate-700/50 bg-slate-900 p-4">
+        <section id="market" className="scroll-mt-32 rounded-lg border border-slate-700/50 bg-slate-900 p-4">
           <h2 className="inline-block rounded-md border-2 border-blue-400 px-3 py-1 mb-4 text-lg font-bold text-white">
             {t("sections.marketSnapshot")}
           </h2>
@@ -144,12 +163,12 @@ export default async function DashboardPage() {
         </section>
 
         {/* 최근 이벤트 */}
-        <Card title={t("sections.recentEvents")}>
+        <Card title={t("sections.recentEvents")} className="scroll-mt-32" id="events">
           <RecentEventsList events={eventsData} />
         </Card>
 
         {/* 트럼프 소셜 미디어 */}
-        <Card title={t("trump.title")}>
+        <Card title={t("trump.title")} className="scroll-mt-32" id="trump">
           <TrumpPostsFeed posts={trumpData} />
         </Card>
 

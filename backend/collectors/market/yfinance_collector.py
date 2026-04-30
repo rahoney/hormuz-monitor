@@ -54,7 +54,7 @@ def _finite_float(value: Any) -> float | None:
         return None
     return number if math.isfinite(number) else None
 
-def collect_ohlcv(exchange: str, days: int = 35) -> list[dict[str, Any]]:
+def collect_ohlcv(exchange: str, days: int = 100) -> list[dict[str, Any]]:
     """특정 거래소의 일봉 OHLCV 수집 (최근 N일)."""
     end = date.today()
     start = end - timedelta(days=days)

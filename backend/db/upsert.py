@@ -2,6 +2,9 @@
 from typing import Any
 import httpx
 from db.client import get_client
+from utils.logger import get_logger
+
+logger = get_logger(__name__)
 
 
 def upsert(table: str, records: list[dict[str, Any]], on_conflict: str = "") -> int:
@@ -16,7 +19,11 @@ def upsert(table: str, records: list[dict[str, Any]], on_conflict: str = "") -> 
 
     with get_client() as client:
         resp = client.post(f"/{table}", json=records, headers=headers, params=params)
-        resp.raise_for_status()
+        try:
+            resp.raise_for_status()
+        except httpx.HTTPStatusError:
+            logger.error("Supabase upsert failed (%s): %s", table, resp.text[:1000])
+            raise
     return len(records)
 
 
@@ -27,5 +34,9 @@ def insert(table: str, records: list[dict[str, Any]]) -> int:
 
     with get_client() as client:
         resp = client.post(f"/{table}", json=records, headers={"Prefer": "return=minimal"})
-        resp.raise_for_status()
+        try:
+            resp.raise_for_status()
+        except httpx.HTTPStatusError:
+            logger.error("Supabase insert failed (%s): %s", table, resp.text[:1000])
+            raise
     return len(records)

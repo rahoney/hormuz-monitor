@@ -1,5 +1,5 @@
 {
-  "title": "Hormuz Strait Monitor",
+  "title": "Hormuz Strait Real-Time Monitor",
   "subtitle": "Key information is gathered in one place so you can assess the strait situation at a glance.",
   "cards": {
     "straitStatus": "Strait Status",
@@ -24,8 +24,11 @@
     "estimated": "Estimated"
   },
   "sections": {
+    "jump": "Jump to section",
+    "summary": "Situation Summary",
     "statusCards": "Current Status",
     "weeklyTransit": "Weekly Average Transit",
+    "map": "Strait Map",
     "transitFlow": "Transit Flow (90 days)",
     "oilPrices": "Oil Prices (90-day history)",
     "oilRealtime": "Oil Prices (Real-time · TradingView)",

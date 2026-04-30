@@ -23,5 +23,15 @@
     "low": "낮음"
   },
   "source": "출처",
-  "noSource": "출처 없음"
+  "noSource": "출처 없음",
+  "articleSummary": {
+    "label": "기사 요약",
+    "loading": "요약을 준비하는 중입니다...",
+    "error": "요약을 불러오지 못했습니다. 원문을 확인해 주세요.",
+    "openOriginal": "원문 바로가기",
+    "close": "닫기",
+    "cached": "저장된 요약",
+    "generated": "새로 생성된 요약",
+    "unknownSource": "출처 없음"
+  }
 }

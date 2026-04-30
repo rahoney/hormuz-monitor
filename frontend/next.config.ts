@@ -9,7 +9,7 @@ const cspReportOnly = [
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob: https:",
   "font-src 'self' data:",
-  "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://www.google-analytics.com https://region1.google-analytics.com",
+  "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.onrender.com http://127.0.0.1:8000 https://www.google-analytics.com https://region1.google-analytics.com",
   "frame-src https://www.marinetraffic.com https://embed.myshiptracking.com https://docs.google.com https://www.tradingview.com https://s.tradingview.com",
   "frame-ancestors 'self'",
   "base-uri 'self'",
