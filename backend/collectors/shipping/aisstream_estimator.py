@@ -102,6 +102,46 @@ def estimate_direction_counts(days: int = 10) -> dict[str, dict[str, int]]:
     return dict(counts)
 
 
+def estimate_recent_direction_totals(hours: int = 24) -> dict[str, int]:
+    """Return aggregate AIS direction estimates for the recent rolling window."""
+    since = (datetime.now(timezone.utc) - timedelta(hours=hours)).isoformat()
+    rows = fetch(
+        "vessels_normalized",
+        columns="mmsi,ship_type_label,raw_timestamp,speed_knots,zone_status,course_deg",
+        filters={"raw_timestamp": f"gte.{since}"},
+        order="raw_timestamp.asc",
+        limit=10000,
+    )
+
+    by_vessel: dict[str, list[dict[str, Any]]] = defaultdict(list)
+    for row in rows:
+        mmsi = row.get("mmsi")
+        if not mmsi or not row.get("raw_timestamp"):
+            continue
+        speed = row.get("speed_knots")
+        if speed is not None and float(speed) < 1.0:
+            continue
+        by_vessel[str(mmsi)].append(row)
+
+    counts = {
+        "inland_entry": 0,
+        "offshore_exit": 0,
+        "total": 0,
+        "tanker": 0,
+    }
+    for vessel_rows in by_vessel.values():
+        direction = _classify_direction(vessel_rows)
+        if direction is None:
+            continue
+
+        counts[direction] += 1
+        counts["total"] += 1
+        if any(r.get("ship_type_label") in {"tanker", "lng_tanker", "crude_tanker"} for r in vessel_rows):
+            counts["tanker"] += 1
+
+    return counts
+
+
 def estimate_recent_transits(days: int = 10) -> int:
     """Fill missing post-PortWatch dates with AISStream direction-based estimates."""
     latest_portwatch = _latest_portwatch_date()

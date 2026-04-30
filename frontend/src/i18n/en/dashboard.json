@@ -20,6 +20,7 @@
     "notTracked": "Not tracked",
     "weeklyAverage": "7-day avg",
     "aisEstimated": "AIS estimate",
+    "ais24hEstimated": "24h AIS estimate",
     "confirmed": "Confirmed",
     "estimated": "Estimated"
   },

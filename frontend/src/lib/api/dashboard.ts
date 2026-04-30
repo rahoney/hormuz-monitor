@@ -70,28 +70,16 @@ export async function fetchWeeklyTransitSummary(): Promise<WeeklyTransitSummary 
   if (rows.length === 0) return null;
 
   const latestDate = rows[0].transit_date;
-  const since = rows[rows.length - 1].transit_date;
-  const { data: metrics } = await supabase
+  const { data: latestMetric } = await supabase
     .from("strait_metrics")
-    .select("period_start,offshore_exit_count")
-    .gte("period_start", `${since}T00:00:00+00:00`)
-    .lte("period_start", `${latestDate}T23:59:59+00:00`);
+    .select("inland_entry_count,offshore_exit_count")
+    .order("period_start", { ascending: false })
+    .limit(1)
+    .single();
 
-  const metricMap = new Map(
-    ((metrics ?? []) as { period_start: string; offshore_exit_count: number | null }[]).map((m) => [
-      m.period_start.slice(0, 10),
-      m.offshore_exit_count ?? null,
-    ])
-  );
-
-  const outboundVals = rows
-    .map((row) => metricMap.get(row.transit_date))
-    .filter((v): v is number => typeof v === "number");
-  const offshore = outboundVals.length > 0
-    ? Math.round(outboundVals.reduce((sum, v) => sum + v, 0) / outboundVals.length)
-    : null;
+  const inland = latestMetric?.inland_entry_count ?? 0;
+  const offshore = latestMetric?.offshore_exit_count ?? 0;
   const total = avg(rows as unknown as Record<string, unknown>[], "n_total");
-  const inland = total != null && offshore != null ? Math.max(total - offshore, 0) : null;
 
   return {
     status_level: statusFromTransit(inland, offshore, total),
