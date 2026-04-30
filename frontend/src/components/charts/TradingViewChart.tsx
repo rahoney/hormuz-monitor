@@ -11,9 +11,28 @@ const SYMBOLS = [
 
 type SymbolKey = typeof SYMBOLS[number]["key"];
 
+type TradingViewSubscription = {
+  subscribe: (owner: null, callback: (value: number) => void) => void;
+  unsubscribe?: (owner: null, callback: (value: number) => void) => void;
+};
+
+type TradingViewTimeScale = {
+  rightOffsetChanged?: () => TradingViewSubscription;
+  setRightOffset?: (offset: number) => void;
+};
+
+type TradingViewChartApi = {
+  getTimeScale?: () => TradingViewTimeScale;
+};
+
+type TradingViewWidget = {
+  onChartReady?: (callback: () => void) => void;
+  activeChart?: () => TradingViewChartApi;
+};
+
 type TradingViewWindow = Window & {
   TradingView?: {
-    widget: new (options: Record<string, unknown>) => unknown;
+    widget: new (options: Record<string, unknown>) => TradingViewWidget;
   };
 };
 
@@ -33,13 +52,16 @@ export default function TradingViewChart() {
     inner.id = `tv-widget-${active}-${Date.now()}`;
     container.appendChild(inner);
 
+    let rightOffsetSubscription: TradingViewSubscription | null = null;
+    let rightOffsetHandler: ((value: number) => void) | null = null;
+
     const script = document.createElement("script");
     script.src = "https://s3.tradingview.com/tv.js";
     script.async = true;
     script.onload = () => {
       const tradingView = (window as TradingViewWindow).TradingView;
       if (!tradingView || !container.isConnected) return;
-      new tradingView.widget({
+      const widget = new tradingView.widget({
         container_id: inner.id,
         width: "100%",
         height: 280,
@@ -57,10 +79,28 @@ export default function TradingViewChart() {
         backgroundColor: "#0f172a",
         gridColor: "rgba(51,65,85,0.3)",
       });
+
+      widget.onChartReady?.(() => {
+        const timeScale = widget.activeChart?.().getTimeScale?.();
+        if (!timeScale?.setRightOffset || !timeScale.rightOffsetChanged) return;
+
+        const setRightOffset = timeScale.setRightOffset.bind(timeScale);
+        setRightOffset(0);
+        rightOffsetHandler = (offset: number) => {
+          if (offset > 0) {
+            setRightOffset(0);
+          }
+        };
+        rightOffsetSubscription = timeScale.rightOffsetChanged();
+        rightOffsetSubscription.subscribe(null, rightOffsetHandler);
+      });
     };
     container.appendChild(script);
 
     return () => {
+      if (rightOffsetSubscription && rightOffsetHandler) {
+        rightOffsetSubscription.unsubscribe?.(null, rightOffsetHandler);
+      }
       container.innerHTML = "";
     };
   }, [active]);

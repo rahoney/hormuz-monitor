@@ -18,6 +18,7 @@ _MARKET_EXCLUDED_UTC_HOURS = set(range(1, 8))
 
 _EN_SOURCES = {"BBC Middle East", "Anadolu Agency", "NYT Middle East",
                "CNBC Energy", "CNBC World", "CNBC Asia"}
+_MIN_KO_SUMMARY_CHARS = 150
 
 
 def _is_market_session() -> bool:
@@ -163,14 +164,39 @@ def generate() -> tuple[str, str, int | None] | None:
 
     prompt = _build_prompt(events, trump, oil, gasoline, market)
 
+    def _parse_generated_text(text: str) -> tuple[str, str, int | None]:
+        import re
+
+        ko_match = re.search(r'###\s*\*?KO\b\*?:?(.*?)(?=###\s*\*?EN\b|\Z)', text, re.IGNORECASE | re.DOTALL)
+        en_match = re.search(r'###\s*\*?EN\b\*?:?(.*?)(?=###\s*\*?SCORE\b|\Z)', text, re.IGNORECASE | re.DOTALL)
+        score_match = re.search(r'###\s*\*?SCORE\b\*?:?\s*(\d+)', text, re.IGNORECASE)
+
+        ko = ko_match.group(1).strip() if ko_match else ""
+        en = en_match.group(1).strip() if en_match else ""
+
+        geo_score = None
+        if score_match:
+            try:
+                val = int(score_match.group(1))
+                geo_score = max(1, min(30, val))
+            except ValueError:
+                pass
+
+        return ko, en, geo_score
+
+    def _valid_generated_text(text: str) -> bool:
+        ko, en, geo_score = _parse_generated_text(text)
+        return len(ko) >= _MIN_KO_SUMMARY_CHARS and bool(en) and geo_score is not None
+
     try:
         result = generate_text(
             prompt,
             task="situation_summary",
             models=summary_models(),
-            max_output_tokens=1024,
+            max_output_tokens=2048,
             temperature=0.3,
             timeout=30.0,
+            validate_text=_valid_generated_text,
         )
         text = result.text
         logger.info("상황 요약 Gemini 모델: %s (%d attempts)", result.model, result.attempts)
@@ -178,24 +204,13 @@ def generate() -> tuple[str, str, int | None] | None:
         logger.error("상황 요약 Gemini 호출 실패: %s", exc)
         return None
 
-    import re
-    
-    # AI가 헤더에 굵은 글씨나 공백을 넣어도 무시하고 잡아내는 정규식
-    ko_match = re.search(r'###\s*\*?KO\b\*?:?(.*?)(?=###\s*\*?EN\b|\Z)', text, re.IGNORECASE | re.DOTALL)
-    en_match = re.search(r'###\s*\*?EN\b\*?:?(.*?)(?=###\s*\*?SCORE\b|\Z)', text, re.IGNORECASE | re.DOTALL)
-    score_match = re.search(r'###\s*\*?SCORE\b\*?:?\s*(\d+)', text, re.IGNORECASE)
-
-    ko = ko_match.group(1).strip() if ko_match else ""
-    en = en_match.group(1).strip() if en_match else ""
-    
-    geo_score = None
-    if score_match:
-        try:
-            val = int(score_match.group(1))
-            geo_score = max(1, min(30, val))
-        except ValueError:
-            pass
-
-    if not ko:
+    ko, en, geo_score = _parse_generated_text(text)
+    if len(ko) < _MIN_KO_SUMMARY_CHARS or not en or geo_score is None:
+        logger.error(
+            "상황 요약 검증 실패: ko=%d자 en=%d자 geo_score=%s",
+            len(ko),
+            len(en),
+            geo_score,
+        )
         return None
     return ko, en, geo_score
