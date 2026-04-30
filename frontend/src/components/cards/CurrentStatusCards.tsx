@@ -48,12 +48,12 @@ export default function CurrentStatusCards({ summary }: Props) {
       <StatusCard
         label={t("cards.inlandEntry")}
         value={summary?.inland_entry_count ?? "—"}
-        sub={t("cards.aisEstimated")}
+        sub={t("cards.ais24hEstimated")}
       />
       <StatusCard
         label={t("cards.offshoreExit")}
         value={summary?.offshore_exit_count ?? "—"}
-        sub={t("cards.aisEstimated")}
+        sub={t("cards.ais24hEstimated")}
       />
     </div>
   );

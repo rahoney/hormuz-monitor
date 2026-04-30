@@ -20,6 +20,7 @@
     "notTracked": "미집계",
     "weeklyAverage": "7일 평균",
     "aisEstimated": "AIS 추정",
+    "ais24hEstimated": "24시간 AIS 추정",
     "confirmed": "확정",
     "estimated": "추정"
   },

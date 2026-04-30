@@ -155,6 +155,13 @@ function clampLogicalRange(range: LogicalRange | null, dataLength: number): Logi
   return { from, to } as LogicalRange;
 }
 
+function initialVisibleBars(tab: "5m" | "1d", containerWidth: number): number {
+  if (tab === "1d") {
+    return containerWidth < 420 ? 28 : 35;
+  }
+  return containerWidth < 420 ? 180 : 320;
+}
+
 export default function MarketCustomChart({ symbol, intraday, ohlcv }: Props) {
   const locale = useLocale();
   const has5m = prepareIntraday(intraday).length > 0;
@@ -256,8 +263,13 @@ export default function MarketCustomChart({ symbol, intraday, ohlcv }: Props) {
           }
         }
 
-        chart.timeScale().fitContent();
         if (dataLength > 1) {
+          const visibleBars = Math.min(dataLength, initialVisibleBars(tab, el.clientWidth));
+          chart.timeScale().setVisibleLogicalRange({
+            from: dataLength - visibleBars,
+            to: dataLength - 1,
+          } as LogicalRange);
+
           let adjusting = false;
           logicalRangeHandler = (range) => {
             if (adjusting || !chart) return;
