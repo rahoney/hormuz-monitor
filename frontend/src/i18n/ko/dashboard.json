@@ -1,5 +1,5 @@
 {
-  "title": "호르무즈 해협 모니터",
+  "title": "호르무즈 해협 실시간 모니터",
   "subtitle": "해협 상황을 한눈에 파악할 수 있도록 주요 정보를 한 곳에 모았습니다.",
   "cards": {
     "straitStatus": "해협 상태",
@@ -24,8 +24,11 @@
     "estimated": "추정"
   },
   "sections": {
+    "jump": "섹션 이동",
+    "summary": "상황 요약",
     "statusCards": "현재 상태",
     "weeklyTransit": "주간 평균 통행량",
+    "map": "해협 지도",
     "transitFlow": "통행 흐름 (90일)",
     "oilPrices": "유가 (90일 이력)",
     "oilRealtime": "유가 (실시간)",

@@ -100,6 +100,30 @@ function prepareIntraday(intraday: IntradayPoint[]): LineData<UTCTimestamp>[] {
     });
 }
 
+function movingAverage(data: CandlestickData[], period: number): LineData[] {
+  const points: LineData[] = [];
+  const closes: number[] = [];
+  let sum = 0;
+
+  for (const item of data) {
+    const close = Number(item.close);
+    if (!Number.isFinite(close)) continue;
+    closes.push(close);
+    sum += close;
+    if (closes.length > period) {
+      sum -= closes.shift() ?? 0;
+    }
+    if (closes.length === period) {
+      points.push({
+        time: item.time,
+        value: Number((sum / period).toFixed(4)),
+      });
+    }
+  }
+
+  return points;
+}
+
 function clampLogicalRange(range: LogicalRange | null, dataLength: number): LogicalRange | null {
   if (!range || dataLength <= 1) return null;
 
@@ -207,6 +231,26 @@ export default function MarketCustomChart({ symbol, intraday, ohlcv }: Props) {
           });
           try {
             series.setData(chartData);
+            const ma20 = movingAverage(chartData, 20);
+            const ma60 = movingAverage(chartData, 60);
+            if (ma20.length > 0) {
+              const ma20Series = chart.addSeries(LineSeries, {
+                color: "#f59e0b",
+                lineWidth: 1,
+                priceLineVisible: false,
+                lastValueVisible: false,
+              });
+              ma20Series.setData(ma20);
+            }
+            if (ma60.length > 0) {
+              const ma60Series = chart.addSeries(LineSeries, {
+                color: "#a78bfa",
+                lineWidth: 1,
+                priceLineVisible: false,
+                lastValueVisible: false,
+              });
+              ma60Series.setData(ma60);
+            }
           } catch {
             // 데이터 형식 문제 시 무시
           }
@@ -260,7 +304,7 @@ export default function MarketCustomChart({ symbol, intraday, ohlcv }: Props) {
                 : "text-slate-400 hover:text-slate-200 hover:bg-slate-700"
             }`}
           >
-            {t === "5m" ? "5분봉" : "일봉 30일"}
+            {t === "5m" ? "5분봉" : "일봉 90일"}
           </button>
         ))}
       </div>
