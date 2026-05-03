@@ -10,64 +10,56 @@
 ![Render](https://img.shields.io/badge/Render-46E3B7?logo=render&logoColor=111111)
 ![Cloudflare](https://img.shields.io/badge/Cloudflare-F38020?logo=cloudflare&logoColor=white)
 
-## Project Overview
+## 프로젝트 소개
 
-Hormuz Monitor is a bilingual dashboard for monitoring disruption risk around the Strait of Hormuz during the U.S.-Iran conflict. It combines shipping movement, oil and fuel prices, market indicators, news events, and political signals into a single operational view.
+Hormuz Monitor는 호르무즈 해협 주변의 긴장 상황과 공급망 리스크를 빠르게 확인하기 위한 대시보드입니다. 선박 흐름, 에너지 가격, 시장 지표, 관련 이슈, 정치적 발언을 한 화면에 모아 현재 상황을 파악할 수 있도록 구성했습니다.
 
-The service is designed for quick situational awareness rather than long-form reporting. It is available in Korean and English, with localized dashboard text, summaries, and sharing content.
+서비스는 한국어와 영어를 지원하며, 접속 환경과 선택 언어에 따라 대시보드 문구, 요약, 공유 콘텐츠가 현지화됩니다.
 
-## Key Features
+## 주요 기능
 
-- Situation summary generated from recent news, Trump social posts, oil prices, fuel prices, and market indicators
-- Hormuz Risk Index combining vessel movement, geopolitical tension, Brent crude, and VIX
-- PortWatch-based 7-day average vessel transit metrics
-- AIS-based 24-hour inland entry and offshore exit estimates
-- Strait map embeds for vessel monitoring
-- Transit flow, oil price, gasoline price, and market snapshot sections
-- Related issue feed with article summary popup
-- Trump social media feed with Korean translation
-- Mobile dashboard section navigation with horizontal sticky jump bar
-- Korean and English localization
+- 호르무즈 해협 관련 상황 요약
+- 선박 흐름, 지정학 긴장도, 에너지 가격, 시장 변동성을 반영한 위험 지수
+- 7일 평균 통행량과 24시간 AIS 추정 방향 통계
+- 해협 지도, 통행 흐름, 유가, 휘발유 가격, 시장 현황 모니터링
+- 관련 이슈 기사 목록과 요약 팝업
+- 주요 정치 발언 모니터링과 번역
+- 모바일 환경을 위한 고정형 섹션 이동 메뉴
+- 한국어 및 영어 다국어 지원
 
-## Tech Stack
+## 기술 스택
 
-| Area | Stack |
+| 영역 | 기술 |
 | --- | --- |
-| Frontend | Next.js, React, TypeScript, Tailwind CSS, next-intl |
-| Charts and Maps | lightweight-charts, Recharts, MapLibre GL, TradingView widget |
-| Backend | Python, FastAPI, Uvicorn |
-| Data Collection | Render Cron Jobs, yfinance, feedparser, AISStream, EIA, PortWatch |
+| Frontend | Next.js, React, TypeScript |
+| Backend | Python, FastAPI |
 | Database | Supabase PostgreSQL |
-| AI | Google Generative Language API, Gemini, Gemma |
-| Hosting | Vercel, Render |
-| Domain and Edge | Spaceship, Cloudflare |
+| Infrastructure | Vercel, Render, Cloudflare |
+| AI | Google Generative Language API |
 | Analytics | Google Analytics |
 
-## Service Architecture
+## 서비스 구조 한눈에 보기
 
 ```text
-Users
+사용자
   |
   v
 Cloudflare
   |
   v
-Vercel / Next.js Frontend
+Vercel Frontend
   |
-  |-- Supabase public reads for dashboard data
-  |-- Render FastAPI for on-demand article summaries
+  |-- 대시보드 데이터 조회
+  |-- 기사 요약 API 호출
   |
   v
 Supabase PostgreSQL
   ^
   |
-Render Cron Jobs
-  |-- Market data collection
-  |-- Shipping and AIS collection
-  |-- PortWatch transit ingestion
-  |-- Oil and gasoline ingestion
-  |-- News and social ingestion
-  |-- Situation summary and risk score generation
+Render Backend / Scheduled Jobs
+  |-- 시장 및 에너지 지표 수집
+  |-- 선박 통행 데이터 처리
+  |-- 관련 이슈와 정치 발언 수집
+  |-- 상황 요약과 위험 지수 생성
+  |-- 오래된 임시 데이터 정리
 ```
-
-Primary data sources include IMF PortWatch, AISStream, EIA, Yahoo Finance, RSS news feeds, Trump social posts, TradingView widgets, and Google Generative Language API.
