@@ -15,6 +15,7 @@ import GasolinePricesPanel from "@/components/charts/GasolinePricesPanel";
 import TrumpPostsFeed from "@/components/cards/TrumpPostsFeed";
 import SituationSummaryCard from "@/components/cards/SituationSummaryCard";
 import SectionJumpSelect from "@/components/navigation/SectionJumpSelect";
+import MobileSectionNav from "@/components/navigation/MobileSectionNav";
 import {
   getCachedGasolinePrices,
   getCachedLatestMarketSnapshots,
@@ -95,6 +96,7 @@ export default async function DashboardPage() {
   return (
     <PageShell>
       <div className="flex flex-col gap-6">
+        <MobileSectionNav sections={sections} />
 
         {/* 페이지 헤더 */}
         <div>
