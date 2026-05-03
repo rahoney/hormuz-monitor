@@ -1,77 +1,65 @@
 # Hormuz Monitor
 
-## Installation
+![Next.js](https://img.shields.io/badge/Next.js-000000?logo=nextdotjs&logoColor=white)
+![React](https://img.shields.io/badge/React-20232A?logo=react&logoColor=61DAFB)
+![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white)
+![FastAPI](https://img.shields.io/badge/FastAPI-009688?logo=fastapi&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?logo=postgresql&logoColor=white)
+![Supabase](https://img.shields.io/badge/Supabase-3FCF8E?logo=supabase&logoColor=white)
+![Vercel](https://img.shields.io/badge/Vercel-000000?logo=vercel&logoColor=white)
+![Render](https://img.shields.io/badge/Render-46E3B7?logo=render&logoColor=111111)
+![Cloudflare](https://img.shields.io/badge/Cloudflare-F38020?logo=cloudflare&logoColor=white)
 
-### Frontend
+## 프로젝트 소개
 
-Frontend dependencies are managed with npm in `frontend/package.json` and `frontend/package-lock.json`.
+Hormuz Monitor는 호르무즈 해협 주변의 긴장 상황과 공급망 리스크를 빠르게 확인하기 위한 대시보드입니다. 선박 흐름, 에너지 가격, 시장 지표, 관련 이슈, 정치적 발언을 한 화면에 모아 현재 상황을 파악할 수 있도록 구성했습니다.
 
-```bash
-cd frontend
-npm install
-npm run dev
-```
+서비스는 한국어와 영어를 지원하며, 접속 환경과 선택 언어에 따라 대시보드 문구, 요약, 공유 콘텐츠가 현지화됩니다.
 
-For reproducible CI or deployment installs, use:
+## 주요 기능
 
-```bash
-cd frontend
-npm ci
-npm run build
-```
+- 호르무즈 해협 관련 상황 요약
+- 선박 흐름, 지정학 긴장도, 에너지 가격, 시장 변동성을 반영한 위험 지수
+- 7일 평균 통행량과 24시간 AIS 추정 방향 통계
+- 해협 지도, 통행 흐름, 유가, 휘발유 가격, 시장 현황 모니터링
+- 관련 이슈 기사 목록과 요약 팝업
+- 주요 정치 발언 모니터링과 번역
+- 모바일 환경을 위한 고정형 섹션 이동 메뉴
+- 한국어 및 영어 다국어 지원
 
-Required frontend environment variables:
+## 기술 스택
 
-```env
-NEXT_PUBLIC_SUPABASE_URL=
-NEXT_PUBLIC_SUPABASE_ANON_KEY=
-NEXT_PUBLIC_APP_NAME=
-NEXT_PUBLIC_DEFAULT_LOCALE=
-```
+| 영역 | 기술 |
+| --- | --- |
+| Frontend | Next.js, React, TypeScript |
+| Backend | Python, FastAPI |
+| Database | Supabase PostgreSQL |
+| Infrastructure | Vercel, Render, Cloudflare |
+| AI | Google Generative Language API |
+| Analytics | Google Analytics |
 
-### Backend
+## 서비스 구조 한눈에 보기
 
-Backend dependencies are managed in `backend/requirements.txt`.
-
-```bash
-cd backend
-pip install -r requirements.txt
-python -m uvicorn api.main:app --reload
-```
-
-Required backend environment variables:
-
-```env
-SUPABASE_URL=
-SUPABASE_SERVICE_ROLE_KEY=
-DATABASE_URL=
-EIA_API_KEY=
-AISSTREAM_API_KEY=
-GOOGLE_GEMINI_API_KEY=
-```
-
-Optional Gemini fallback override variables:
-
-```env
-GEMINI_SUMMARY_MODELS=gemini-3.1-flash-lite-preview,gemini-3-flash-preview,gemini-2.5-flash,gemma-3-27b-it
-GEMINI_TRANSLATION_MODELS=gemini-3.1-flash-lite-preview,gemini-2.5-flash,gemma-3-27b-it
-```
-
-### Backend Jobs
-
-Run collector jobs from the `backend` directory:
-
-```bash
-python -m jobs.oil_ingest
-python -m jobs.market_ingest
-python -m jobs.events_ingest
-python -m jobs.portwatch_ingest
-python -m jobs.shipping_ingest
-python -m jobs.summary_rebuild
-```
-
-Render uses `rootDir: backend` and installs Python dependencies with:
-
-```bash
-pip install -r requirements.txt
+```text
+사용자
+  |
+  v
+Cloudflare
+  |
+  v
+Vercel Frontend
+  |
+  |-- 대시보드 데이터 조회
+  |-- 기사 요약 API 호출
+  |
+  v
+Supabase PostgreSQL
+  ^
+  |
+Render Backend / Scheduled Jobs
+  |-- 시장 및 에너지 지표 수집
+  |-- 선박 통행 데이터 처리
+  |-- 관련 이슈와 정치 발언 수집
+  |-- 상황 요약과 위험 지수 생성
+  |-- 오래된 임시 데이터 정리
 ```
