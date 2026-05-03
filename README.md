@@ -1,77 +1,73 @@
 # Hormuz Monitor
 
-## Installation
+![Next.js](https://img.shields.io/badge/Next.js-000000?logo=nextdotjs&logoColor=white)
+![React](https://img.shields.io/badge/React-20232A?logo=react&logoColor=61DAFB)
+![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white)
+![FastAPI](https://img.shields.io/badge/FastAPI-009688?logo=fastapi&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?logo=postgresql&logoColor=white)
+![Supabase](https://img.shields.io/badge/Supabase-3FCF8E?logo=supabase&logoColor=white)
+![Vercel](https://img.shields.io/badge/Vercel-000000?logo=vercel&logoColor=white)
+![Render](https://img.shields.io/badge/Render-46E3B7?logo=render&logoColor=111111)
+![Cloudflare](https://img.shields.io/badge/Cloudflare-F38020?logo=cloudflare&logoColor=white)
 
-### Frontend
+## Project Overview
 
-Frontend dependencies are managed with npm in `frontend/package.json` and `frontend/package-lock.json`.
+Hormuz Monitor is a bilingual dashboard for monitoring disruption risk around the Strait of Hormuz during the U.S.-Iran conflict. It combines shipping movement, oil and fuel prices, market indicators, news events, and political signals into a single operational view.
 
-```bash
-cd frontend
-npm install
-npm run dev
+The service is designed for quick situational awareness rather than long-form reporting. It is available in Korean and English, with localized dashboard text, summaries, and sharing content.
+
+## Key Features
+
+- Situation summary generated from recent news, Trump social posts, oil prices, fuel prices, and market indicators
+- Hormuz Risk Index combining vessel movement, geopolitical tension, Brent crude, and VIX
+- PortWatch-based 7-day average vessel transit metrics
+- AIS-based 24-hour inland entry and offshore exit estimates
+- Strait map embeds for vessel monitoring
+- Transit flow, oil price, gasoline price, and market snapshot sections
+- Related issue feed with article summary popup
+- Trump social media feed with Korean translation
+- Mobile dashboard section navigation with horizontal sticky jump bar
+- Korean and English localization
+
+## Tech Stack
+
+| Area | Stack |
+| --- | --- |
+| Frontend | Next.js, React, TypeScript, Tailwind CSS, next-intl |
+| Charts and Maps | lightweight-charts, Recharts, MapLibre GL, TradingView widget |
+| Backend | Python, FastAPI, Uvicorn |
+| Data Collection | Render Cron Jobs, yfinance, feedparser, AISStream, EIA, PortWatch |
+| Database | Supabase PostgreSQL |
+| AI | Google Generative Language API, Gemini, Gemma |
+| Hosting | Vercel, Render |
+| Domain and Edge | Spaceship, Cloudflare |
+| Analytics | Google Analytics |
+
+## Service Architecture
+
+```text
+Users
+  |
+  v
+Cloudflare
+  |
+  v
+Vercel / Next.js Frontend
+  |
+  |-- Supabase public reads for dashboard data
+  |-- Render FastAPI for on-demand article summaries
+  |
+  v
+Supabase PostgreSQL
+  ^
+  |
+Render Cron Jobs
+  |-- Market data collection
+  |-- Shipping and AIS collection
+  |-- PortWatch transit ingestion
+  |-- Oil and gasoline ingestion
+  |-- News and social ingestion
+  |-- Situation summary and risk score generation
 ```
 
-For reproducible CI or deployment installs, use:
-
-```bash
-cd frontend
-npm ci
-npm run build
-```
-
-Required frontend environment variables:
-
-```env
-NEXT_PUBLIC_SUPABASE_URL=
-NEXT_PUBLIC_SUPABASE_ANON_KEY=
-NEXT_PUBLIC_APP_NAME=
-NEXT_PUBLIC_DEFAULT_LOCALE=
-```
-
-### Backend
-
-Backend dependencies are managed in `backend/requirements.txt`.
-
-```bash
-cd backend
-pip install -r requirements.txt
-python -m uvicorn api.main:app --reload
-```
-
-Required backend environment variables:
-
-```env
-SUPABASE_URL=
-SUPABASE_SERVICE_ROLE_KEY=
-DATABASE_URL=
-EIA_API_KEY=
-AISSTREAM_API_KEY=
-GOOGLE_GEMINI_API_KEY=
-```
-
-Optional Gemini fallback override variables:
-
-```env
-GEMINI_SUMMARY_MODELS=gemini-3.1-flash-lite-preview,gemini-3-flash-preview,gemini-2.5-flash,gemma-3-27b-it
-GEMINI_TRANSLATION_MODELS=gemini-3.1-flash-lite-preview,gemini-2.5-flash,gemma-3-27b-it
-```
-
-### Backend Jobs
-
-Run collector jobs from the `backend` directory:
-
-```bash
-python -m jobs.oil_ingest
-python -m jobs.market_ingest
-python -m jobs.events_ingest
-python -m jobs.portwatch_ingest
-python -m jobs.shipping_ingest
-python -m jobs.summary_rebuild
-```
-
-Render uses `rootDir: backend` and installs Python dependencies with:
-
-```bash
-pip install -r requirements.txt
-```
+Primary data sources include IMF PortWatch, AISStream, EIA, Yahoo Finance, RSS news feeds, Trump social posts, TradingView widgets, and Google Generative Language API.
