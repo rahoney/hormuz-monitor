@@ -20,16 +20,16 @@ _EN_SOURCES = {"BBC Middle East", "Anadolu Agency", "NYT Middle East",
                "CNBC Energy", "CNBC World", "CNBC Asia"}
 _MIN_KO_SUMMARY_CHARS = 150
 _KO_REQUIRED_LABELS = (
-    "핵심 상황:",
-    "군사·외교 움직임:",
-    "시장 반응:",
-    "전망 및 관찰 포인트:",
+    "- 핵심 상황:",
+    "- 군사·외교 움직임:",
+    "- 시장 반응:",
+    "- 전망 및 관찰 포인트:",
 )
 _EN_REQUIRED_LABELS = (
-    "Core situation:",
-    "Military and diplomatic moves:",
-    "Market reaction:",
-    "Outlook and watch points:",
+    "- Core situation:",
+    "- Military and diplomatic moves:",
+    "- Market reaction:",
+    "- Outlook and watch points:",
 )
 
 
@@ -134,23 +134,23 @@ def _build_prompt(events: list, trump: list, oil: dict,
 한국어 요약은 내용이 간단하더라도 최소 150자 이상으로 작성하고, 내용이 다양하거나 추가 설명이 필요한 경우에는 700자 이내에서 충분히 작성하라. 이 글자 수 기준은 한국어 요약문에만 적용한다. 150자는 최소 기준일 뿐이며, 가능한 한 짧게 쓰라는 의미가 아니다. 핵심 내용, 배경, 주요 수치, 관련 주체, 영향 또는 전망 등 중요한 정보는 글자 수를 줄이기 위해 과도하게 생략하지 말라.
 - FOCUS: US-Iran war/negotiations and Trump's statements are the PRIMARY topic. Oil prices and market indices are SECONDARY.
 
-한국어 요약문은 별도 제목 없이 아래 4개 항목명만 정확히 사용하라. 각 항목은 2~3문장으로 작성하라.
-핵심 상황:
+한국어 요약문은 별도 제목 없이 아래 4개 항목명만 정확히 사용하라. 각 항목은 "- 항목명:" 형식의 1단계 하이픈 불릿으로 시작하고, 본문 내용은 항목명 바로 뒤에 쓰지 말고 반드시 다음 줄부터 2~3문장으로 작성하라. 항목 사이에는 빈 줄 하나만 둔다.
+- 핵심 상황:
 최근 업데이트에서 확인된 가장 중요한 변화와 현재 긴장 수준을 정리한다.
-군사·외교 움직임:
+- 군사·외교 움직임:
 미국, 이란, 주변국, 국제기구의 군사 움직임, 외교 접촉, 압박, 협상 관련 내용을 정리한다.
-시장 반응:
+- 시장 반응:
 유가, 증시, 변동성, 에너지 공급 우려 등 시장이 어떻게 반응하는지 정리한다.
-전망 및 관찰 포인트:
+- 전망 및 관찰 포인트:
 현재 근거를 바탕으로 가능한 흐름과 앞으로 확인해야 할 변수를 신중하게 정리하되, 확정되지 않은 사건을 사실처럼 단정하지 않는다.
 
-요약문 본문 안에서는 Markdown 문법을 사용하지 말라. 특히 ###, ##, #, -, *, **, 번호 목록, 불릿 문자를 쓰지 말라. 항목명 뒤에는 콜론을 붙이고, 항목 사이에는 빈 줄 하나만 둔다. "호르무즈 해협 지정학적 상황 요약" 같은 별도 제목을 절대 만들지 말라.
+요약문 본문 안에서는 위 4개 항목의 1단계 하이픈 불릿 외에 다른 Markdown 문법을 사용하지 말라. 특히 ###, ##, #, *, **, 번호 목록, 추가 불릿, 중첩 불릿을 쓰지 말라. "호르무즈 해협 지정학적 상황 요약" 같은 별도 제목을 절대 만들지 말라.
 
 그다음, 작성한 한국어 요약문을 내용 누락, 추가, 변형 없이 영어로 정확히 번역하라. 영어 번역은 한국어 요약문의 의미와 구조를 가능한 한 그대로 유지하되, 영어로 자연스럽게 읽히도록 작성하라. 영어 항목명은 아래 4개만 정확히 사용하라.
-Core situation:
-Military and diplomatic moves:
-Market reaction:
-Outlook and watch points:
+- Core situation:
+- Military and diplomatic moves:
+- Market reaction:
+- Outlook and watch points:
 
 마지막으로, 현재 호르무즈 해협의 지정학적 긴장도를 나타내는 SCORE(정수 1~30)를 산출하라.
 - 1~7 = Safe (peace agreement, strait open, ceasefire holding, normalization confirmed)
@@ -160,9 +160,9 @@ Outlook and watch points:
 
 Output ONLY these three sections, nothing else. The summaries can be multi-line:
 ### KO
-[Korean plain-text summary using the four fixed labels]
+[Korean summary using the four fixed bullet labels, with content starting on the next line after each label]
 ### EN
-[English plain-text summary using the four fixed labels]
+[English summary using the four fixed bullet labels, with content starting on the next line after each label]
 ### SCORE
 [integer 1-30]
 
@@ -219,10 +219,29 @@ def generate() -> tuple[str, str, int | None] | None:
         return bool(
             "###" in text
             or re.search(r"(?m)^\s{0,3}#{1,6}\s+", text)
-            or re.search(r"(?m)^\s*[-*]\s+", text)
+            or re.search(r"(?m)^\s*\*\s+", text)
             or re.search(r"(?m)^\s*\d+\.\s+", text)
             or "**" in text
         )
+
+    def _has_only_allowed_bullets(text: str, labels: tuple[str, ...]) -> bool:
+        import re
+
+        bullet_lines = re.findall(r"(?m)^\s*-\s+[^:\n]+:", text)
+        return bullet_lines == list(labels)
+
+    def _has_label_body_newline(text: str, labels: tuple[str, ...]) -> bool:
+        for label in labels:
+            start = text.find(label)
+            if start < 0:
+                return False
+            rest = text[start + len(label):]
+            if not rest.startswith("\n"):
+                return False
+            first_body_line = rest.splitlines()[1].strip() if len(rest.splitlines()) > 1 else ""
+            if not first_body_line or first_body_line.startswith("-"):
+                return False
+        return True
 
     def _valid_generated_text(text: str) -> bool:
         ko, en, geo_score = _parse_generated_text(text)
@@ -234,6 +253,10 @@ def generate() -> tuple[str, str, int | None] | None:
             and _has_required_labels(en, _EN_REQUIRED_LABELS)
             and not _has_disallowed_markdown(ko)
             and not _has_disallowed_markdown(en)
+            and _has_only_allowed_bullets(ko, _KO_REQUIRED_LABELS)
+            and _has_only_allowed_bullets(en, _EN_REQUIRED_LABELS)
+            and _has_label_body_newline(ko, _KO_REQUIRED_LABELS)
+            and _has_label_body_newline(en, _EN_REQUIRED_LABELS)
         )
 
     try:
@@ -255,7 +278,7 @@ def generate() -> tuple[str, str, int | None] | None:
     ko, en, geo_score = _parse_generated_text(text)
     if not _valid_generated_text(text):
         logger.error(
-            "상황 요약 검증 실패: ko=%d자 en=%d자 geo_score=%s labels_ko=%s labels_en=%s markdown_ko=%s markdown_en=%s",
+            "상황 요약 검증 실패: ko=%d자 en=%d자 geo_score=%s labels_ko=%s labels_en=%s markdown_ko=%s markdown_en=%s bullets_ko=%s bullets_en=%s newline_ko=%s newline_en=%s",
             len(ko),
             len(en),
             geo_score,
@@ -263,6 +286,10 @@ def generate() -> tuple[str, str, int | None] | None:
             _has_required_labels(en, _EN_REQUIRED_LABELS),
             _has_disallowed_markdown(ko),
             _has_disallowed_markdown(en),
+            _has_only_allowed_bullets(ko, _KO_REQUIRED_LABELS),
+            _has_only_allowed_bullets(en, _EN_REQUIRED_LABELS),
+            _has_label_body_newline(ko, _KO_REQUIRED_LABELS),
+            _has_label_body_newline(en, _EN_REQUIRED_LABELS),
         )
         return None
     return ko, en, geo_score
