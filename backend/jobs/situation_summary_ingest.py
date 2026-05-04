@@ -23,14 +23,24 @@ def run() -> None:
         if not result:
             raise RuntimeError("요약 생성 실패 또는 빈 결과")
 
-        ko, en, geo_score = result
+        ko, en, geo_score, ko_structured, en_structured = result
         record: dict = {"summary_ko": ko, "summary_en": en}
         if geo_score is not None:
             record["geo_score"] = geo_score
+        if ko_structured:
+            record["summary_ko_structured"] = ko_structured
+        if en_structured:
+            record["summary_en_structured"] = en_structured
         insert("situation_summaries", [record])
         finish_run(run_id, "success", 1, 1)
-        logger.info("완료: 요약 저장 (ko %d자, en %d words, geo_score %s)",
-                    len(ko), len(en.split()), geo_score)
+        logger.info(
+            "완료: 요약 저장 (ko %d자, en %d words, geo_score %s, structured ko=%s en=%s)",
+            len(ko),
+            len(en.split()),
+            geo_score,
+            bool(ko_structured),
+            bool(en_structured),
+        )
 
     except Exception as exc:
         finish_run(run_id, "failed", 0, 0)

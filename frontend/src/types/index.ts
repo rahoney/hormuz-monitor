@@ -77,8 +77,28 @@ export interface SituationSummary {
   id: number;
   summary_ko: string;
   summary_en: string | null;
+  summary_ko_structured: StructuredSituationSummary | null;
+  summary_en_structured: StructuredSituationSummary | null;
   generated_at: string;
   geo_score: number | null;
+}
+
+export type SummaryHighlightTone = "risk" | "market" | "watch";
+
+export interface SummaryHighlight {
+  text: string;
+  tone: SummaryHighlightTone;
+}
+
+export interface StructuredSummarySection {
+  title: string;
+  body: string;
+  highlights: SummaryHighlight[];
+}
+
+export interface StructuredSituationSummary {
+  version: number;
+  sections: StructuredSummarySection[];
 }
 
 export interface MarketOHLCV {
