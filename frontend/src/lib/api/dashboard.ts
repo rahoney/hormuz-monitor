@@ -4,7 +4,7 @@ import type { Event, GasolinePrice, MarketOHLCV, MarketSnapshot, OilPriceSeries,
 export async function fetchLatestSummary(): Promise<SituationSummary | null> {
   const { data } = await supabase
     .from("situation_summaries")
-    .select("id, summary_ko, summary_en, generated_at, geo_score")
+    .select("id, summary_ko, summary_en, summary_ko_structured, summary_en_structured, generated_at, geo_score")
     .order("generated_at", { ascending: false })
     .limit(1)
     .single();

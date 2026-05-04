@@ -32,6 +32,10 @@ _EN_REQUIRED_LABELS = (
     "- Outlook and watch points:",
 )
 
+_KO_SECTION_TITLES = ("핵심 상황", "군사·외교 움직임", "시장 반응", "전망 및 관찰 포인트")
+_EN_SECTION_TITLES = ("Core situation", "Military and diplomatic moves", "Market reaction", "Outlook and watch points")
+_ALLOWED_HIGHLIGHT_TONES = {"risk", "market", "watch"}
+
 
 def _is_market_session() -> bool:
     now = datetime.now(timezone.utc)
@@ -180,8 +184,113 @@ WTI: {wti_str} | Brent: {brent_str}
 {market_block}"""
 
 
-def generate() -> tuple[str, str, int | None] | None:
-    """(summary_ko, summary_en, geo_score) 반환. 실패 시 None."""
+def _parse_summary_sections(text: str, labels: tuple[str, ...], titles: tuple[str, ...]) -> list[dict[str, Any]] | None:
+    sections: list[dict[str, Any]] = []
+    for idx, label in enumerate(labels):
+        start = text.find(label)
+        if start < 0:
+            return None
+        body_start = start + len(label)
+        next_start = text.find(labels[idx + 1], body_start) if idx + 1 < len(labels) else len(text)
+        body = text[body_start:next_start].strip()
+        if not body:
+            return None
+        sections.append({"title": titles[idx], "body": body, "highlights": []})
+    return sections
+
+
+def _first_existing_match(body: str, patterns: tuple[str, ...]) -> str | None:
+    import re
+
+    for pattern in patterns:
+        match = re.search(pattern, body, flags=re.IGNORECASE)
+        if match:
+            value = match.group(0).strip(" ,.;:()[]")
+            if 4 <= len(value) <= 80 and value in body:
+                return value
+    return None
+
+
+def _highlight_candidates(body: str, locale: str, section_title: str) -> list[dict[str, str]]:
+    if locale == "ko":
+        risk_patterns = (
+            r"고립된 선박[^\n.。!?]{0,36}구출[^\n.。!?]{0,18}",
+            r"(?:미국의\s*)?직접 개입 가능성",
+            r"압박과 경고성 발언",
+            r"군사(?:적)?\s*(?:충돌|행동|대응)(?:\s*가능성)?",
+            r"확전(?:\s*(?:위험|가능성|방지))?",
+            r"(?:봉쇄|공격|나포|위협)[^\n.。!?]{0,24}",
+        )
+        market_patterns = (
+            r"유가[^\n.。!?]{0,44}(?:상회|상승|급등|하락|혼조)",
+            r"공급 차질 우려",
+            r"(?:브렌트|WTI|휘발유|VIX|증시|변동성)[^\n.。!?]{0,30}",
+            r"(?:배럴당|달러)[^\n.。!?]{0,24}",
+        )
+        watch_patterns = (
+            r"(?:실제 실행 조치|선박 통행 회복 여부|공식 발표|통행 데이터)",
+            r"[^,\n.。!?]{0,18}(?:주시|확인|관찰)[^,\n.。!?]{0,18}",
+            r"[^,\n.。!?]{0,18}(?:핵심 변수|관찰 포인트|변수)[^,\n.。!?]{0,18}",
+        )
+    else:
+        risk_patterns = (
+            r"rescu(?:e|ing)[^\n.?!]{0,48}(?:vessels|ships)[^\n.?!]{0,24}",
+            r"(?:direct|military)\s+intervention(?:\s+risk|\s+possibility)?",
+            r"pressure and warning(?:s| statements)?",
+            r"military\s+(?:action|clash|response)(?:\s+risk|\s+possibility)?",
+            r"(?:blockade|attack|seizure|threat)[^\n.?!]{0,32}",
+        )
+        market_patterns = (
+            r"oil prices?[^\n.?!]{0,48}(?:above|rise|surge|fall|mixed)",
+            r"supply disruption concerns?",
+            r"(?:Brent|WTI|gasoline|VIX|stocks?|volatility)[^\n.?!]{0,36}",
+            r"(?:per barrel|dollars?)[^\n.?!]{0,28}",
+        )
+        watch_patterns = (
+            r"(?:actual implementation steps|vessel traffic recovery|official statements?|traffic data)",
+            r"[^,\n.?!]{0,22}(?:watch|monitor|confirm|verify)[^,\n.?!]{0,22}",
+            r"[^,\n.?!]{0,22}(?:key variable|watch point|variable)[^,\n.?!]{0,22}",
+        )
+
+    ordered: list[tuple[str, tuple[str, ...]]]
+    if section_title in {"시장 반응", "Market reaction"}:
+        ordered = [("market", market_patterns), ("risk", risk_patterns), ("watch", watch_patterns)]
+    elif section_title in {"전망 및 관찰 포인트", "Outlook and watch points"}:
+        ordered = [("watch", watch_patterns), ("risk", risk_patterns), ("market", market_patterns)]
+    else:
+        ordered = [("risk", risk_patterns), ("watch", watch_patterns), ("market", market_patterns)]
+
+    highlights: list[dict[str, str]] = []
+    used: set[str] = set()
+    for tone, patterns in ordered:
+        text = _first_existing_match(body, patterns)
+        if text and text not in used:
+            highlights.append({"text": text, "tone": tone})
+            used.add(text)
+        if len(highlights) >= 2:
+            break
+    return highlights
+
+
+def _build_structured_summary(text: str, locale: str) -> dict[str, Any] | None:
+    labels = _KO_REQUIRED_LABELS if locale == "ko" else _EN_REQUIRED_LABELS
+    titles = _KO_SECTION_TITLES if locale == "ko" else _EN_SECTION_TITLES
+    sections = _parse_summary_sections(text, labels, titles)
+    if not sections:
+        return None
+
+    for section in sections:
+        highlights = _highlight_candidates(section["body"], locale, section["title"])
+        section["highlights"] = [
+            item
+            for item in highlights
+            if item["tone"] in _ALLOWED_HIGHLIGHT_TONES and item["text"] in section["body"]
+        ][:2]
+    return {"version": 1, "sections": sections}
+
+
+def generate() -> tuple[str, str, int | None, dict[str, Any] | None, dict[str, Any] | None] | None:
+    """(summary_ko, summary_en, geo_score, structured_ko, structured_en) 반환. 실패 시 None."""
     events = _fetch_recent_events()
     trump = _fetch_trump_posts()
     oil = _fetch_oil()
@@ -339,4 +448,4 @@ def generate() -> tuple[str, str, int | None] | None:
             _has_label_body_newline(en, _EN_REQUIRED_LABELS),
         )
         return None
-    return ko, en, geo_score
+    return ko, en, geo_score, _build_structured_summary(ko, "ko"), _build_structured_summary(en, "en")
