@@ -210,6 +210,53 @@ def generate() -> tuple[str, str, int | None] | None:
 
         return ko, en, geo_score
 
+    def _normalize_summary_body(text: str, labels: tuple[str, ...]) -> str:
+        import re
+
+        normalized = text.replace("\r\n", "\n").replace("\r", "\n")
+        normalized = normalized.replace("**", "").replace("__", "").replace("`", "")
+
+        for label in labels:
+            name = label[2:-1]
+            pattern = re.compile(
+                rf"(?m)^\s*(?:[-*]\s*)?(?:#+\s*)?{re.escape(name)}\s*:?\s*(.*)$"
+            )
+
+            def _replace_label(match: re.Match[str]) -> str:
+                body = match.group(1).strip()
+                return f"{label}\n{body}" if body else label
+
+            normalized = pattern.sub(_replace_label, normalized)
+
+        cleaned_lines: list[str] = []
+        for line in normalized.splitlines():
+            stripped = line.strip()
+            title_like = stripped.lstrip("#").strip()
+            if (
+                title_like
+                and ":" not in title_like
+                and not any(title_like.startswith(label) for label in labels)
+                and (
+                    "상황 요약" in title_like
+                    or "지정학적 상황" in title_like
+                    or title_like.lower() in {"hormuz geopolitical situation summary", "hormuz situation summary"}
+                )
+            ):
+                continue
+            cleaned_lines.append(line.rstrip())
+
+        normalized = "\n".join(cleaned_lines)
+        normalized = re.sub(r"\n{3,}", "\n\n", normalized)
+        return normalized.strip()
+
+    def _normalize_generated_text(text: str) -> tuple[str, str, int | None]:
+        ko, en, geo_score = _parse_generated_text(text)
+        return (
+            _normalize_summary_body(ko, _KO_REQUIRED_LABELS),
+            _normalize_summary_body(en, _EN_REQUIRED_LABELS),
+            geo_score,
+        )
+
     def _has_required_labels(text: str, labels: tuple[str, ...]) -> bool:
         return all(label in text for label in labels)
 
@@ -244,7 +291,7 @@ def generate() -> tuple[str, str, int | None] | None:
         return True
 
     def _valid_generated_text(text: str) -> bool:
-        ko, en, geo_score = _parse_generated_text(text)
+        ko, en, geo_score = _normalize_generated_text(text)
         return (
             len(ko) >= _MIN_KO_SUMMARY_CHARS
             and bool(en)
@@ -264,7 +311,7 @@ def generate() -> tuple[str, str, int | None] | None:
             prompt,
             task="situation_summary",
             models=summary_models(),
-            max_output_tokens=2048,
+            max_output_tokens=3072,
             temperature=0.3,
             timeout=30.0,
             validate_text=_valid_generated_text,
@@ -275,7 +322,7 @@ def generate() -> tuple[str, str, int | None] | None:
         logger.error("상황 요약 Gemini 호출 실패: %s", exc)
         return None
 
-    ko, en, geo_score = _parse_generated_text(text)
+    ko, en, geo_score = _normalize_generated_text(text)
     if not _valid_generated_text(text):
         logger.error(
             "상황 요약 검증 실패: ko=%d자 en=%d자 geo_score=%s labels_ko=%s labels_en=%s markdown_ko=%s markdown_en=%s bullets_ko=%s bullets_en=%s newline_ko=%s newline_en=%s",
