@@ -270,14 +270,16 @@ CREATE POLICY "public read" ON trump_posts FOR SELECT USING (true);
 
 
 -- ============================================================
--- 상황 요약 (AI 생성, + geo_score from 010)
+-- 상황 요약 (AI 생성, + geo_score from 010, + structured summaries)
 -- ============================================================
 CREATE TABLE IF NOT EXISTS situation_summaries (
-    id           bigserial   PRIMARY KEY,
-    summary_ko   text        NOT NULL,
-    summary_en   text,
-    geo_score    integer,
-    generated_at timestamptz NOT NULL DEFAULT now()
+    id                    bigserial   PRIMARY KEY,
+    summary_ko            text        NOT NULL,
+    summary_en            text,
+    summary_ko_structured jsonb,
+    summary_en_structured jsonb,
+    geo_score             integer,
+    generated_at          timestamptz NOT NULL DEFAULT now()
 );
 
 CREATE INDEX IF NOT EXISTS idx_situation_summaries_generated_at ON situation_summaries (generated_at DESC);
