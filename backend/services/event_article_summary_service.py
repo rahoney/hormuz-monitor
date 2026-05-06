@@ -11,7 +11,11 @@ from utils.gemini_client import GeminiError, generate_text
 
 Locale = Literal["ko", "en"]
 
-_DEFAULT_MODELS = ("models/gemma-3-27b-it",)
+_DEFAULT_MODELS = (
+    "models/gemma-3-27b-it",
+    "models/gemini-3.1-flash-lite-preview",
+    "models/gemini-2.5-flash",
+)
 
 
 def _summary_models() -> list[str]:
@@ -59,7 +63,8 @@ Rules:
 - Do not mention that information is missing.
 - Keep it concise: 3 to 5 sentences.
 - Do not include markdown.
-- Return only valid JSON: {{"summary":"..."}}
+- Return only one JSON object: {{"summary":"..."}}
+- If strict JSON is not possible, return only the summary text and nothing else.
 
 Article metadata:
 Title: {event.get("title") or ""}
@@ -78,8 +83,14 @@ def _parse_summary(text: str) -> str:
         stripped = stripped.strip("`").strip()
         if stripped.lower().startswith("json"):
             stripped = stripped[4:].strip()
+    start = stripped.find("{")
+    end = stripped.rfind("}")
+    if 0 <= start < end:
+        candidate = stripped[start:end + 1]
+    else:
+        candidate = stripped
     try:
-        payload = json.loads(stripped)
+        payload = json.loads(candidate)
         summary = str(payload.get("summary", "")).strip()
     except json.JSONDecodeError:
         summary = stripped
