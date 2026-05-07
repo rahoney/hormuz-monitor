@@ -26,7 +26,7 @@
   "noSource": "No source",
   "articleSummary": {
     "label": "Article Summary",
-    "loading": "Preparing summary...",
+    "loading": "Summarizing the article...",
     "error": "Could not load the summary. Please open the original article.",
     "openOriginal": "Open original",
     "close": "Close",
