@@ -65,9 +65,25 @@ export default function EventArticleSummaryModal({ event, onClose }: Props) {
 
         <div className="px-4 py-4">
           {loading && (
-            <p className="rounded-md border border-slate-800 bg-slate-900 px-3 py-4 text-sm text-slate-400">
-              {t("loading")}
-            </p>
+            <div className="rounded-md border border-slate-800 bg-slate-900 px-3 py-4">
+              <p className="text-sm leading-6 text-slate-400">{t("loading")}</p>
+              <div className="mt-3 h-1 overflow-hidden rounded-full bg-blue-400/15" aria-hidden="true">
+                <div className="h-full w-2/5 animate-[article-summary-loading_1.15s_ease-in-out_infinite] rounded-full bg-blue-400" />
+              </div>
+              <style jsx>{`
+                @keyframes article-summary-loading {
+                  0% {
+                    transform: translateX(-110%);
+                  }
+                  50% {
+                    transform: translateX(90%);
+                  }
+                  100% {
+                    transform: translateX(270%);
+                  }
+                }
+              `}</style>
+            </div>
           )}
           {error && (
             <p className="rounded-md border border-red-900/60 bg-red-950/30 px-3 py-4 text-sm text-red-300">
