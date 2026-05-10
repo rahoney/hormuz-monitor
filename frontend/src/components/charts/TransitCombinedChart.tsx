@@ -97,7 +97,7 @@ export default function TransitCombinedChart({ records, oilSeries }: Props) {
               <Bar yAxisId="vessels" dataKey="offshore" stackId="transit" name={t("offshoreExitEstimate")} fill="#92400e" opacity={0.85} radius={[0,0,0,0]} />
               <Bar  yAxisId="vessels" dataKey="nonOffshore" stackId="transit" name={t("totalVessels")} fill="#60a5fa" opacity={0.7} radius={[2,2,0,0]}>
                 {data.map((entry) => (
-                  <Cell key={entry.date} fill={entry.estimated ? "#f59e0b" : "#60a5fa"} />
+                  <Cell key={entry.date} fill="#60a5fa" />
                 ))}
               </Bar>
               <Line yAxisId="brent"   dataKey="brent"   name={t("brent")}       stroke="#34d399" strokeWidth={1.5} dot={false} connectNulls />
@@ -122,7 +122,7 @@ export default function TransitCombinedChart({ records, oilSeries }: Props) {
             <Bar dataKey="offshore" stackId="transit" name={t("offshoreExitEstimate")} fill="#92400e" radius={[0,0,0,0]} />
             <Bar dataKey="nonOffshore" stackId="transit" name={t("totalVessels")} fill="#60a5fa" radius={[2,2,0,0]}>
               {data.map((entry) => (
-                <Cell key={entry.date} fill={entry.estimated ? "#f59e0b" : "#60a5fa"} />
+                <Cell key={entry.date} fill="#60a5fa" />
               ))}
             </Bar>
           </BarChart>
