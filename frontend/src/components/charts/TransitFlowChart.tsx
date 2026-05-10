@@ -78,7 +78,7 @@ export default function TransitFlowChart({ records }: Props) {
               <Bar dataKey="offshore" stackId="transit" fill="#92400e" radius={[0, 0, 0, 0]} name={t("offshoreExitEstimate")} />
               <Bar dataKey="nonOffshore" stackId="transit" fill="#60a5fa" radius={[2, 2, 0, 0]} name={t("totalVessels")}>
                 {data.map((entry) => (
-                  <Cell key={entry.date} fill={entry.estimated ? "#f59e0b" : "#60a5fa"} />
+                  <Cell key={entry.date} fill="#60a5fa" />
                 ))}
               </Bar>
               </>
