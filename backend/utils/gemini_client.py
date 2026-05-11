@@ -28,7 +28,6 @@ SUMMARY_MODELS = (
 TRANSLATION_MODELS = (
     "models/gemini-3.1-flash-lite-preview",
     "models/gemini-2.5-flash",
-    "models/gemma-3-27b-it",
 )
 RETRY_STATUS_CODES = {429, 500, 503, 504}
 
