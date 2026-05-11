@@ -1,4 +1,4 @@
-"""Al Jazeera/BBC/Anadolu/연합뉴스/한국경제/매일경제 RSS에서 호르무즈 관련 기사를 수집한다."""
+"""영문/국문 RSS와 Google News RSS에서 호르무즈 관련 기사를 수집한다."""
 from datetime import date, datetime, timezone
 from email.utils import parsedate_to_datetime
 from typing import Any

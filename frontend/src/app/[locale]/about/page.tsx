@@ -1,6 +1,29 @@
+import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import PageShell from "@/components/layout/PageShell";
+import { makePageMetadata } from "@/lib/seo";
+
+const META = {
+  ko: {
+    title: "호르무즈 모니터 소개 | 선박 통행, 유가, 시장, 관련 이슈 대시보드",
+    description: "호르무즈 모니터는 호르무즈 해협 실시간 상황, 선박 통행량, 유가, 미국 휘발유 가격, 주식 시장, 관련 기사와 트럼프 SNS 발언을 한곳에서 확인하기 위한 개인 프로젝트입니다.",
+    keywords: ["호르무즈 모니터", "호르무즈 해협 모니터", "호르무즈 해협 트래커", "호르무즈 해협 지도", "호르무즈 해협 실시간 상황", "트럼프 SNS"],
+  },
+  en: {
+    title: "About Hormuz Monitor | Vessel Traffic, Oil, Markets, and Issues Dashboard",
+    description: "Hormuz Monitor is a personal dashboard project for tracking Strait of Hormuz live conditions, vessel traffic, oil prices, U.S. gasoline prices, stock markets, related news, and Trump social posts.",
+    keywords: ["Hormuz Monitor", "Strait of Hormuz monitor", "Hormuz tracker", "Strait of Hormuz map", "Strait of Hormuz live status", "Trump social"],
+  },
+} as const;
+
+type MetadataProps = { params: Promise<{ locale: string }> };
+
+export async function generateMetadata({ params }: MetadataProps): Promise<Metadata> {
+  const { locale } = await params;
+  const meta = locale === "ko" ? META.ko : META.en;
+  return makePageMetadata({ locale, path: "/about", title: meta.title, description: meta.description, keywords: meta.keywords });
+}
 
 export default async function AboutPage() {
   const t = await getTranslations("about");

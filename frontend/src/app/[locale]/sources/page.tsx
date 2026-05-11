@@ -1,8 +1,31 @@
+import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import PageShell from "@/components/layout/PageShell";
+import { makePageMetadata } from "@/lib/seo";
 
 type SourceItem = { name: string; detail: string; url: string };
 type FreqRow = { source: string; frequency: string };
+
+const META = {
+  ko: {
+    title: "호르무즈 모니터 데이터 출처 | 선박, 유가, 시장 지표, 관련 이슈",
+    description: "호르무즈 모니터에서 사용하는 선박 통행량, AIS 지도, WTI·브렌트유, 천연가스, 미국 휘발유 가격, 시장 지표와 관련 이슈 데이터 출처를 정리한 페이지입니다.",
+    keywords: ["호르무즈 데이터 출처", "선박 통행량 데이터", "AIS 지도", "유가 데이터", "시장 지표 데이터"],
+  },
+  en: {
+    title: "Hormuz Monitor Data Sources | Vessel, Oil, Market, Related Issues",
+    description: "Review the public data sources used by Hormuz Monitor, including vessel traffic, AIS maps, WTI and Brent oil prices, natural gas, U.S. gasoline prices, market indicators, and related issues.",
+    keywords: ["Hormuz data sources", "vessel traffic data", "AIS map", "oil price data", "market indicator data"],
+  },
+} as const;
+
+type MetadataProps = { params: Promise<{ locale: string }> };
+
+export async function generateMetadata({ params }: MetadataProps): Promise<Metadata> {
+  const { locale } = await params;
+  const meta = locale === "ko" ? META.ko : META.en;
+  return makePageMetadata({ locale, path: "/sources", title: meta.title, description: meta.description, keywords: meta.keywords });
+}
 
 export default async function SourcesPage() {
   const t = await getTranslations("sources");

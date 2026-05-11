@@ -6,37 +6,44 @@
     "heading": "Vessel Traffic",
     "items": [
       { "name": "IMF PortWatch", "detail": "Daily chokepoint transit counts via ArcGIS REST API. Satellite AIS-based. Updated once per day.", "url": "https://portwatch.imf.org" },
+      { "name": "AISStream", "detail": "AIS vessel position stream used to estimate inbound and outbound movement over the latest 24 hours.", "url": "https://aisstream.io" },
       { "name": "MarineTraffic (map)", "detail": "Live AIS vessel map embedded via iframe. Real-time vessel positions.", "url": "https://www.marinetraffic.com" }
     ]
   },
   "oil": {
     "heading": "Oil & Gas Prices",
     "items": [
-      { "name": "EIA (U.S. Energy Information Administration)", "detail": "Daily WTI, Brent, and Henry Hub Natural Gas prices. Free, unlimited API.", "url": "https://www.eia.gov/opendata" },
+      { "name": "EIA (U.S. Energy Information Administration)", "detail": "WTI, Brent, Henry Hub natural gas, and U.S. gasoline price data.", "url": "https://www.eia.gov/opendata" },
+      { "name": "Yahoo Finance (yfinance)", "detail": "WTI and Brent futures plus major market indicators used as a fallback when spot data is delayed.", "url": "https://finance.yahoo.com" },
       { "name": "TradingView", "detail": "Real-time price charts embedded via widget (TVC:USOIL, TVC:UKOIL, CAPITALCOM:NATURALGAS).", "url": "https://www.tradingview.com" }
     ]
   },
   "market": {
     "heading": "Market Indicators",
     "items": [
-      { "name": "Yahoo Finance (yfinance)", "detail": "Daily closing prices and change % for VIX (^VIX), Nasdaq (^IXIC), S&P 500 (^GSPC), KOSPI (^KS11), KOSDAQ (^KQ11).", "url": "https://finance.yahoo.com" }
+      { "name": "Yahoo Finance (yfinance)", "detail": "Snapshots, 5-minute candles, and daily candles for VIX, Nasdaq, S&P 500, KOSPI, KOSDAQ, U.S. index futures, gold futures, the dollar index, gasoline futures, and heating oil futures.", "url": "https://finance.yahoo.com" }
     ]
   },
   "events": {
     "heading": "Geopolitical Events",
     "items": [
-      { "name": "Al Jazeera RSS", "detail": "Middle East headlines, auto-classified by keyword.", "url": "https://www.aljazeera.com" },
       { "name": "BBC Middle East RSS", "detail": "Middle East headlines from BBC News.", "url": "https://www.bbc.com/news/world/middle_east" },
-      { "name": "Anadolu Agency RSS", "detail": "Regional news from Turkey's state news agency.", "url": "https://www.aa.com.tr/en" }
+      { "name": "Anadolu Agency RSS", "detail": "Regional news from Turkey's state news agency.", "url": "https://www.aa.com.tr/en" },
+      { "name": "NYT and CNBC RSS", "detail": "English headlines related to the Middle East, energy, and global markets.", "url": "https://www.nytimes.com" },
+      { "name": "Reuters and AP News (Google News RSS)", "detail": "Relevant headlines from selected outlets through Google News RSS search feeds where official RSS access is limited.", "url": "https://news.google.com" },
+      { "name": "Yonhap, Korea Economic Daily, Maeil Business RSS", "detail": "Korean international and market headlines classified by keyword.", "url": "https://www.yna.co.kr" },
+      { "name": "Truth Social RSS", "detail": "Trump Truth Social posts collected and translated into Korean.", "url": "https://trumpstruth.org/feed" }
     ]
   },
   "updateFrequency": {
     "heading": "Update Frequency",
     "rows": [
-      { "source": "Vessel transit (PortWatch)", "frequency": "Daily at 02:00 UTC" },
-      { "source": "Oil prices (EIA)", "frequency": "Daily at 06:00 UTC" },
-      { "source": "Market indicators (yfinance)", "frequency": "Daily at 07:00 UTC" },
-      { "source": "Events (RSS)", "frequency": "Every 6 hours" }
+      { "source": "AIS vessel positions and direction estimates", "frequency": "Every 15 minutes" },
+      { "source": "Market indicators and 5-minute candles", "frequency": "Every 5 minutes" },
+      { "source": "Related issues (RSS)", "frequency": "Every hour" },
+      { "source": "Situation summary and Trump translation", "frequency": "Every hour" },
+      { "source": "Trump Truth Social collection", "frequency": "Every 2 hours" },
+      { "source": "PortWatch, oil, gasoline, and cleanup", "frequency": "Daily at 06:00 UTC" }
     ]
   },
   "disclaimer": "All data is sourced from publicly available APIs and feeds. Hormuz Monitor is not affiliated with any of the data providers listed above."

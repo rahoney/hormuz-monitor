@@ -1,5 +1,18 @@
+import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import PageShell from "@/components/layout/PageShell";
+import { makePageMetadata } from "@/lib/seo";
+
+type MetadataProps = { params: Promise<{ locale: string }> };
+
+export async function generateMetadata({ params }: MetadataProps): Promise<Metadata> {
+  const { locale } = await params;
+  const title = locale === "ko" ? "문의 | 호르무즈 모니터" : "Contact | Hormuz Monitor";
+  const description = locale === "ko"
+    ? "호르무즈 모니터 프로젝트 문의 페이지입니다."
+    : "Contact page for Hormuz Monitor.";
+  return makePageMetadata({ locale, path: "/contact", title, description, noIndex: true });
+}
 
 export default async function ContactPage() {
   const t = await getTranslations("about");

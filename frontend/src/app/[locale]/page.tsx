@@ -1,5 +1,6 @@
 export const dynamic = "force-dynamic";
 
+import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import PageShell from "@/components/layout/PageShell";
 import Card from "@/components/ui/Card";
@@ -30,6 +31,51 @@ import {
   getCachedTrumpPosts,
   getCachedWeeklyTransitSummary,
 } from "@/lib/api/dashboard-cache";
+import { makePageMetadata } from "@/lib/seo";
+
+const META = {
+  ko: {
+    title: "호르무즈 해협 실시간 모니터 | 위험 지수, 선박 통행, 유가",
+    description: "호르무즈 해협 상황, 봉쇄 가능성, 미국-이란 전쟁 현황, 선박 통행량, WTI·브렌트유, 미국 휘발유 가격과 주요 시장 지표를 한눈에 확인하는 실시간 대시보드입니다.",
+    keywords: [
+      "호르무즈 해협",
+      "호르무즈 해협 실시간",
+      "호르무즈 모니터",
+      "호르무즈 해협 모니터",
+      "호르무즈 해협 지도 실시간",
+      "미국 이란 전쟁 현황",
+      "이란 전쟁 실시간",
+      "유가 실시간",
+      "WTI 유가 실시간",
+      "브렌트유 실시간",
+      "미국 휘발유 가격",
+    ],
+  },
+  en: {
+    title: "Strait of Hormuz Real-Time Monitor | Risk Index, Vessel Traffic, Oil Prices",
+    description: "Monitor Strait of Hormuz risk, vessel traffic, oil prices, U.S.-Iran conflict updates, market indicators, and related geopolitical issues in one real-time dashboard.",
+    keywords: [
+      "Strait of Hormuz",
+      "Hormuz Monitor",
+      "Hormuz tracker",
+      "Strait of Hormuz live map",
+      "U.S. Iran conflict",
+      "oil price live",
+      "WTI oil price",
+      "Brent oil price",
+      "vessel traffic",
+      "U.S. gasoline prices",
+    ],
+  },
+} as const;
+
+type MetadataProps = { params: Promise<{ locale: string }> };
+
+export async function generateMetadata({ params }: MetadataProps): Promise<Metadata> {
+  const { locale } = await params;
+  const meta = locale === "ko" ? META.ko : META.en;
+  return makePageMetadata({ locale, path: "/", title: meta.title, description: meta.description, keywords: meta.keywords });
+}
 
 function brentChangePct7d(oilData: { symbol: string; price_date: string; price_usd: number }[]): number | null {
   const brentRows = oilData
