@@ -7,9 +7,11 @@ import "./globals.css";
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
 const gaId = process.env.NEXT_PUBLIC_GA_ID;
+const siteUrl = "https://www.hrmz.today";
+const ogImageUrl = `${siteUrl}/og-image.png`;
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL ?? "https://www.hrmz.today"),
+  metadataBase: new URL(siteUrl),
   title: "Hormuz Monitor",
   description: "Key information is gathered in one place so you can assess the strait situation at a glance.",
   icons: {
@@ -19,16 +21,16 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Hormuz Monitor",
     description: "Key information is gathered in one place so you can assess the strait situation at a glance.",
-    url: "/",
+    url: siteUrl,
     siteName: "Hormuz Monitor",
-    images: [{ url: "/og-image.png", width: 1734, height: 907, alt: "Hormuz Monitor" }],
+    images: [{ url: ogImageUrl, width: 1734, height: 907, alt: "Hormuz Monitor" }],
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
     title: "Hormuz Monitor",
     description: "Key information is gathered in one place so you can assess the strait situation at a glance.",
-    images: ["/og-image.png"],
+    images: [ogImageUrl],
   },
 };
 

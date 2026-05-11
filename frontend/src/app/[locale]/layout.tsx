@@ -23,10 +23,14 @@ const META = {
   },
 } as const;
 
+const SITE_URL = "https://www.hrmz.today";
+const OG_IMAGE_URL = `${SITE_URL}/og-image.png`;
+
 export async function generateMetadata({ params }: Pick<Props, "params">): Promise<Metadata> {
   const { locale } = await params;
   const meta = locale === "ko" ? META.ko : META.en;
   const path = locale === "ko" ? "/ko" : "/en";
+  const url = `${SITE_URL}${path}`;
 
   return {
     title: meta.title,
@@ -41,9 +45,9 @@ export async function generateMetadata({ params }: Pick<Props, "params">): Promi
     openGraph: {
       title: meta.title,
       description: meta.description,
-      url: path,
+      url,
       siteName: meta.title,
-      images: [{ url: "/og-image.png", width: 1734, height: 907, alt: meta.title }],
+      images: [{ url: OG_IMAGE_URL, width: 1734, height: 907, alt: meta.title }],
       type: "website",
       locale: locale === "ko" ? "ko_KR" : "en_US",
     },
@@ -51,7 +55,7 @@ export async function generateMetadata({ params }: Pick<Props, "params">): Promi
       card: "summary_large_image",
       title: meta.title,
       description: meta.description,
-      images: ["/og-image.png"],
+      images: [OG_IMAGE_URL],
     },
   };
 }
