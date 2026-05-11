@@ -3,6 +3,7 @@ from typing import Literal
 
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import PlainTextResponse, RedirectResponse
 from pydantic import BaseModel
 
 from services.event_article_summary_service import get_or_create_summary
@@ -11,6 +12,7 @@ from utils.logger import get_logger
 
 app = FastAPI(title="Hormuz Monitor API")
 logger = get_logger(__name__)
+FRONTEND_URL = "https://www.hrmz.today"
 
 _origins = [origin.strip() for origin in os.getenv("CORS_ORIGINS", "*").split(",") if origin.strip()]
 app.add_middleware(
@@ -35,6 +37,21 @@ class EventArticleSummaryResponse(BaseModel):
 @app.get("/health")
 def health() -> dict:
     return {"status": "ok"}
+
+
+@app.get("/", include_in_schema=False)
+def root() -> RedirectResponse:
+    return RedirectResponse(FRONTEND_URL, status_code=308)
+
+
+@app.get("/og-image.png", include_in_schema=False)
+def og_image() -> RedirectResponse:
+    return RedirectResponse(f"{FRONTEND_URL}/og-image.png", status_code=308)
+
+
+@app.get("/robots.txt", response_class=PlainTextResponse, include_in_schema=False)
+def robots_txt() -> str:
+    return "User-agent: *\nDisallow: /\n"
 
 
 @app.post("/events/{event_id}/summary", response_model=EventArticleSummaryResponse)
