@@ -10,7 +10,7 @@ export const dynamic = "force-dynamic";
 const META = {
   ko: {
     title: "호르무즈 관련 이슈 | 미국-이란 전쟁, 트럼프 SNS, 유가 영향",
-    description: "호르무즈 해협과 이란 전쟁 현황, 미국-이란 갈등, 트럼프 Truth Social 발언, 유가와 시장 영향 관련 이슈를 모아 AI 요약과 번역으로 확인할 수 있습니다.",
+    description: "호르무즈 해협, 미국-이란 전쟁, 군사행동, 트럼프 SNS, 브렌트유·WTI 유가와 미국과 한국 주식 시장 영향을 보여줍니다.",
     keywords: [
       "호르무즈 관련 이슈",
       "호르무즈 해협 트래커",
