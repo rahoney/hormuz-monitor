@@ -59,7 +59,6 @@ def run() -> None:
         finish_run(translate_run_id, "failed", 0, 0)
         log_error("trump_translate", "unknown", str(exc), translate_run_id)
         logger.error("트럼프 포스트 번역 실패: %s", exc)
-        failures.append("trump_translate")
 
     if failures:
         raise RuntimeError(f"상황 요약 통합 잡 일부 실패: {', '.join(failures)}")

@@ -11,10 +11,15 @@ load_dotenv()
 
 logger = get_logger(__name__)
 _RPM_DELAY = 4.5  # 15 RPM → 요청 사이 4.5초 간격
+_LONG_TEXT_THRESHOLD = 1500
+_LONG_SUMMARY_PREFIX = "[긴 글 요약 번역]\n"
 
 
 def _translate_one(text: str) -> str | None:
     """단일 텍스트를 한국어로 번역한다. 실패 시 None 반환."""
+    if len(text) > _LONG_TEXT_THRESHOLD:
+        return _summarize_long_translation(text)
+
     prompt = (
         f"다음 영어 텍스트를 한국어로 번역하세요. "
         f"@멘션, URL, 고유명사는 그대로 유지하세요. "
@@ -25,7 +30,7 @@ def _translate_one(text: str) -> str | None:
             prompt,
             task="trump_translate",
             models=translation_models(),
-            max_output_tokens=512,
+            max_output_tokens=2048,
             temperature=0.1,
             timeout=30.0,
         )
@@ -33,6 +38,32 @@ def _translate_one(text: str) -> str | None:
         return _clean_translation(result.text)
     except GeminiError as exc:
         logger.error("트럼프 번역 Gemini 호출 실패: %s", exc)
+        return None
+
+
+def _summarize_long_translation(text: str) -> str | None:
+    """Translate long Truth Social posts as a context-preserving Korean summary."""
+    prompt = (
+        "다음 영어 텍스트는 매우 긴 정치 발언입니다. 한국어로 약 800자 분량의 요약 번역을 작성하세요. "
+        "핵심 주장, 비판 대상, 주요 근거와 숫자, 정책적 의미, 결론을 빠뜨리지 마세요. "
+        "과도하게 압축하지 말고 맥락이 이어지도록 5~8문장으로 작성하세요. "
+        "@멘션, URL, 고유명사는 가능한 그대로 유지하세요. "
+        "요약 번역문만 출력하고 설명은 절대 쓰지 마세요.\n\n"
+        f"{text}"
+    )
+    try:
+        result = generate_text(
+            prompt,
+            task="trump_translate",
+            models=translation_models(),
+            max_output_tokens=1024,
+            temperature=0.1,
+            timeout=30.0,
+        )
+        logger.info("트럼프 긴 글 요약 번역 Gemini 모델: %s (%d attempts)", result.model, result.attempts)
+        return _LONG_SUMMARY_PREFIX + _clean_translation(result.text)
+    except GeminiError as exc:
+        logger.error("트럼프 긴 글 요약 번역 Gemini 호출 실패: %s", exc)
         return None
 
 
