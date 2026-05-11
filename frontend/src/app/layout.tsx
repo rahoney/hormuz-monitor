@@ -13,6 +13,11 @@ export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: "Hormuz Monitor",
   description: "Key information is gathered in one place so you can assess the strait situation at a glance.",
+  verification: {
+    other: {
+      "naver-site-verification": "28c96a0d8d92c8b434de480085bd254369fa1bd9",
+    },
+  },
   icons: {
     icon: "/logo.jpg",
     apple: "/logo.jpg",
