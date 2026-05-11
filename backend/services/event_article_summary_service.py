@@ -12,9 +12,9 @@ from utils.gemini_client import GeminiError, generate_text
 Locale = Literal["ko", "en"]
 
 _DEFAULT_MODELS = (
-    "models/gemma-3-27b-it",
-    "models/gemini-3.1-flash-lite-preview",
+    "models/gemini-3.1-flash-lite",
     "models/gemini-2.5-flash",
+    "models/gemini-3-flash-preview",
 )
 
 
