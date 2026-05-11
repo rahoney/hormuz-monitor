@@ -6,6 +6,7 @@ import { hasLocale } from "next-intl";
 import { routing } from "@/i18n/routing";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
+import { makePageMetadata } from "@/lib/seo";
 
 type Props = {
   children: React.ReactNode;
@@ -14,50 +15,20 @@ type Props = {
 
 const META = {
   ko: {
-    title: "호르무즈 모니터",
-    description: "해협 상황을 한눈에 파악할 수 있도록 주요 정보를 한 곳에 모았습니다.",
+    title: "호르무즈 해협 실시간 모니터 | 위험 지수, 선박 통행, 유가",
+    description: "호르무즈 해협 상황, 봉쇄 가능성, 미국-이란 전쟁 현황, 선박 통행량, WTI·브렌트유, 미국 휘발유 가격과 주요 시장 지표를 한눈에 확인하는 실시간 대시보드입니다.",
   },
   en: {
-    title: "Hormuz Monitor",
-    description: "Key information is gathered in one place so you can assess the strait situation at a glance.",
+    title: "Strait of Hormuz Real-Time Monitor | Risk Index, Vessel Traffic, Oil Prices",
+    description: "Monitor Strait of Hormuz risk, vessel traffic, oil prices, U.S.-Iran conflict updates, market indicators, and related geopolitical issues in one real-time dashboard.",
   },
 } as const;
-
-const SITE_URL = "https://www.hrmz.today";
-const OG_IMAGE_URL = `${SITE_URL}/og-image.png`;
 
 export async function generateMetadata({ params }: Pick<Props, "params">): Promise<Metadata> {
   const { locale } = await params;
   const meta = locale === "ko" ? META.ko : META.en;
-  const path = locale === "ko" ? "/ko" : "/en";
-  const url = `${SITE_URL}${path}`;
 
-  return {
-    title: meta.title,
-    description: meta.description,
-    alternates: {
-      canonical: path,
-      languages: {
-        ko: "/ko",
-        en: "/en",
-      },
-    },
-    openGraph: {
-      title: meta.title,
-      description: meta.description,
-      url,
-      siteName: meta.title,
-      images: [{ url: OG_IMAGE_URL, width: 1734, height: 907, alt: meta.title }],
-      type: "website",
-      locale: locale === "ko" ? "ko_KR" : "en_US",
-    },
-    twitter: {
-      card: "summary_large_image",
-      title: meta.title,
-      description: meta.description,
-      images: [OG_IMAGE_URL],
-    },
-  };
+  return makePageMetadata({ locale, path: "/", title: meta.title, description: meta.description });
 }
 
 export default async function LocaleLayout({ children, params }: Props) {

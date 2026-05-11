@@ -9,7 +9,7 @@
   },
   "sources": {
     "heading": "데이터 출처",
-    "list": "IMF PortWatch, MarineTraffic, EIA, TradingView, Yahoo Finance, Al Jazeera RSS, BBC RSS, Anadolu Agency RSS"
+    "list": "IMF PortWatch, AISStream, MarineTraffic, EIA, TradingView, Yahoo Finance, BBC RSS, Anadolu Agency RSS, NYT/CNBC RSS, Google News RSS, 국내 주요 뉴스 RSS, Truth Social RSS"
   },
   "github": "GitHub",
   "contact": {
