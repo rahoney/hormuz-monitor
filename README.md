@@ -97,8 +97,10 @@ Supabase PostgreSQL
   |
 Render Backend / Scheduled Jobs
   |-- 시장 및 에너지 지표 수집
-  |-- 선박 통행 데이터 처리
+  |-- 선박 통행 데이터 처리, 최근일 추정치 갱신, summary/risk 재계산
   |-- 관련 이슈와 정치 발언 수집
-  |-- 상황 요약과 위험 지수 생성
+  |-- 상황 요약 생성
   |-- 오래된 임시 데이터 정리
 ```
+
+운영 메모: AISStream 기반 선박 잡은 Render에서 `7,27,47 * * * *` 오프셋으로 실행한다. 이 잡은 live AIS 수집, 최근일 통행 추정치 갱신, `strait_metrics`/risk score 재계산을 한 번에 처리한다. AISStream이 WebSocket 접속을 `HTTP 429`로 제한하면 backoff 재시도 후 해당 회차 live AIS 수집만 건너뛰고 후속 갱신은 계속 진행한다.

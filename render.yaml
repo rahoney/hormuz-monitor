@@ -62,7 +62,7 @@ services:
       - key: SUPABASE_SERVICE_ROLE_KEY
         sync: false
 
-  # AISStream 실시간 선박 위치 수집 잡 (PortWatch 미공개 최근일 추정치 생성, 매 20분 오프셋 실행)
+  # AISStream 실시간 선박 위치 수집, PortWatch 미공개 최근일 추정치, summary/risk 재계산 통합 잡
   - type: cron
     name: hormuz-shipping-ingest
     runtime: python
@@ -106,18 +106,4 @@ services:
       - key: SUPABASE_SERVICE_ROLE_KEY
         sync: false
       - key: GOOGLE_GEMINI_API_KEY
-        sync: false
-
-  # summary 재계산 잡 (선박 수집 직후 오프셋 실행)
-  - type: cron
-    name: hormuz-summary-rebuild
-    runtime: python
-    rootDir: backend
-    schedule: "12,32,52 * * * *"
-    buildCommand: pip install -r requirements.txt
-    startCommand: python -m jobs.summary_rebuild
-    envVars:
-      - key: SUPABASE_URL
-        sync: false
-      - key: SUPABASE_SERVICE_ROLE_KEY
         sync: false
