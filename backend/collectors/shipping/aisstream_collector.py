@@ -8,9 +8,13 @@ import os
 from datetime import datetime, timezone
 from typing import Any
 import websockets
+from websockets.exceptions import InvalidStatus
 from dotenv import load_dotenv
+from utils.logger import get_logger
 
 load_dotenv()
+
+logger = get_logger(__name__)
 
 _API_KEY = os.getenv("AISSTREAM_API_KEY", "")
 
@@ -25,6 +29,7 @@ _LNG_TYPES = {84, 85}             # 84: LNG tanker
 _CRUDE_TYPES = {83, 84}           # 83: crude oil tanker
 
 _TIMEOUT_SECONDS = 240
+_CONNECT_RETRY_DELAYS = (20.0, 60.0)
 
 
 def _safe_float(val: Any) -> float | None:
@@ -95,68 +100,91 @@ def _direction_status(cog: float | None, zone: str) -> str:
     return "unknown"
 
 
+def _websocket_status(exc: InvalidStatus) -> int | None:
+    response = getattr(exc, "response", None)
+    status_code = getattr(response, "status_code", None) or getattr(response, "status", None)
+    if isinstance(status_code, int):
+        return status_code
+    if "HTTP 429" in str(exc):
+        return 429
+    return None
+
+
 async def _collect_async(max_vessels: int = 200) -> list[dict[str, Any]]:
     if not _API_KEY:
         raise RuntimeError("환경변수 누락: AISSTREAM_API_KEY")
 
-    records: list[dict[str, Any]] = []
     sub = {
         "APIKey": _API_KEY,
         "BoundingBoxes": [_BOUNDING_BOX],
         "FilterMessageTypes": ["PositionReport", "ShipStaticData"],
     }
-    static: dict[str, dict] = {}
 
-    async with websockets.connect("wss://stream.aisstream.io/v0/stream", open_timeout=15) as ws:
-        await ws.send(json.dumps(sub))
-        deadline = asyncio.get_event_loop().time() + _TIMEOUT_SECONDS
-        while asyncio.get_event_loop().time() < deadline and len(records) < max_vessels:
-            try:
-                raw = await asyncio.wait_for(ws.recv(), timeout=5.0)
-            except asyncio.TimeoutError:
+    for attempt in range(len(_CONNECT_RETRY_DELAYS) + 1):
+        records: list[dict[str, Any]] = []
+        static: dict[str, dict] = {}
+        try:
+            async with websockets.connect("wss://stream.aisstream.io/v0/stream", open_timeout=15) as ws:
+                await ws.send(json.dumps(sub))
+                deadline = asyncio.get_event_loop().time() + _TIMEOUT_SECONDS
+                while asyncio.get_event_loop().time() < deadline and len(records) < max_vessels:
+                    try:
+                        raw = await asyncio.wait_for(ws.recv(), timeout=5.0)
+                    except asyncio.TimeoutError:
+                        continue
+                    msg = json.loads(raw)
+                    mtype = msg.get("MessageType", "")
+
+                    if mtype == "ShipStaticData":
+                        mmsi = str(msg.get("MetaData", {}).get("MMSI", ""))
+                        meta = msg.get("Message", {}).get("ShipStaticData", {})
+                        static[mmsi] = {
+                            "ship_name":      meta.get("Name", "").strip(),
+                            "ship_type_code": meta.get("Type"),
+                        }
+
+                    elif mtype == "PositionReport":
+                        meta = msg.get("MetaData", {})
+                        pos = msg.get("Message", {}).get("PositionReport", {})
+                        mmsi = str(meta.get("MMSI", ""))
+                        lat = _safe_float(pos.get("Latitude"))
+                        lng = _safe_float(pos.get("Longitude"))
+                        if lat is None or lng is None:
+                            continue
+
+                        sdata = static.get(mmsi, {})
+                        type_code = _safe_int(sdata.get("ship_type_code"))
+                        zone = _zone_status(lat, lng)
+                        cog = _safe_float(pos.get("Cog"))
+
+                        records.append({
+                            "mmsi":             mmsi,
+                            "ship_name":        sdata.get("ship_name"),
+                            "ship_type_code":   type_code,
+                            "ship_type_label":  _classify_ship(type_code),
+                            "lat":              lat,
+                            "lng":              lng,
+                            "speed_knots":      _safe_float(pos.get("Sog")),
+                            "course_deg":       cog,
+                            "heading_deg":      _safe_float(pos.get("TrueHeading")),
+                            "zone_status":      zone,
+                            "direction_status": _direction_status(cog, zone),
+                            "source":           "aisstream",
+                            "raw_timestamp":    _parse_ais_timestamp(meta.get("time_utc")),
+                        })
+            return records
+        except InvalidStatus as exc:
+            if _websocket_status(exc) != 429:
+                raise
+            if attempt < len(_CONNECT_RETRY_DELAYS):
+                delay = _CONNECT_RETRY_DELAYS[attempt]
+                logger.warning("AISStream rate limited on connect; retrying in %.0fs", delay)
+                await asyncio.sleep(delay)
                 continue
-            msg = json.loads(raw)
-            mtype = msg.get("MessageType", "")
+            logger.warning("AISStream rate limited on connect after retries; skipping live AIS collection")
+            return []
 
-            if mtype == "ShipStaticData":
-                mmsi = str(msg.get("MetaData", {}).get("MMSI", ""))
-                meta = msg.get("Message", {}).get("ShipStaticData", {})
-                static[mmsi] = {
-                    "ship_name":      meta.get("Name", "").strip(),
-                    "ship_type_code": meta.get("Type"),
-                }
-
-            elif mtype == "PositionReport":
-                meta = msg.get("MetaData", {})
-                pos = msg.get("Message", {}).get("PositionReport", {})
-                mmsi = str(meta.get("MMSI", ""))
-                lat = _safe_float(pos.get("Latitude"))
-                lng = _safe_float(pos.get("Longitude"))
-                if lat is None or lng is None:
-                    continue
-
-                sdata = static.get(mmsi, {})
-                type_code = _safe_int(sdata.get("ship_type_code"))
-                zone = _zone_status(lat, lng)
-                cog = _safe_float(pos.get("Cog"))
-
-                records.append({
-                    "mmsi":             mmsi,
-                    "ship_name":        sdata.get("ship_name"),
-                    "ship_type_code":   type_code,
-                    "ship_type_label":  _classify_ship(type_code),
-                    "lat":              lat,
-                    "lng":              lng,
-                    "speed_knots":      _safe_float(pos.get("Sog")),
-                    "course_deg":       cog,
-                    "heading_deg":      _safe_float(pos.get("TrueHeading")),
-                    "zone_status":      zone,
-                    "direction_status": _direction_status(cog, zone),
-                    "source":           "aisstream",
-                    "raw_timestamp":    _parse_ais_timestamp(meta.get("time_utc")),
-                })
-
-    return records
+    return []
 
 
 def collect(max_vessels: int = 200) -> list[dict[str, Any]]:
