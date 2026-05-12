@@ -2,6 +2,7 @@
 import sys
 sys.path.insert(0, ".")
 
+from jobs.summary_rebuild import run as rebuild_summary
 from collectors.shipping.aisstream_collector import collect
 from collectors.shipping.aisstream_estimator import estimate_recent_transits
 from db.upsert import insert
@@ -20,8 +21,9 @@ def run() -> None:
         records = collect()
         saved = insert("vessels_normalized", records) if records else 0
         estimated = estimate_recent_transits()
+        rebuild_summary()
         finish_run(run_id, "success", len(records), saved)
-        logger.info("완료: %d척 수집, %d건 저장, %d일 추정치 갱신", len(records), saved, estimated)
+        logger.info("완료: %d척 수집, %d건 저장, %d일 추정치 갱신, summary 재계산 완료", len(records), saved, estimated)
     except Exception as exc:
         finish_run(run_id, "failed", 0, 0)
         log_error("aisstream", "unknown", str(exc), run_id)
