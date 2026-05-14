@@ -343,3 +343,49 @@ CREATE INDEX IF NOT EXISTS idx_source_errors_source ON source_errors (source_nam
 
 ALTER TABLE source_errors ENABLE ROW LEVEL SECURITY;
 -- Internal error logs are service-only.
+
+
+-- ============================================================
+-- Data API explicit grants
+-- Supabase public schema auto-grants are being phased out.
+-- Keep Data API access explicit for anon/authenticated/service_role.
+-- ============================================================
+
+-- Public read tables used directly by the frontend with the anon key.
+GRANT SELECT ON TABLE
+    public.strait_metrics,
+    public.chokepoint_transits,
+    public.oil_price_series,
+    public.gasoline_prices,
+    public.market_snapshots,
+    public.market_intraday,
+    public.market_ohlcv,
+    public.events,
+    public.event_timeline_markers,
+    public.trump_posts,
+    public.situation_summaries,
+    public.risk_score_history
+TO anon, authenticated;
+
+-- Backend writes and internal reads use the service role over the Data API.
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE
+    public.vessels_normalized,
+    public.strait_metrics,
+    public.chokepoint_transits,
+    public.oil_price_series,
+    public.gasoline_prices,
+    public.market_snapshots,
+    public.market_intraday,
+    public.market_ohlcv,
+    public.events,
+    public.event_article_summaries,
+    public.event_timeline_markers,
+    public.trump_posts,
+    public.situation_summaries,
+    public.risk_score_history,
+    public.source_runs,
+    public.source_errors
+TO service_role;
+
+-- Required for inserts into bigserial-backed tables through PostgREST.
+GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO service_role;
