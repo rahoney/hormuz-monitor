@@ -5,6 +5,7 @@
 import asyncio
 import json
 import os
+import ssl
 from datetime import datetime, timezone
 from typing import Any
 import websockets
@@ -110,6 +111,10 @@ def _websocket_status(exc: InvalidStatus) -> int | None:
     return None
 
 
+def _is_connect_failure(exc: Exception) -> bool:
+    return isinstance(exc, (OSError, TimeoutError, ssl.SSLError))
+
+
 async def _collect_async(max_vessels: int = 200) -> list[dict[str, Any]]:
     if not _API_KEY:
         raise RuntimeError("환경변수 누락: AISSTREAM_API_KEY")
@@ -182,6 +187,16 @@ async def _collect_async(max_vessels: int = 200) -> list[dict[str, Any]]:
                 await asyncio.sleep(delay)
                 continue
             logger.warning("AISStream rate limited on connect after retries; skipping live AIS collection")
+            return []
+        except Exception as exc:
+            if not _is_connect_failure(exc):
+                raise
+            if attempt < len(_CONNECT_RETRY_DELAYS):
+                delay = _CONNECT_RETRY_DELAYS[attempt]
+                logger.warning("AISStream connection failed; retrying in %.0fs: %s", delay, exc)
+                await asyncio.sleep(delay)
+                continue
+            logger.warning("AISStream connection failed after retries; skipping live AIS collection: %s", exc)
             return []
 
     return []
