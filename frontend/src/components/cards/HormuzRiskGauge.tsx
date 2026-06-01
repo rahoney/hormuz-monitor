@@ -73,12 +73,14 @@ function computeScore(
   return Math.round(Math.min(vFallback + b + vi, 100));
 }
 
-function findClosest(history: RiskScoreHistory[], daysAgo: number): RiskScoreHistory | null {
-  const target = new Date(Date.now() - daysAgo * 86_400_000).toISOString().slice(0, 10);
+function findClosest(history: RiskScoreHistory[], daysAgo: number, referenceDate: string): RiskScoreHistory | null {
+  const target = new Date(`${referenceDate}T00:00:00.000Z`);
+  target.setUTCDate(target.getUTCDate() - daysAgo);
+  const targetDate = target.toISOString().slice(0, 10);
   let best: RiskScoreHistory | null = null;
   let bestDiff = Infinity;
   for (const row of history) {
-    const diff = Math.abs(new Date(row.score_date).getTime() - new Date(target).getTime());
+    const diff = Math.abs(new Date(row.score_date).getTime() - new Date(targetDate).getTime());
     if (diff < bestDiff) { bestDiff = diff; best = row; }
   }
   // 3일 이내만 허용
@@ -94,9 +96,10 @@ type Props = {
   vix: number | null;
   geoScore: number | null;
   history: RiskScoreHistory[];
+  referenceDate: string;
 };
 
-export default function HormuzRiskGauge({ vessels, inlandEntry, offshoreExit, brent, brentChangePct7d, vix, geoScore, history }: Props) {
+export default function HormuzRiskGauge({ vessels, inlandEntry, offshoreExit, brent, brentChangePct7d, vix, geoScore, history, referenceDate }: Props) {
   const t = useTranslations("dashboard.gauge");
   const score = computeScore(vessels, inlandEntry, offshoreExit, brent, brentChangePct7d, vix, geoScore);
   const color = scoreColor(score);
@@ -180,7 +183,7 @@ export default function HormuzRiskGauge({ vessels, inlandEntry, offshoreExit, br
       {/* 과거 비교 */}
       <div className="flex flex-col gap-2 min-w-[120px]">
         {comparisons.map(({ labelKey, daysAgo }) => {
-          const row = findClosest(history, daysAgo);
+          const row = findClosest(history, daysAgo, referenceDate);
           const past = row ? Math.round(row.total_score) : null;
           const diff = past !== null ? score - past : null;
           return (

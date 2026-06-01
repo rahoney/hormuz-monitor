@@ -69,6 +69,16 @@ function StructuredSummaryView({ data }: { data: StructuredSituationSummary }) {
   );
 }
 
+function formatUpdatedAtUtc(value: string) {
+  const d = new Date(value);
+  if (Number.isNaN(d.getTime())) return null;
+  const mm = String(d.getUTCMonth() + 1).padStart(2, "0");
+  const dd = String(d.getUTCDate()).padStart(2, "0");
+  const hh = String(d.getUTCHours()).padStart(2, "0");
+  const min = String(d.getUTCMinutes()).padStart(2, "0");
+  return `${mm}-${dd} ${hh}:${min} UTC`;
+}
+
 export default function SituationSummaryCard({ summary }: Props) {
   const t = useTranslations("dashboard.summary");
   const locale = useLocale();
@@ -81,16 +91,7 @@ export default function SituationSummaryCard({ summary }: Props) {
     : null;
   const structured = isStructuredSummary(structuredCandidate) ? structuredCandidate : null;
 
-  const updatedAt = summary
-    ? (() => {
-        const d = new Date(summary.generated_at);
-        const mm = String(d.getMonth() + 1).padStart(2, "0");
-        const dd = String(d.getDate()).padStart(2, "0");
-        const hh = String(d.getHours()).padStart(2, "0");
-        const min = String(d.getMinutes()).padStart(2, "0");
-        return `${mm}-${dd} ${hh}:${min}`;
-      })()
-    : null;
+  const updatedAt = summary ? formatUpdatedAtUtc(summary.generated_at) : null;
 
   return (
     <div className="rounded-xl border border-slate-700/60 bg-slate-800/40 p-5">
@@ -118,10 +119,10 @@ export default function SituationSummaryCard({ summary }: Props) {
         ) : text ? (
           <ReactMarkdown
             components={{
-              p: ({ node, ...props }) => <p className="mb-4 last:mb-0" {...props} />,
-              strong: ({ node, ...props }) => <strong className="font-semibold text-white" {...props} />,
-              ul: ({ node, ...props }) => <ul className="list-disc pl-5 mb-4 last:mb-0" {...props} />,
-              li: ({ node, ...props }) => <li className="mb-1" {...props} />,
+              p: ({ children }) => <p className="mb-4 last:mb-0">{children}</p>,
+              strong: ({ children }) => <strong className="font-semibold text-white">{children}</strong>,
+              ul: ({ children }) => <ul className="list-disc pl-5 mb-4 last:mb-0">{children}</ul>,
+              li: ({ children }) => <li className="mb-1">{children}</li>,
             }}
           >
             {text}
