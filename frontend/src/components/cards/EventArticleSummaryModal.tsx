@@ -13,34 +13,36 @@ type Props = {
 export default function EventArticleSummaryModal({ event, onClose }: Props) {
   const locale = useLocale();
   const t = useTranslations("events.articleSummary");
-  const [summary, setSummary] = useState<EventArticleSummary | null>(null);
-  const [error, setError] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const eventId = event?.id ?? null;
+  const requestKey = eventId === null ? null : `${eventId}:${locale}`;
+  const [result, setResult] = useState<{
+    key: string | null;
+    summary: EventArticleSummary | null;
+    error: boolean;
+  }>({ key: null, summary: null, error: false });
 
   useEffect(() => {
-    if (!event) return;
+    if (eventId === null || requestKey === null) return;
     let cancelled = false;
-    setSummary(null);
-    setError(false);
-    setLoading(true);
 
-    fetchEventArticleSummary(event.id, locale)
-      .then((result) => {
-        if (!cancelled) setSummary(result);
+    fetchEventArticleSummary(eventId, locale)
+      .then((summary) => {
+        if (!cancelled) setResult({ key: requestKey, summary, error: false });
       })
       .catch(() => {
-        if (!cancelled) setError(true);
-      })
-      .finally(() => {
-        if (!cancelled) setLoading(false);
+        if (!cancelled) setResult({ key: requestKey, summary: null, error: true });
       });
 
     return () => {
       cancelled = true;
     };
-  }, [event, locale]);
+  }, [eventId, locale, requestKey]);
 
   if (!event) return null;
+
+  const loading = result.key !== requestKey;
+  const error = result.key === requestKey && result.error;
+  const summary = result.key === requestKey ? result.summary : null;
 
   return (
     <div className="fixed inset-0 z-[80] flex items-center justify-center bg-black/70 px-4 py-8">

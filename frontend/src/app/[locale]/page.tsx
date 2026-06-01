@@ -138,6 +138,7 @@ export default async function DashboardPage() {
     .sort((a, b) => b.price_date.localeCompare(a.price_date))[0]?.price_usd ?? null;
   const latestBrentChangePct7d = brentChangePct7d(oilData);
   const latestVix = (marketData as Record<string, { price: number }>)["VIX"]?.price ?? null;
+  const riskReferenceDate = new Date().toISOString().slice(0, 10);
 
   return (
     <PageShell>
@@ -171,6 +172,7 @@ export default async function DashboardPage() {
             vix={latestVix}
             geoScore={summaryData?.geo_score ?? null}
             history={riskHistory}
+            referenceDate={riskReferenceDate}
           />
         </Card>
 
