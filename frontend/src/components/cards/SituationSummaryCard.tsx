@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations, useLocale } from "next-intl";
-import type { ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import type { SituationSummary, StructuredSituationSummary, SummaryHighlight } from "@/types";
 import ShareSummaryButton from "./ShareSummaryButton";
 import ReactMarkdown from "react-markdown";
@@ -69,19 +69,47 @@ function StructuredSummaryView({ data }: { data: StructuredSituationSummary }) {
   );
 }
 
-function formatUpdatedAtUtc(value: string) {
+function defaultTimeZone(locale: string) {
+  return locale === "ko" ? "Asia/Seoul" : "UTC";
+}
+
+function timeZoneLabel(timeZone: string, fallback: string) {
+  if (timeZone === "Asia/Seoul") return "KST";
+  if (timeZone === "UTC") return "UTC";
+  return fallback;
+}
+
+function formatUpdatedAt(value: string, locale: string, timeZone: string) {
   const d = new Date(value);
   if (Number.isNaN(d.getTime())) return null;
-  const mm = String(d.getUTCMonth() + 1).padStart(2, "0");
-  const dd = String(d.getUTCDate()).padStart(2, "0");
-  const hh = String(d.getUTCHours()).padStart(2, "0");
-  const min = String(d.getUTCMinutes()).padStart(2, "0");
-  return `${mm}-${dd} ${hh}:${min} UTC`;
+
+  const parts = new Intl.DateTimeFormat(locale === "ko" ? "ko-KR" : "en-US", {
+    timeZone,
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+    timeZoneName: "short",
+  }).formatToParts(d);
+  const part = (type: Intl.DateTimeFormatPartTypes) => parts.find((item) => item.type === type)?.value ?? "";
+  const label = timeZoneLabel(timeZone, part("timeZoneName"));
+
+  return `${part("month")}-${part("day")} ${part("hour")}:${part("minute")} ${label}`.trim();
 }
 
 export default function SituationSummaryCard({ summary }: Props) {
   const t = useTranslations("dashboard.summary");
   const locale = useLocale();
+  const [timeZone, setTimeZone] = useState(() => defaultTimeZone(locale));
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      const browserTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      if (browserTimeZone) setTimeZone(browserTimeZone);
+    }, 0);
+    return () => window.clearTimeout(timer);
+  }, []);
 
   const text = summary
     ? (locale === "ko" ? summary.summary_ko : (summary.summary_en || summary.summary_ko))
@@ -91,7 +119,7 @@ export default function SituationSummaryCard({ summary }: Props) {
     : null;
   const structured = isStructuredSummary(structuredCandidate) ? structuredCandidate : null;
 
-  const updatedAt = summary ? formatUpdatedAtUtc(summary.generated_at) : null;
+  const updatedAt = summary ? formatUpdatedAt(summary.generated_at, locale, timeZone) : null;
 
   return (
     <div className="rounded-xl border border-slate-700/60 bg-slate-800/40 p-5">
