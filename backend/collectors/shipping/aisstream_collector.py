@@ -29,7 +29,7 @@ _TYPE_MAP: dict[range, str] = {
 _LNG_TYPES = {84, 85}             # 84: LNG tanker
 _CRUDE_TYPES = {83, 84}           # 83: crude oil tanker
 
-_TIMEOUT_SECONDS = 240
+_TIMEOUT_SECONDS = 90
 _CONNECT_RETRY_DELAYS = (20.0, 60.0)
 
 
