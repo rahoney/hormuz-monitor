@@ -18,14 +18,14 @@ services:
       - key: ARTICLE_SUMMARY_MODELS
         value: models/gemini-3.1-flash-lite,models/gemini-2.5-flash,models/gemini-3-flash-preview
 
-  # 일일 유지보수 잡: PortWatch, EIA 유가·휘발유, 오래된 데이터 정리 (매일 06:00 UTC)
+  # 통합 크론 dispatcher: 시장/AIS는 20분마다, 저빈도 작업은 내부 조건으로 실행
   - type: cron
-    name: hormuz-daily-maintenance
+    name: hormuz-cron-dispatcher
     runtime: python
     rootDir: backend
-    schedule: "0 6 * * *"
+    schedule: "*/20 * * * *"
     buildCommand: pip install -r requirements.txt
-    startCommand: python -m jobs.daily_maintenance
+    startCommand: python -m jobs.dispatcher
     envVars:
       - key: SUPABASE_URL
         sync: false
@@ -33,77 +33,7 @@ services:
         sync: false
       - key: EIA_API_KEY
         sync: false
-
-  # 시장 지표 수집 잡 (5분 단위 실시간, 장중/장후 시간대만 수집)
-  - type: cron
-    name: hormuz-market-ingest
-    runtime: python
-    rootDir: backend
-    schedule: "*/5 * * * *"
-    buildCommand: pip install -r requirements.txt
-    startCommand: python -m jobs.market_ingest
-    envVars:
-      - key: SUPABASE_URL
-        sync: false
-      - key: SUPABASE_SERVICE_ROLE_KEY
-        sync: false
-
-  # 이벤트/RSS 수집 잡 (매 1시간)
-  - type: cron
-    name: hormuz-events-ingest
-    runtime: python
-    rootDir: backend
-    schedule: "0 * * * *"
-    buildCommand: pip install -r requirements.txt
-    startCommand: python -m jobs.events_ingest
-    envVars:
-      - key: SUPABASE_URL
-        sync: false
-      - key: SUPABASE_SERVICE_ROLE_KEY
-        sync: false
-
-  # AISStream 실시간 선박 위치 수집, PortWatch 미공개 최근일 추정치, summary/risk 재계산 통합 잡
-  - type: cron
-    name: hormuz-shipping-ingest
-    runtime: python
-    rootDir: backend
-    schedule: "7,27,47 * * * *"
-    buildCommand: pip install -r requirements.txt
-    startCommand: python -m jobs.shipping_ingest
-    envVars:
-      - key: SUPABASE_URL
-        sync: false
-      - key: SUPABASE_SERVICE_ROLE_KEY
-        sync: false
       - key: AISSTREAM_API_KEY
-        sync: false
-
-  # 트럼프 소셜 미디어 수집 잡 (매 2시간 :00분)
-  - type: cron
-    name: hormuz-trump-ingest
-    runtime: python
-    rootDir: backend
-    schedule: "0 */2 * * *"
-    buildCommand: pip install -r requirements.txt
-    startCommand: python -m jobs.trump_ingest
-    envVars:
-      - key: SUPABASE_URL
-        sync: false
-      - key: SUPABASE_SERVICE_ROLE_KEY
-        sync: false
-
-  # 상황 요약 생성 및 트럼프 포스트 번역 잡 (Gemini, 매 1시간 :10분 — 뉴스 수집 직후)
-  - type: cron
-    name: hormuz-situation-summary
-    runtime: python
-    rootDir: backend
-    schedule: "10 * * * *"
-    buildCommand: pip install -r requirements.txt
-    startCommand: python -m jobs.situation_summary_ingest
-    envVars:
-      - key: SUPABASE_URL
-        sync: false
-      - key: SUPABASE_SERVICE_ROLE_KEY
         sync: false
       - key: GOOGLE_GEMINI_API_KEY
         sync: false

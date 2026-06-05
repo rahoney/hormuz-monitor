@@ -38,8 +38,8 @@
   "updateFrequency": {
     "heading": "Update Frequency",
     "rows": [
-      { "source": "AIS vessel positions and direction estimates", "frequency": "Every 15 minutes" },
-      { "source": "Market indicators and 5-minute candles", "frequency": "Every 5 minutes" },
+      { "source": "AIS vessel positions and direction estimates", "frequency": "Every 20 minutes" },
+      { "source": "Market indicators and 5-minute candles", "frequency": "Every 20 minutes" },
       { "source": "Related issues (RSS)", "frequency": "Every hour" },
       { "source": "Situation summary and Trump translation", "frequency": "Every hour" },
       { "source": "Trump Truth Social collection", "frequency": "Every 2 hours" },
