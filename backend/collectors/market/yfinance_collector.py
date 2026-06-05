@@ -4,7 +4,6 @@ import math
 from typing import Any
 import yfinance as yf
 import pandas_market_calendars as mcal
-import pytz
 from utils.logger import get_logger
 
 logger = get_logger(__name__)
@@ -38,8 +37,7 @@ def _is_trading_day(exchange: str) -> bool:
             return True # 모르는 거래소는 일단 수집 시도
         
         # 거래소의 로컬 타임존 기준으로 '오늘'이 개장일인지 확인
-        tz = cal.tz.zone
-        today_local = datetime.now(pytz.timezone(tz)).date()
+        today_local = datetime.now(cal.tz).date()
         schedule = cal.schedule(start_date=today_local, end_date=today_local)
         return not schedule.empty
     except Exception as e:
