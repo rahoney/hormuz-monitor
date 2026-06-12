@@ -127,16 +127,16 @@ export async function fetchLatestOilPrices(): Promise<Record<string, OilPriceSer
 
 export async function fetchLatestMarketSnapshots(): Promise<Record<string, MarketSnapshot>> {
   const symbols = ["VIX", "NASDAQ", "SP500", "KOSPI", "KOSDAQ", "ES_FUTURES", "NQ_FUTURES", "GOLD_FUTURES", "USD_INDEX", "GASOLINE_FUTURES", "HEATING_OIL_FUTURES"];
+  const { data } = await supabase
+    .from("market_snapshots")
+    .select("symbol, snapshot_date, price, change_pct, source")
+    .in("symbol", symbols)
+    .order("snapshot_date", { ascending: false })
+    .limit(1000);
+
   const result: Record<string, MarketSnapshot> = {};
-  for (const symbol of symbols) {
-    const { data } = await supabase
-      .from("market_snapshots")
-      .select("*")
-      .eq("symbol", symbol)
-      .order("snapshot_date", { ascending: false })
-      .limit(1)
-      .single();
-    if (data) result[symbol] = data;
+  for (const row of (data ?? []) as MarketSnapshot[]) {
+    if (!result[row.symbol]) result[row.symbol] = row;
   }
   return result;
 }
