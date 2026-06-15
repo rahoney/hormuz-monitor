@@ -2,6 +2,8 @@
 import sys
 sys.path.insert(0, ".")
 
+from websockets.exceptions import ConnectionClosed
+
 from jobs.summary_rebuild import run as rebuild_summary
 from collectors.shipping.aisstream_collector import collect
 from collectors.shipping.aisstream_estimator import estimate_recent_transits
@@ -18,7 +20,13 @@ def run() -> None:
     logger.info("선박 데이터 수집 시작")
 
     try:
-        records = collect()
+        try:
+            records = collect()
+        except ConnectionClosed as exc:
+            records = []
+            log_error("aisstream", "live_collection", str(exc), run_id)
+            logger.warning("AIS 실시간 수집 실패 - 기존 데이터로 후속 작업 계속: %s", exc)
+
         saved = insert("vessels_normalized", records) if records else 0
         estimated = estimate_recent_transits()
         rebuild_summary()
