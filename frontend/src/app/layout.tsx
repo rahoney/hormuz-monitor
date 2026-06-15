@@ -8,6 +8,35 @@ import "./globals.css";
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
 const gaId = process.env.NEXT_PUBLIC_GA_ID;
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebSite",
+      "@id": `${SITE_URL}/#website`,
+      url: SITE_URL,
+      name: "Hormuz Monitor",
+      alternateName: "호르무즈 모니터",
+      inLanguage: ["ko", "en"],
+      publisher: {
+        "@id": `${SITE_URL}/#organization`,
+      },
+    },
+    {
+      "@type": "Organization",
+      "@id": `${SITE_URL}/#organization`,
+      name: "Hormuz Monitor",
+      alternateName: "호르무즈 모니터",
+      description: "A personally operated dashboard for monitoring the Strait of Hormuz.",
+      url: SITE_URL,
+      logo: {
+        "@type": "ImageObject",
+        url: `${SITE_URL}/logo.jpg`,
+      },
+      sameAs: ["https://github.com/rahoney/hormuz-monitor"],
+    },
+  ],
+};
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -42,6 +71,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html className={`${geistSans.variable} ${geistMono.variable}`} suppressHydrationWarning>
       <body className="min-h-screen flex flex-col antialiased bg-[#0b0f1a] text-slate-100" suppressHydrationWarning>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c"),
+          }}
+        />
         <BrowserProtection />
         {gaId && (
           <>
