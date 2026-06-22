@@ -47,10 +47,6 @@ export const metadata: Metadata = {
       "naver-site-verification": "28c96a0d8d92c8b434de480085bd254369fa1bd9",
     },
   },
-  icons: {
-    icon: "/logo.jpg",
-    apple: "/logo.jpg",
-  },
   openGraph: {
     title: "Hormuz Monitor",
     description: "Key information is gathered in one place so you can assess the strait situation at a glance.",
