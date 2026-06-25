@@ -1,7 +1,7 @@
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 import type { Metadata } from "next";
-import { getTranslations } from "next-intl/server";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 import PageShell from "@/components/layout/PageShell";
 import Card from "@/components/ui/Card";
 import CurrentStatusCards from "@/components/cards/CurrentStatusCards";
@@ -90,8 +90,14 @@ function brentChangePct7d(oilData: { symbol: string; price_date: string; price_u
   return ((latest.price_usd - base.price_usd) / base.price_usd) * 100;
 }
 
-export default async function DashboardPage() {
-  const t = await getTranslations("dashboard");
+type Props = {
+  params: Promise<{ locale: string }>;
+};
+
+export default async function DashboardPage({ params }: Props) {
+  const { locale } = await params;
+  setRequestLocale(locale);
+  const t = await getTranslations({ locale, namespace: "dashboard" });
   const sections = [
     { id: "summary", label: t("sections.summary") },
     { id: "risk", label: t("gauge.title") },
