@@ -6,7 +6,7 @@ from datetime import datetime, time, timedelta, timezone
 sys.path.insert(0, ".")
 
 from db.error_repo import log_error
-from db.run_repo import finish_run, has_successful_run_since, start_run
+from db.run_repo import finish_run, has_running_run_since, has_successful_run_since, start_run
 from jobs import (
     daily_maintenance,
     events_ingest,
@@ -70,6 +70,10 @@ def _run_task(name: str, task: Callable[[], None], dispatcher_run_id: int) -> bo
 
 def run(force: bool = False) -> None:
     now = datetime.now(timezone.utc)
+    if not force and has_running_run_since(_DISPATCHER_SOURCE, now - timedelta(minutes=30)):
+        logger.warning("최근 실행 중인 cron dispatcher가 있어 이번 실행을 건너뜀")
+        return
+
     run_id = start_run(_DISPATCHER_SOURCE)
     logger.info("통합 cron dispatcher 시작 (now=%s, force=%s)", now.isoformat(), force)
 

@@ -45,3 +45,18 @@ def has_successful_run_since(source_name: str, since: datetime) -> bool:
         resp = client.get("/source_runs", params=params)
         resp.raise_for_status()
     return bool(resp.json())
+
+
+def has_running_run_since(source_name: str, since: datetime) -> bool:
+    """since 이후 아직 running 상태인 실행이 있는지 확인한다."""
+    params: dict[str, Any] = {
+        "select": "id",
+        "source_name": f"eq.{source_name}",
+        "status": "eq.running",
+        "run_start": f"gte.{since.astimezone(timezone.utc).isoformat()}",
+        "limit": 1,
+    }
+    with get_client() as client:
+        resp = client.get("/source_runs", params=params)
+        resp.raise_for_status()
+    return bool(resp.json())

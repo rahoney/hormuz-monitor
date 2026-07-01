@@ -31,6 +31,7 @@ _CRUDE_TYPES = {83, 84}           # 83: crude oil tanker
 
 _TIMEOUT_SECONDS = 90
 _CONNECT_RETRY_DELAYS = (20.0, 60.0)
+_MAX_MESSAGES = 7000
 
 
 def _safe_float(val: Any) -> float | None:
@@ -132,11 +133,20 @@ async def _collect_async(max_vessels: int = 200) -> list[dict[str, Any]]:
             async with websockets.connect("wss://stream.aisstream.io/v0/stream", open_timeout=15) as ws:
                 await ws.send(json.dumps(sub))
                 deadline = asyncio.get_event_loop().time() + _TIMEOUT_SECONDS
+                messages_seen = 0
                 while asyncio.get_event_loop().time() < deadline and len(records) < max_vessels:
                     try:
                         raw = await asyncio.wait_for(ws.recv(), timeout=5.0)
                     except asyncio.TimeoutError:
                         continue
+                    messages_seen += 1
+                    if messages_seen >= _MAX_MESSAGES:
+                        logger.warning(
+                            "AISStream message cap reached (%d); returning %d collected records",
+                            messages_seen,
+                            len(records),
+                        )
+                        return records
                     msg = json.loads(raw)
                     mtype = msg.get("MessageType", "")
 
