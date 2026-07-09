@@ -8,6 +8,7 @@ import "./globals.css";
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
 const gaId = process.env.NEXT_PUBLIC_GA_ID;
+const adsenseClient = "ca-pub-1366941829083043";
 const jsonLd = {
   "@context": "https://schema.org",
   "@graph": [
@@ -78,6 +79,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           }}
         />
         <BrowserProtection />
+        <Script
+          async
+          src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${adsenseClient}`}
+          crossOrigin="anonymous"
+          strategy="afterInteractive"
+        />
         {gaId && (
           <>
             <Script
