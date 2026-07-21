@@ -8,6 +8,7 @@ import "./globals.css";
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
 const gaId = process.env.NEXT_PUBLIC_GA_ID;
+const clarityId = "xpwhae7dv0";
 const adsenseClient = "ca-pub-1366941829083043";
 const jsonLd = {
   "@context": "https://schema.org",
@@ -75,6 +76,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           }}
         />
         <BrowserProtection />
+        <Script id="microsoft-clarity" strategy="afterInteractive">
+          {`
+            (function(c,l,a,r,i,t,y){
+              c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+              t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+              y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+            })(window, document, "clarity", "script", "${clarityId}");
+          `}
+        </Script>
         <Script
           async
           src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${adsenseClient}`}
