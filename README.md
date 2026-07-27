@@ -1,5 +1,8 @@
 # Hormuz Monitor
 
+[![Language: 한국어](https://img.shields.io/badge/Language-한국어-blue)](README.md)
+[![Language: English](https://img.shields.io/badge/Language-English-green)](README.en.md)
+
 ![Next.js](https://img.shields.io/badge/Next.js-000000?logo=nextdotjs&logoColor=white)
 ![React](https://img.shields.io/badge/React-20232A?logo=react&logoColor=61DAFB)
 ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white)
