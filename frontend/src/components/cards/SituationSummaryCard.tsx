@@ -102,6 +102,8 @@ export default function SituationSummaryCard({ summary }: Props) {
   const t = useTranslations("dashboard.summary");
   const locale = useLocale();
   const [timeZone, setTimeZone] = useState(() => defaultTimeZone(locale));
+  const [translatedText, setTranslatedText] = useState<string | null>(null);
+  const [loadingTranslation, setLoadingTranslation] = useState(false);
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -111,13 +113,45 @@ export default function SituationSummaryCard({ summary }: Props) {
     return () => window.clearTimeout(timer);
   }, []);
 
-  const text = summary
+  // 12개 신규 언어 접속 시 온디맨드 AI 번역 API 호출
+  useEffect(() => {
+    if (!summary || locale === "ko" || locale === "en") {
+      setTranslatedText(null);
+      return;
+    }
+
+    let cancelled = false;
+    setLoadingTranslation(true);
+
+    fetch(`/api/situation-summary/translate?summary_id=${summary.id}&locale=${encodeURIComponent(locale)}`)
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (!cancelled && data?.summary_text) {
+          setTranslatedText(data.summary_text);
+        }
+      })
+      .catch((err) => console.error("translation error:", err))
+      .finally(() => {
+        if (!cancelled) setLoadingTranslation(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [summary, locale]);
+
+  const baseText = summary
     ? (locale === "ko" ? summary.summary_ko : (summary.summary_en || summary.summary_ko))
     : null;
+  const text = (locale !== "ko" && locale !== "en" && translatedText) ? translatedText : baseText;
+
   const structuredCandidate = summary
     ? (locale === "ko" ? summary.summary_ko_structured : (summary.summary_en_structured || summary.summary_ko_structured))
     : null;
-  const structured = isStructuredSummary(structuredCandidate) ? structuredCandidate : null;
+  // 신규 언어 온디맨드 텍스트가 번역되어 있는 동안은 텍스트 뷰 렌더링
+  const structured = (locale === "ko" || locale === "en") && isStructuredSummary(structuredCandidate)
+    ? structuredCandidate
+    : null;
 
   const updatedAt = summary ? formatUpdatedAt(summary.generated_at, locale, timeZone) : null;
 
@@ -142,7 +176,12 @@ export default function SituationSummaryCard({ summary }: Props) {
         </div>
       </div>
       <div className="text-slate-200 leading-7" style={{ fontSize: "16px" }}>
-        {structured ? (
+        {loadingTranslation ? (
+          <div className="py-4 text-sm text-slate-400 flex items-center gap-2">
+            <div className="h-4 w-4 animate-spin rounded-full border-2 border-blue-400 border-t-transparent" />
+            <span>{t("loading")}</span>
+          </div>
+        ) : structured ? (
           <StructuredSummaryView data={structured} />
         ) : text ? (
           <ReactMarkdown
