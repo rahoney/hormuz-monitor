@@ -1,5 +1,6 @@
 User-Agent: *
 Content-Signal: search=yes, ai-input=yes, ai-train=no
+Disallow: /cdn-cgi/
 Allow: /
 
 Sitemap: https://www.hrmz.today/sitemap.xml
