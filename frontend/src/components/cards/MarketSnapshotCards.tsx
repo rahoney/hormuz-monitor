@@ -16,10 +16,38 @@ export const ALL_SYMBOLS = [
 type SymbolType = typeof ALL_SYMBOLS[number];
 
 const CATEGORIES = [
-  { id: "all", labelEn: "All", labelKo: "전체" },
-  { id: "us", labelEn: "U.S. Indices", labelKo: "미국 증시" },
-  { id: "global", labelEn: "Global Indices", labelKo: "글로벌 증시" },
-  { id: "macro", labelEn: "Rates & Commodities", labelKo: "금리/원자재/외환" },
+  {
+    id: "all",
+    labels: {
+      en: "All", ko: "전체", ar: "الكل", fa: "همه", ja: "すべて",
+      es: "Todos", tr: "Tümü", de: "Alle", fr: "Tous", "pt-BR": "Todos",
+      it: "Tutti", "zh-CN": "全部", "zh-TW": "全部", ru: "Все"
+    }
+  },
+  {
+    id: "us",
+    labels: {
+      en: "U.S. Indices", ko: "미국 증시", ar: "المؤشرات الأمريكية", fa: "شاخص‌های آمریکا", ja: "米国指数",
+      es: "Índices EE.UU.", tr: "ABD Endeksleri", de: "US-Indizes", fr: "Indices US", "pt-BR": "Índices EUA",
+      it: "Indici USA", "zh-CN": "美股指数", "zh-TW": "美股指數", ru: "Индексы США"
+    }
+  },
+  {
+    id: "global",
+    labels: {
+      en: "Global Indices", ko: "글로벌 증시", ar: "المؤشرات العالمية", fa: "شاخص‌های جهانی", ja: "グローバル指数",
+      es: "Índices Globales", tr: "Küresel Endeksler", de: "Globale Indizes", fr: "Indices Mondiaux", "pt-BR": "Índices Globais",
+      it: "Indici Globali", "zh-CN": "全球指数", "zh-TW": "全球指數", ru: "Мировые индексы"
+    }
+  },
+  {
+    id: "macro",
+    labels: {
+      en: "Rates & Commodities", ko: "금리/원자재/외환", ar: "الفائدة والسلع", fa: "نرخ‌ها و کالاها", ja: "금리・원자재・외환",
+      es: "Tasas y Materias Primas", tr: "Faiz ve Emtialar", de: "Zinsen & Rohstoffe", fr: "Taux et Matières Premières", "pt-BR": "Juros e Commodities",
+      it: "Tassi e Commodity", "zh-CN": "利率与商品", "zh-TW": "利率與商品", ru: "Ставки и товары"
+    }
+  },
 ] as const;
 
 const CATEGORY_SYMBOLS: Record<string, SymbolType[]> = {
@@ -68,209 +96,208 @@ const DISPLAY_NAMES_KO: Record<string, string> = {
 };
 
 const DECIMAL_2 = new Set(["VIX", "USD_INDEX", "US10Y"]);
-const POPOVER_WIDTH = 480;
-const POPOVER_MARGIN = 12;
 
-type Props = {
-  snapshots: Record<string, MarketSnapshot>;
-  intraday: Record<string, { time: string; price: number }[]>;
-  ohlcv: Record<string, MarketOHLCV[]>;
-};
-
-type CardProps = {
-  sym: SymbolType;
-  snap: MarketSnapshot | undefined;
-  spark: { time: string; price: number }[];
-  ohlcv: MarketOHLCV[];
-  noDataLabel: string;
+type CardItemProps = {
+  symbol: SymbolType;
+  snap?: MarketSnapshot;
+  sparklineData?: { price: number }[];
+  ohlcvData?: MarketOHLCV[];
   displayName: string;
+  onCardClick: (symbol: SymbolType) => void;
 };
 
-function MarketCard({ sym, snap, spark, ohlcv, noDataLabel, displayName }: CardProps) {
-  const [open, setOpen] = useState(false);
-  const [popoverStyle, setPopoverStyle] = useState<React.CSSProperties>({});
-  const wrapperRef = useRef<HTMLDivElement>(null);
-  const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const isPositive = snap?.change_pct != null && snap.change_pct >= 0;
-
-  // 인트라데이 없으면 일봉 종가로 폴백
-  const sparkData = spark.length >= 3
-    ? spark
-    : ohlcv.slice(-30).map((d) => ({ time: d.price_date, price: d.close }));
-
-  const cancelClose = () => {
-    if (closeTimer.current !== null) {
-      clearTimeout(closeTimer.current);
-      closeTimer.current = null;
-    }
-  };
-  const scheduleClose = () => {
-    cancelClose();
-    closeTimer.current = setTimeout(() => setOpen(false), 250);
-  };
-
-  const updatePopoverPosition = () => {
-    if (!wrapperRef.current || typeof window === "undefined") return;
-    const rect = wrapperRef.current.getBoundingClientRect();
-    const width = Math.min(POPOVER_WIDTH, window.innerWidth - POPOVER_MARGIN * 2);
-    const clampedLeft = Math.min(
-      Math.max(rect.left, POPOVER_MARGIN),
-      window.innerWidth - width - POPOVER_MARGIN
-    );
-
-    setPopoverStyle({
-      position: "fixed",
-      top: rect.bottom + 6,
-      left: clampedLeft,
-      width,
-    });
-  };
-
-  const openPopover = () => {
-    updatePopoverPosition();
-    setOpen(true);
-  };
-
-  useEffect(() => {
-    if (!open) return;
-    updatePopoverPosition();
-    window.addEventListener("resize", updatePopoverPosition);
-    window.addEventListener("scroll", updatePopoverPosition, true);
-    return () => {
-      window.removeEventListener("resize", updatePopoverPosition);
-      window.removeEventListener("scroll", updatePopoverPosition, true);
-    };
-  }, [open]);
-
-  useEffect(() => () => cancelClose(), []);
-
-  const formattedPrice = snap
-    ? sym === "US10Y"
-      ? `${snap.price.toFixed(3)}%`
-      : formatPrice(snap.price, DECIMAL_2.has(sym) ? 2 : 0)
-    : noDataLabel;
+function MarketCardItem({
+  symbol,
+  snap,
+  sparklineData,
+  ohlcvData,
+  displayName,
+  onCardClick,
+}: CardItemProps) {
+  const t = useTranslations("dashboard");
+  const priceDecimal = DECIMAL_2.has(symbol) ? 2 : undefined;
+  const isUp = (snap?.change_pct ?? 0) >= 0;
 
   return (
     <div
-      ref={wrapperRef}
-      className={`relative ${open ? "z-50" : ""}`}
-      onMouseEnter={() => { cancelClose(); openPopover(); }}
-      onMouseLeave={scheduleClose}
+      onClick={() => onCardClick(symbol)}
+      className="cursor-pointer rounded-lg border border-slate-700/50 bg-slate-800/50 p-3.5 flex flex-col justify-between transition-all duration-200 hover:bg-white/[0.04] hover:border-blue-400/50 hover:shadow-lg hover:shadow-blue-500/5"
     >
-      {/* 카드 본체 */}
-      <div
-        onClick={() => {
-          if (open) {
-            setOpen(false);
-          } else {
-            openPopover();
-          }
-        }}
-        className={[
-          "overflow-hidden rounded-lg border p-3 cursor-pointer",
-          "transition-all duration-200",
-          "after:absolute after:inset-0 after:pointer-events-none after:rounded-lg",
-          "after:bg-gradient-to-br after:from-white/[0.06] after:to-transparent",
-          "after:opacity-0 after:transition-opacity after:duration-200",
-          "hover:after:opacity-100",
-          open
-            ? "border-blue-500/60 bg-blue-900/20 shadow-[0_0_0_1px_rgba(59,130,246,0.15)]"
-            : "border-slate-700/50 bg-slate-900 hover:border-white/[0.10] hover:bg-white/[0.03]",
-        ].join(" ")}
-      >
-        <p className="text-sm font-bold text-slate-200 truncate">{displayName}</p>
-        <p className="mt-1 text-lg font-semibold text-slate-100">
-          {formattedPrice}
-        </p>
-        {snap?.change_pct != null && (
-          <p className={`text-xs ${changePctColor(snap.change_pct)}`}>
-            {formatChangePct(snap.change_pct)}
-          </p>
-        )}
-        {sparkData.length >= 3 && (
-          <div className="mt-2 h-10 w-full">
-            <ResponsiveContainer width="100%" height={40}>
-              <LineChart data={sparkData} margin={{ top: 2, right: 0, bottom: 2, left: 0 }}>
-                <YAxis domain={["auto", "auto"]} hide />
-                <Line
-                  dataKey="price"
-                  isAnimationActive={false}
-                  stroke={isPositive ? "#34d399" : "#f87171"}
-                  strokeWidth={1.5}
-                  dot={false}
-                  connectNulls
-                />
-              </LineChart>
-            </ResponsiveContainer>
+      <div>
+        <div className="flex items-center justify-between gap-1 mb-1">
+          <span className="text-xs font-semibold text-slate-300 truncate" title={displayName}>
+            {displayName}
+          </span>
+          {snap && (
+            <span className={`text-xs font-bold shrink-0 ${changePctColor(snap.change_pct)}`}>
+              {formatChangePct(snap.change_pct)}
+            </span>
+          )}
+        </div>
+
+        <div className="flex items-baseline justify-between gap-2">
+          {snap ? (
+            <span className="text-lg font-bold text-slate-100 tracking-tight">
+              {formatPrice(snap.price, priceDecimal)}
+            </span>
+          ) : (
+            <span className="text-sm font-medium text-slate-500">{t("noData")}</span>
+          )}
+        </div>
+      </div>
+
+      <div className="mt-3 h-10 w-full">
+        {sparklineData && sparklineData.length > 1 ? (
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={sparklineData} margin={{ top: 2, right: 2, left: 2, bottom: 2 }}>
+              <YAxis domain={["auto", "auto"]} hide />
+              <Line
+                type="monotone"
+                dataKey="price"
+                stroke={isUp ? "#34d399" : "#f87171"}
+                strokeWidth={1.5}
+                dot={false}
+                isAnimationActive={false}
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        ) : ohlcvData && ohlcvData.length > 1 ? (
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={ohlcvData} margin={{ top: 2, right: 2, left: 2, bottom: 2 }}>
+              <YAxis domain={["auto", "auto"]} hide />
+              <Line
+                type="monotone"
+                dataKey="close"
+                stroke={isUp ? "#34d399" : "#f87171"}
+                strokeWidth={1.5}
+                dot={false}
+                isAnimationActive={false}
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        ) : (
+          <div className="h-full w-full bg-slate-800/30 rounded flex items-center justify-center">
+            <span className="text-[10px] text-slate-600">No trend</span>
           </div>
         )}
       </div>
-
-      {/* 카드 바로 아래 커스텀 차트 (절대 위치) */}
-      {open && (
-        <div
-          className="z-50 rounded-lg border border-slate-700/50 bg-slate-900 p-3 shadow-xl"
-          style={popoverStyle}
-          onMouseEnter={cancelClose}
-          onMouseLeave={scheduleClose}
-        >
-          <div className="flex items-center justify-between mb-1">
-            <span className="text-xs font-bold text-slate-300">{displayName}</span>
-            <button
-              onClick={(e) => { e.stopPropagation(); setOpen(false); }}
-              className="text-xs text-slate-500 hover:text-slate-300 transition-colors px-2 py-0.5 rounded hover:bg-slate-800"
-            >
-              ✕
-            </button>
-          </div>
-          <MarketCustomChart symbol={sym} intraday={spark} ohlcv={ohlcv} />
-        </div>
-      )}
     </div>
   );
 }
 
-export default function MarketSnapshotCards({ snapshots, intraday, ohlcv }: Props) {
-  const t = useTranslations("dashboard");
-  const locale = useLocale();
-  const names = locale === "ko" ? DISPLAY_NAMES_KO : DISPLAY_NAMES;
-  const [activeTab, setActiveTab] = useState<string>("all");
+type Props = {
+  snapshots?: Record<string, MarketSnapshot>;
+  intraday?: Record<string, { time: string; price: number }[]>;
+  ohlcv?: Record<string, MarketOHLCV[]>;
+};
 
-  const visibleSymbols = CATEGORY_SYMBOLS[activeTab] ?? CATEGORY_SYMBOLS.all;
+export default function MarketSnapshotCards({
+  snapshots = {},
+  intraday = {},
+  ohlcv = {},
+}: Props) {
+  const locale = useLocale();
+  const [activeCategory, setActiveCategory] = useState<string>("all");
+  const [selectedSymbol, setSelectedSymbol] = useState<SymbolType | null>(null);
+  const chartModalRef = useRef<HTMLDivElement>(null);
+
+  const activeSymbols = CATEGORY_SYMBOLS[activeCategory] ?? ALL_SYMBOLS;
+
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (chartModalRef.current && !chartModalRef.current.contains(e.target as Node)) {
+        setSelectedSymbol(null);
+      }
+    }
+    if (selectedSymbol) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [selectedSymbol]);
 
   return (
-    <div className="space-y-3">
-      {/* 카테고리 필터 탭 */}
-      <div className="flex flex-wrap gap-1.5 border-b border-slate-800 pb-2">
-        {CATEGORIES.map((cat) => (
-          <button
-            key={cat.id}
-            onClick={() => setActiveTab(cat.id)}
-            className={`rounded-md px-3 py-1 text-xs font-medium transition-colors ${
-              activeTab === cat.id
-                ? "bg-amber-500/20 text-amber-300 border border-amber-500/40"
-                : "bg-slate-900 text-slate-400 hover:bg-slate-800 hover:text-slate-200 border border-slate-800"
-            }`}
-          >
-            {locale === "ko" ? cat.labelKo : cat.labelEn}
-          </button>
-        ))}
+    <div className="flex flex-col gap-4">
+      {/* 14개 언어 대응 카테고리 탭 버튼 */}
+      <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
+        {CATEGORIES.map((cat) => {
+          const label = cat.labels[locale as keyof typeof cat.labels] ?? cat.labels.en;
+          const isActive = activeCategory === cat.id;
+          return (
+            <button
+              key={cat.id}
+              onClick={() => setActiveCategory(cat.id)}
+              className={`rounded-full px-3.5 py-1.5 text-xs font-semibold whitespace-nowrap transition-all duration-150 ${
+                isActive
+                  ? "bg-blue-500 text-white shadow-md shadow-blue-500/20"
+                  : "bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-slate-200"
+              }`}
+            >
+              {label}
+            </button>
+          );
+        })}
       </div>
 
-      {/* 카드 그리드 */}
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
-        {visibleSymbols.map((sym) => (
-          <MarketCard
-            key={sym}
-            sym={sym}
-            snap={snapshots[sym]}
-            spark={intraday[sym] ?? []}
-            ohlcv={ohlcv[sym] ?? []}
-            noDataLabel={t("noData")}
-            displayName={names[sym] ?? sym}
-          />
-        ))}
+      {/* 시장 스냅샷 그리드 */}
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
+        {activeSymbols.map((sym) => {
+          const snap = snapshots[sym];
+          const spark = intraday[sym];
+          const ohlcvRows = ohlcv[sym];
+          const name = locale === "ko" ? (DISPLAY_NAMES_KO[sym] ?? sym) : (DISPLAY_NAMES[sym] ?? sym);
+
+          return (
+            <MarketCardItem
+              key={sym}
+              symbol={sym}
+              snap={snap}
+              sparklineData={spark}
+              ohlcvData={ohlcvRows}
+              displayName={name}
+              onCardClick={(symbol) => setSelectedSymbol(symbol)}
+            />
+          );
+        })}
       </div>
+
+      {/* 팝업 모달 */}
+      {selectedSymbol && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm">
+          <div
+            ref={chartModalRef}
+            className="w-full max-w-3xl rounded-xl border border-slate-700 bg-slate-900 p-5 shadow-2xl"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h3 className="text-lg font-bold text-white">
+                  {locale === "ko"
+                    ? DISPLAY_NAMES_KO[selectedSymbol] ?? selectedSymbol
+                    : DISPLAY_NAMES[selectedSymbol] ?? selectedSymbol}
+                </h3>
+                <p className="text-xs text-slate-400">
+                  {snapshots[selectedSymbol]
+                    ? `${formatPrice(snapshots[selectedSymbol].price, DECIMAL_2.has(selectedSymbol) ? 2 : undefined)} (${formatChangePct(snapshots[selectedSymbol].change_pct)})`
+                    : "No real-time price"}
+                </p>
+              </div>
+              <button
+                onClick={() => setSelectedSymbol(null)}
+                className="rounded-lg p-2 text-slate-400 hover:bg-slate-800 hover:text-white transition-colors"
+              >
+                ✕
+              </button>
+            </div>
+
+            <MarketCustomChart
+              symbol={selectedSymbol}
+              intraday={intraday[selectedSymbol] ?? []}
+              ohlcv={ohlcv[selectedSymbol] ?? []}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }
