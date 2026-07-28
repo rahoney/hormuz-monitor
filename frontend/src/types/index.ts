@@ -79,6 +79,9 @@ export interface SituationSummary {
   summary_en: string | null;
   summary_ko_structured: StructuredSituationSummary | null;
   summary_en_structured: StructuredSituationSummary | null;
+  summary_translated_text?: string | null;
+  summary_translated_structured?: StructuredSituationSummary | null;
+  locale_translated?: string | null;
   generated_at: string;
   geo_score: number | null;
 }
