@@ -52,8 +52,8 @@ const META = {
     ],
   },
   en: {
-    title: "Strait of Hormuz Real-Time Monitor | Risk Index, Vessel Traffic, Oil Prices",
-    description: "Monitor Strait of Hormuz risk, vessel traffic, oil prices, U.S.-Iran conflict updates, market indicators, and related geopolitical issues in one real-time dashboard.",
+    title: "Strait of Hormuz News Today | US, Iran, Trump, Oil Price & Map",
+    description: "Track the Strait of Hormuz today — Iran conflict, Trump updates, live oil price, vessel traffic map, and market indicators in one real-time dashboard.",
     keywords: [
       "Strait of Hormuz",
       "Hormuz Monitor",
