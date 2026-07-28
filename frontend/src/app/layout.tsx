@@ -4,6 +4,7 @@ import Script from "next/script";
 import { getLocale } from "next-intl/server";
 import BrowserProtection from "@/components/system/BrowserProtection";
 import { OG_IMAGE_URL, SITE_URL } from "@/lib/seo";
+import { RTL_LOCALES } from "@/i18n/routing";
 import "./globals.css";
 
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
@@ -20,7 +21,10 @@ const jsonLd = {
       url: SITE_URL,
       name: "Hormuz Monitor",
       alternateName: "호르무즈 모니터",
-      inLanguage: ["ko", "en"],
+      inLanguage: [
+        "en", "ko", "ar", "fa", "ja", "es", "tr",
+        "de", "fr", "pt-BR", "it", "zh-CN", "zh-TW", "ru",
+      ],
       publisher: {
         "@id": `${SITE_URL}/#organization`,
       },
@@ -43,7 +47,13 @@ const jsonLd = {
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await getLocale();
-  const contentLanguage = locale === "ko" ? "ko-KR" : "en-US";
+  // locale → content-language 매핑 (BCP-47)
+  const CONTENT_LANG_MAP: Record<string, string> = {
+    ko: "ko-KR", en: "en-US", ar: "ar", fa: "fa-IR", ja: "ja-JP",
+    es: "es", tr: "tr-TR", de: "de-DE", fr: "fr-FR",
+    "pt-BR": "pt-BR", it: "it-IT", "zh-CN": "zh-CN", "zh-TW": "zh-TW", ru: "ru-RU",
+  };
+  const contentLanguage = CONTENT_LANG_MAP[locale] ?? "en-US";
 
   return {
     metadataBase: new URL(SITE_URL),
@@ -83,7 +93,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const locale = await getLocale();
 
   return (
-    <html lang={locale} className={`${geistSans.variable} ${geistMono.variable}`} suppressHydrationWarning>
+    <html lang={locale} dir={RTL_LOCALES.has(locale) ? "rtl" : "ltr"} className={`${geistSans.variable} ${geistMono.variable}`} suppressHydrationWarning>
       <body className="min-h-screen flex flex-col antialiased bg-[#0b0f1a] text-slate-100" suppressHydrationWarning>
         <script
           type="application/ld+json"
