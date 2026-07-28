@@ -1,32 +1,32 @@
 {
-  "title": "About",
-  "subtitle": "What is Hormuz Monitor?",
+  "title": "Hakkında",
+  "subtitle": "Hormuz Monitor nedir?",
   "description": {
-    "p1": "According to the EIA, in 2024 the average daily flow of crude oil and petroleum products through the Strait of Hormuz was 20 million barrels — roughly 20% of global petroleum consumption.",
-    "p2": "About 20% of global LNG trade also passed through the strait, with 84% of crude and condensate and 83% of LNG heading to Asian markets.",
-    "p3": "Any disruption to energy supply through the Strait of Hormuz can have a major impact on global industry and economies. This project was created to bring all that information together in one place, rather than searching across multiple sources.",
-    "p4": "Hormuz Monitor is a dashboard that lets you see vessel movements through the Strait of Hormuz, oil prices, and key U.S. market indices at a glance. It is designed to help you access scattered information faster, in one place."
+    "p1": "EIA'ya göre, 2024 yılında Hürmüz Boğazı'ndan geçen günlük ortalama ham petrol ve petrol ürünleri akışı 20 milyon varil idi - bu, küresel petrol tüketiminin yaklaşık %20'sidir.",
+    "p2": "Küresel LNG ticaretinin yaklaşık %20'si de boğazdan geçerken, ham petrol ve kondensatın %84'ü ve LNG'nin %83'ü Asya pazarlarına yöneldi.",
+    "p3": "Hürmüz Boğazı üzerinden enerji arzındaki herhangi bir kesinti, küresel endüstri ve ekonomiler üzerinde büyük bir etkiye sahip olabilir. Bu proje, bilgiyi birden fazla kaynakta aramak yerine tek bir yerde toplamak için oluşturuldu.",
+    "p4": "Hormuz Monitor, Hürmüz Boğazı'ndaki gemi hareketlerini, petrol fiyatlarını ve temel ABD piyasa endekslerini bir bakışta görmenizi sağlayan bir kontrol panelidir. Dağınık bilgilere tek bir yerden daha hızlı erişmenize yardımcı olmak için tasarlanmıştır."
   },
   "sources": {
-    "heading": "Data Sources",
-    "list": "IMF PortWatch, AISStream, MarineTraffic, EIA, TradingView, Yahoo Finance, BBC RSS, Anadolu Agency RSS, NYT/CNBC RSS, Google News RSS, major Korean news RSS, Truth Social RSS"
+    "heading": "Veri Kaynakları",
+    "list": "IMF PortWatch, AISStream, MarineTraffic, EIA, TradingView, Yahoo Finance, BBC RSS, Anadolu Agency RSS, NYT/CNBC RSS, Google News RSS, önde gelen Kore haberleri RSS, Truth Social RSS"
   },
   "github": "GitHub",
   "contact": {
-    "heading": "Contact",
-    "body": "For inquiries about the project, please use the contact form.",
-    "button": "Contact Us"
+    "heading": "İletişim",
+    "body": "Projeyle ilgili sorularınız için lütfen iletişim formunu kullanın.",
+    "button": "Bize Ulaşın"
   },
   "support": {
-    "heading": "Support",
-    "body1": "If you'd like to support this project, you can do so through the links below.",
-    "body2": "Your support helps with maintenance and future improvements.",
-    "kr": "KR Support",
-    "global": "Global Support"
+    "heading": "Destek",
+    "body1": "Bu projeyi desteklemek isterseniz, aşağıdaki bağlantılar aracılığıyla yapabilirsiniz.",
+    "body2": "Desteğiniz bakım ve gelecekteki iyileştirmelere yardımcı olur.",
+    "kr": "KR Destek",
+    "global": "Küresel Destek"
   },
   "notice": {
-    "heading": "Note",
-    "body": "Hormuz Monitor is operated as a personal project.",
-    "peace": "We hope the war ends soon and peace comes to everyone."
+    "heading": "Not",
+    "body": "Hormuz Monitor kişisel bir proje olarak yürütülmektedir.",
+    "peace": "Savaşın bir an önce bitmesini ve herkese barış gelmesini umuyoruz."
   }
 }

@@ -1,50 +1,120 @@
 {
-  "title": "Data Sources",
-  "subtitle": "Where does the data come from?",
-  "emptyState": "Source details will appear here",
+  "title": "データソース",
+  "subtitle": "データはどこから来ていますか？",
+  "emptyState": "ソースの詳細がここに表示されます",
   "shipping": {
-    "heading": "Vessel Traffic",
+    "heading": "船舶トラフィック",
     "items": [
-      { "name": "IMF PortWatch", "detail": "Daily chokepoint transit counts via ArcGIS REST API. Satellite AIS-based. Updated once per day.", "url": "https://portwatch.imf.org" },
-      { "name": "AISStream", "detail": "AIS vessel position stream used to estimate inbound and outbound movement over the latest 24 hours.", "url": "https://aisstream.io" },
-      { "name": "MarineTraffic (map)", "detail": "Live AIS vessel map embedded via iframe. Real-time vessel positions.", "url": "https://www.marinetraffic.com" }
+      {
+        "name": "IMF PortWatch",
+        "detail": "ArcGIS REST APIを通じたチョークポイントの1日あたりの通過統計。衛星AISベース。1日1回更新されます。",
+        "url": "https://portwatch.imf.org"
+      },
+      {
+        "name": "AISStream",
+        "detail": "過去24時間の進入および退出の動きを推定するために使用されるAIS船舶位置ストリーム。",
+        "url": "https://aisstream.io"
+      },
+      {
+        "name": "MarineTraffic (map)",
+        "detail": "iframeを介して埋め込まれたライブAIS船舶マップ。リアルタイムの船舶位置。",
+        "url": "https://www.marinetraffic.com"
+      }
     ]
   },
   "oil": {
-    "heading": "Oil & Gas Prices",
+    "heading": "原油・ガス価格",
     "items": [
-      { "name": "EIA (U.S. Energy Information Administration)", "detail": "WTI, Brent, Henry Hub natural gas, and U.S. gasoline price data.", "url": "https://www.eia.gov/opendata" },
-      { "name": "Yahoo Finance (yfinance)", "detail": "WTI and Brent futures plus major market indicators used as a fallback when spot data is delayed.", "url": "https://finance.yahoo.com" },
-      { "name": "TradingView", "detail": "Real-time price charts embedded via widget (TVC:USOIL, TVC:UKOIL, CAPITALCOM:NATURALGAS).", "url": "https://www.tradingview.com" }
+      {
+        "name": "EIA (U.S. Energy Information Administration)",
+        "detail": "WTI、Brent、Henry Hub天然ガス、および米国のガソリン価格データ。",
+        "url": "https://www.eia.gov/opendata"
+      },
+      {
+        "name": "Yahoo Finance (yfinance)",
+        "detail": "スポットデータが遅れた場合の代替として使用されるWTIおよびBrentの先物、ならびに主要市場指標。",
+        "url": "https://finance.yahoo.com"
+      },
+      {
+        "name": "TradingView",
+        "detail": "ウィジェットを介して埋め込まれたリアルタイムの価格チャート（TVC:USOIL、TVC:UKOIL、CAPITALCOM:NATURALGAS）。",
+        "url": "https://www.tradingview.com"
+      }
     ]
   },
   "market": {
-    "heading": "Market Indicators",
+    "heading": "市場指標",
     "items": [
-      { "name": "Yahoo Finance (yfinance)", "detail": "Snapshots, 5-minute candles, and daily candles for VIX, Nasdaq, S&P 500, KOSPI, KOSDAQ, U.S. index futures, gold futures, the dollar index, gasoline futures, and heating oil futures.", "url": "https://finance.yahoo.com" }
+      {
+        "name": "Yahoo Finance (yfinance)",
+        "detail": "VIX、Nasdaq、S&P 500、KOSPI、KOSDAQ、米国指数先物、金先物、ドルインデックス、ガソリン先物、ヒーティングオイル先物のスナップショット、5分足、および日足。",
+        "url": "https://finance.yahoo.com"
+      }
     ]
   },
   "events": {
-    "heading": "Geopolitical Events",
+    "heading": "地政学的イベント",
     "items": [
-      { "name": "BBC Middle East RSS", "detail": "Middle East headlines from BBC News.", "url": "https://www.bbc.com/news/world/middle_east" },
-      { "name": "Anadolu Agency RSS", "detail": "Regional news from Turkey's state news agency.", "url": "https://www.aa.com.tr/en" },
-      { "name": "NYT and CNBC RSS", "detail": "English headlines related to the Middle East, energy, and global markets.", "url": "https://www.nytimes.com" },
-      { "name": "Reuters and AP News (Google News RSS)", "detail": "Relevant headlines from selected outlets through Google News RSS search feeds where official RSS access is limited.", "url": "https://news.google.com" },
-      { "name": "Yonhap, Korea Economic Daily, Maeil Business RSS", "detail": "Korean international and market headlines classified by keyword.", "url": "https://www.yna.co.kr" },
-      { "name": "Truth Social RSS", "detail": "Trump Truth Social posts collected and translated into Korean.", "url": "https://trumpstruth.org/feed" }
+      {
+        "name": "BBC Middle East RSS",
+        "detail": "BBCニュースの中東に関する見出し。",
+        "url": "https://www.bbc.com/news/world/middle_east"
+      },
+      {
+        "name": "Anadolu Agency RSS",
+        "detail": "トルコの国営通信社からの地域のニュース。",
+        "url": "https://www.aa.com.tr/en"
+      },
+      {
+        "name": "NYT and CNBC RSS",
+        "detail": "中東、エネルギー、およびグローバル市場に関連する英語の見出し。",
+        "url": "https://www.nytimes.com"
+      },
+      {
+        "name": "Reuters and AP News (Google News RSS)",
+        "detail": "公式のRSSアクセスが制限されている場合、Google News RSS検索フィードを通じた選択されたメディアからの関連見出し。",
+        "url": "https://news.google.com"
+      },
+      {
+        "name": "Yonhap, Korea Economic Daily, Maeil Business RSS",
+        "detail": "キーワードで分類された韓国の国際および市場の見出し。",
+        "url": "https://www.yna.co.kr"
+      },
+      {
+        "name": "Truth Social RSS",
+        "detail": "収集され韓国語に翻訳されたトランプのTruth Socialの投稿。",
+        "url": "https://trumpstruth.org/feed"
+      }
     ]
   },
   "updateFrequency": {
-    "heading": "Update Frequency",
+    "heading": "更新頻度",
     "rows": [
-      { "source": "AIS vessel positions and direction estimates", "frequency": "Every 20 minutes" },
-      { "source": "Market indicators and 5-minute candles", "frequency": "Every 20 minutes" },
-      { "source": "Related issues (RSS)", "frequency": "Every hour" },
-      { "source": "Situation summary and Trump translation", "frequency": "Every hour" },
-      { "source": "Trump Truth Social collection", "frequency": "Every 2 hours" },
-      { "source": "PortWatch, oil, gasoline, and cleanup", "frequency": "Daily at 06:00 UTC" }
+      {
+        "source": "AIS船舶位置および方向の推定",
+        "frequency": "20分ごと"
+      },
+      {
+        "source": "市場指標および5分足",
+        "frequency": "20分ごと"
+      },
+      {
+        "source": "関連イシュー (RSS)",
+        "frequency": "1時間ごと"
+      },
+      {
+        "source": "状況の要約およびトランプ氏投稿の翻訳",
+        "frequency": "1時間ごと"
+      },
+      {
+        "source": "トランプ氏のTruth Social収集",
+        "frequency": "2時間ごと"
+      },
+      {
+        "source": "PortWatch、原油、ガソリン、およびクリーンアップ",
+        "frequency": "毎日 06:00 UTC"
+      }
     ]
   },
-  "disclaimer": "All data is sourced from publicly available APIs and feeds. Hormuz Monitor is not affiliated with any of the data providers listed above."
+  "disclaimer": "すべてのデータは、公開されているAPIおよびフィードから取得されています。Hormuz Monitorは、上記のデータプロバイダーとは提携していません。"
 }

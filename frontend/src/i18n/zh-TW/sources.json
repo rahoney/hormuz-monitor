@@ -1,50 +1,50 @@
 {
-  "title": "Data Sources",
-  "subtitle": "Where does the data come from?",
-  "emptyState": "Source details will appear here",
+  "title": "數據來源",
+  "subtitle": "數據從何而來？",
+  "emptyState": "來源詳情將在此處顯示",
   "shipping": {
-    "heading": "Vessel Traffic",
+    "heading": "船隻流量",
     "items": [
-      { "name": "IMF PortWatch", "detail": "Daily chokepoint transit counts via ArcGIS REST API. Satellite AIS-based. Updated once per day.", "url": "https://portwatch.imf.org" },
-      { "name": "AISStream", "detail": "AIS vessel position stream used to estimate inbound and outbound movement over the latest 24 hours.", "url": "https://aisstream.io" },
-      { "name": "MarineTraffic (map)", "detail": "Live AIS vessel map embedded via iframe. Real-time vessel positions.", "url": "https://www.marinetraffic.com" }
+      { "name": "IMF PortWatch", "detail": "透過ArcGIS REST API獲取的每日咽喉要道通行量統計。基於衛星AIS。每天更新一次。", "url": "https://portwatch.imf.org" },
+      { "name": "AISStream", "detail": "用於估計過去24小時內進出港活動的AIS船隻位置流。", "url": "https://aisstream.io" },
+      { "name": "MarineTraffic (地圖)", "detail": "透過iframe嵌入的即時AIS船隻地圖。即時船隻位置。", "url": "https://www.marinetraffic.com" }
     ]
   },
   "oil": {
-    "heading": "Oil & Gas Prices",
+    "heading": "油氣價格",
     "items": [
-      { "name": "EIA (U.S. Energy Information Administration)", "detail": "WTI, Brent, Henry Hub natural gas, and U.S. gasoline price data.", "url": "https://www.eia.gov/opendata" },
-      { "name": "Yahoo Finance (yfinance)", "detail": "WTI and Brent futures plus major market indicators used as a fallback when spot data is delayed.", "url": "https://finance.yahoo.com" },
-      { "name": "TradingView", "detail": "Real-time price charts embedded via widget (TVC:USOIL, TVC:UKOIL, CAPITALCOM:NATURALGAS).", "url": "https://www.tradingview.com" }
+      { "name": "EIA (美國能源資訊局)", "detail": "WTI、Brent、Henry Hub 天然氣以及美國汽油價格數據。", "url": "https://www.eia.gov/opendata" },
+      { "name": "Yahoo Finance (yfinance)", "detail": "WTI和Brent期貨以及主要市場指標，作為現貨數據延遲時的備用數據源。", "url": "https://finance.yahoo.com" },
+      { "name": "TradingView", "detail": "透過小部件嵌入的即時價格圖表 (TVC:USOIL, TVC:UKOIL, CAPITALCOM:NATURALGAS)。", "url": "https://www.tradingview.com" }
     ]
   },
   "market": {
-    "heading": "Market Indicators",
+    "heading": "市場指標",
     "items": [
-      { "name": "Yahoo Finance (yfinance)", "detail": "Snapshots, 5-minute candles, and daily candles for VIX, Nasdaq, S&P 500, KOSPI, KOSDAQ, U.S. index futures, gold futures, the dollar index, gasoline futures, and heating oil futures.", "url": "https://finance.yahoo.com" }
+      { "name": "Yahoo Finance (yfinance)", "detail": "VIX、Nasdaq、S&P 500、KOSPI、KOSDAQ、美國指數期貨、黃金期貨、美元指數、汽油期貨及熱燃油期貨的快照、5分鐘線和日線。", "url": "https://finance.yahoo.com" }
     ]
   },
   "events": {
-    "heading": "Geopolitical Events",
+    "heading": "地緣政治事件",
     "items": [
-      { "name": "BBC Middle East RSS", "detail": "Middle East headlines from BBC News.", "url": "https://www.bbc.com/news/world/middle_east" },
-      { "name": "Anadolu Agency RSS", "detail": "Regional news from Turkey's state news agency.", "url": "https://www.aa.com.tr/en" },
-      { "name": "NYT and CNBC RSS", "detail": "English headlines related to the Middle East, energy, and global markets.", "url": "https://www.nytimes.com" },
-      { "name": "Reuters and AP News (Google News RSS)", "detail": "Relevant headlines from selected outlets through Google News RSS search feeds where official RSS access is limited.", "url": "https://news.google.com" },
-      { "name": "Yonhap, Korea Economic Daily, Maeil Business RSS", "detail": "Korean international and market headlines classified by keyword.", "url": "https://www.yna.co.kr" },
-      { "name": "Truth Social RSS", "detail": "Trump Truth Social posts collected and translated into Korean.", "url": "https://trumpstruth.org/feed" }
+      { "name": "BBC 中東 RSS", "detail": "來自 BBC News 的中東新聞頭條。", "url": "https://www.bbc.com/news/world/middle_east" },
+      { "name": "Anadolu Agency RSS", "detail": "土耳其國家通訊社的地區新聞。", "url": "https://www.aa.com.tr/en" },
+      { "name": "NYT 和 CNBC RSS", "detail": "與中東、能源及全球市場相關的英文頭條新聞。", "url": "https://www.nytimes.com" },
+      { "name": "Reuters 和 AP News (Google News RSS)", "detail": "透過 Google News RSS 搜尋獲取的精選媒體相關頭條新聞，適用於官方 RSS 存取受限的情況。", "url": "https://news.google.com" },
+      { "name": "韓聯社、韓國經濟新聞、每日經濟 RSS", "detail": "按關鍵字分類的韓國國際和市場新聞頭條。", "url": "https://www.yna.co.kr" },
+      { "name": "Truth Social RSS", "detail": "川普 Truth Social 貼文收集並翻譯為韓文。", "url": "https://trumpstruth.org/feed" }
     ]
   },
   "updateFrequency": {
-    "heading": "Update Frequency",
+    "heading": "更新頻率",
     "rows": [
-      { "source": "AIS vessel positions and direction estimates", "frequency": "Every 20 minutes" },
-      { "source": "Market indicators and 5-minute candles", "frequency": "Every 20 minutes" },
-      { "source": "Related issues (RSS)", "frequency": "Every hour" },
-      { "source": "Situation summary and Trump translation", "frequency": "Every hour" },
-      { "source": "Trump Truth Social collection", "frequency": "Every 2 hours" },
-      { "source": "PortWatch, oil, gasoline, and cleanup", "frequency": "Daily at 06:00 UTC" }
+      { "source": "AIS 船隻位置及方向估計", "frequency": "每 20 分鐘" },
+      { "source": "市場指標及 5 分鐘線", "frequency": "每 20 分鐘" },
+      { "source": "相關事件 (RSS)", "frequency": "每 1 小時" },
+      { "source": "局勢摘要及川普社群翻譯", "frequency": "每 1 小時" },
+      { "source": "川普 Truth Social 收集", "frequency": "每 2 小時" },
+      { "source": "PortWatch、原油、汽油及清理", "frequency": "每天 06:00 UTC" }
     ]
   },
-  "disclaimer": "All data is sourced from publicly available APIs and feeds. Hormuz Monitor is not affiliated with any of the data providers listed above."
+  "disclaimer": "所有數據均來自公開可用的API和數據源。Hormuz Monitor 與上述任何數據提供商均無關聯。"
 }

@@ -1,37 +1,37 @@
 {
-  "title": "Related Issues",
-  "subtitle": "Geopolitical events affecting the Hormuz Strait",
-  "emptyState": "No events recorded yet",
+  "title": "مسائل مرتبط",
+  "subtitle": "رویدادهای ژئوپلیتیک مؤثر بر تنگه هرمز",
+  "emptyState": "هنوز رویدادی ثبت نشده است",
   "tabs": {
-    "events": "Events",
-    "trump": "Trump Social"
+    "events": "رویدادها",
+    "trump": "اجتماعی ترامپ"
   },
   "filters": {
-    "all": "All",
-    "attack": "Attack",
-    "closure": "Closure",
-    "reopening": "Reopening",
-    "sanctions": "Sanctions",
-    "ceasefire": "Ceasefire",
-    "negotiation": "Negotiation",
-    "escort_operation": "Escort Op"
+    "all": "همه",
+    "attack": "حمله",
+    "closure": "بستن",
+    "reopening": "بازگشایی",
+    "sanctions": "تحریم‌ها",
+    "ceasefire": "آتش‌بس",
+    "negotiation": "مذاکره",
+    "escort_operation": "عملیات اسکورت"
   },
   "severity": {
-    "critical": "Critical",
-    "high": "High",
-    "medium": "Medium",
-    "low": "Low"
+    "critical": "بحرانی",
+    "high": "بالا",
+    "medium": "متوسط",
+    "low": "پایین"
   },
-  "source": "Source",
-  "noSource": "No source",
+  "source": "منبع",
+  "noSource": "بدون منبع",
   "articleSummary": {
-    "label": "Article Summary",
-    "loading": "Summarizing the article...",
-    "error": "Could not load the summary. Please open the original article.",
-    "openOriginal": "Open original",
-    "close": "Close",
-    "cached": "Cached summary",
-    "generated": "New summary",
-    "unknownSource": "No source"
+    "label": "خلاصه مقاله",
+    "loading": "در حال خلاصه‌سازی مقاله...",
+    "error": "خلاصه بارگذاری نشد. لطفاً مقاله اصلی را باز کنید.",
+    "openOriginal": "باز کردن اصلی",
+    "close": "بستن",
+    "cached": "خلاصه ذخیره شده",
+    "generated": "خلاصه جدید",
+    "unknownSource": "بدون منبع"
   }
 }

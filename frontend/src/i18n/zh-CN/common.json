@@ -1,20 +1,20 @@
 {
   "nav": {
-    "dashboard": "Dashboard",
-    "events": "Related Issues",
-    "about": "About"
+    "dashboard": "仪表板",
+    "events": "相关事件",
+    "about": "关于"
   },
   "footer": {
-    "copyright": "© 2026 Hormuz Monitor by WikiHoney. All rights reserved.",
-    "supportText": "Support this project",
-    "supportKr": "KR Support",
-    "supportGlobal": "Global Support",
-    "otherProjects": "Other Projects"
+    "copyright": "© 2026 Hormuz Monitor by WikiHoney. 保留所有权利。",
+    "supportText": "支持本项目",
+    "supportKr": "韩国支持",
+    "supportGlobal": "全球支持",
+    "otherProjects": "其他项目"
   },
   "status": {
-    "loading": "Loading...",
-    "noData": "No data available",
-    "error": "Failed to load data",
-    "lastUpdated": "Last updated"
+    "loading": "加载中...",
+    "noData": "暂无数据",
+    "error": "数据加载失败",
+    "lastUpdated": "最后更新"
   }
 }

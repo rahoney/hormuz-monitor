@@ -1,37 +1,37 @@
 {
-  "title": "Related Issues",
-  "subtitle": "Geopolitical events affecting the Hormuz Strait",
-  "emptyState": "No events recorded yet",
+  "title": "相關事件",
+  "subtitle": "影響霍爾木茲海峽的地緣政治事件",
+  "emptyState": "暫無事件記錄",
   "tabs": {
-    "events": "Events",
-    "trump": "Trump Social"
+    "events": "事件",
+    "trump": "川普社群"
   },
   "filters": {
-    "all": "All",
-    "attack": "Attack",
-    "closure": "Closure",
-    "reopening": "Reopening",
-    "sanctions": "Sanctions",
-    "ceasefire": "Ceasefire",
-    "negotiation": "Negotiation",
-    "escort_operation": "Escort Op"
+    "all": "全部",
+    "attack": "襲擊",
+    "closure": "封鎖",
+    "reopening": "重新開放",
+    "sanctions": "制裁",
+    "ceasefire": "停火",
+    "negotiation": "談判",
+    "escort_operation": "護航行動"
   },
   "severity": {
-    "critical": "Critical",
-    "high": "High",
-    "medium": "Medium",
-    "low": "Low"
+    "critical": "危急",
+    "high": "高",
+    "medium": "中",
+    "low": "低"
   },
-  "source": "Source",
-  "noSource": "No source",
+  "source": "來源",
+  "noSource": "無來源",
   "articleSummary": {
-    "label": "Article Summary",
-    "loading": "Summarizing the article...",
-    "error": "Could not load the summary. Please open the original article.",
-    "openOriginal": "Open original",
-    "close": "Close",
-    "cached": "Cached summary",
-    "generated": "New summary",
-    "unknownSource": "No source"
+    "label": "文章摘要",
+    "loading": "正在總結文章...",
+    "error": "無法載入摘要，請打開原文。",
+    "openOriginal": "打開原文",
+    "close": "關閉",
+    "cached": "快取摘要",
+    "generated": "最新摘要",
+    "unknownSource": "無來源"
   }
 }
