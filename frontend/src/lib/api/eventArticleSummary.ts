@@ -1,8 +1,7 @@
 import type { EventArticleSummary } from "@/types";
 
 export async function fetchEventArticleSummary(eventId: number, locale: string): Promise<EventArticleSummary> {
-  const normalizedLocale = locale.startsWith("ko") ? "ko" : "en";
-  const response = await fetch(`/api/events/${eventId}/summary?locale=${normalizedLocale}`, {
+  const response = await fetch(`/api/events/${eventId}/summary?locale=${encodeURIComponent(locale)}`, {
     method: "POST",
   });
   if (!response.ok) {
