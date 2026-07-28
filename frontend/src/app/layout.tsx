@@ -47,6 +47,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
   return {
     metadataBase: new URL(SITE_URL),
+
     title: "Hormuz Monitor",
     description: "Key information is gathered in one place so you can assess the strait situation at a glance.",
     other: {
