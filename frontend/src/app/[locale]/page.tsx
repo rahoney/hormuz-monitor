@@ -32,48 +32,13 @@ import {
   getCachedWeeklyTransitSummary,
 } from "@/lib/api/dashboard-cache";
 import { makePageMetadata } from "@/lib/seo";
-
-const META = {
-  ko: {
-    title: "호르무즈 해협 실시간 모니터 | 위험 지수, 선박 통행, 유가",
-    description: "호르무즈 해협 실시간 지도 상황, 선박 통행량, 유가, 미국과 한국 주식 시장 지표, 트럼프 SNS와 관련 이슈를 확인하는 대시보드.",
-    keywords: [
-      "호르무즈 해협",
-      "호르무즈 해협 실시간",
-      "호르무즈 모니터",
-      "호르무즈 해협 모니터",
-      "호르무즈 해협 지도 실시간",
-      "미국 이란 전쟁 현황",
-      "이란 전쟁 실시간",
-      "유가 실시간",
-      "WTI 유가 실시간",
-      "브렌트유 실시간",
-      "미국 휘발유 가격",
-    ],
-  },
-  en: {
-    title: "Strait of Hormuz News Today | US, Iran, Trump, Oil Price & Map",
-    description: "Track the Strait of Hormuz today — Iran conflict, Trump updates, live oil price, vessel traffic map, and market indicators in one real-time dashboard.",
-    keywords: [
-      "Strait of Hormuz",
-      "Hormuz Monitor",
-      "Hormuz tracker",
-      "Strait of Hormuz live map",
-      "U.S. Iran conflict",
-      "oil price live",
-      "WTI oil price",
-      "Brent oil price",
-      "vessel traffic",
-      "U.S. gasoline prices",
-    ],
-  },
-} as const;
+import { seoMetadata } from "@/lib/seo-metadata";
 
 type MetadataProps = { params: Promise<{ locale: string }> };
 
 export async function generateMetadata({ params }: MetadataProps): Promise<Metadata> {
   const { locale } = await params;
-  const meta = locale === "ko" ? META.ko : META.en;
+  const meta = seoMetadata[locale] ?? seoMetadata.en;
   return makePageMetadata({ locale, path: "/", title: meta.title, description: meta.description, keywords: meta.keywords });
 }
 
