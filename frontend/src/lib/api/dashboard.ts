@@ -17,6 +17,29 @@ export async function fetchLatestSummary(): Promise<SituationSummary | null> {
   return data ?? null;
 }
 
+export async function fetchLatestSummaryForLocale(locale: string): Promise<SituationSummary | null> {
+  const summary = await fetchLatestSummary();
+  if (!summary) return null;
+  if (locale === "ko" || locale === "en") return summary;
+
+  const { data: translation } = await supabase
+    .from("situation_summary_translations")
+    .select("summary_text, summary_structured")
+    .eq("summary_id", summary.id)
+    .eq("locale", locale)
+    .maybeSingle();
+
+  if (translation) {
+    return {
+      ...summary,
+      summary_en: translation.summary_text || summary.summary_en,
+      summary_en_structured: translation.summary_structured || summary.summary_en_structured,
+    };
+  }
+
+  return summary;
+}
+
 export async function fetchRiskScoreHistory(): Promise<RiskScoreHistory[]> {
   const since = new Date(Date.now() - 65 * 86_400_000).toISOString().slice(0, 10);
   const { data } = await supabase

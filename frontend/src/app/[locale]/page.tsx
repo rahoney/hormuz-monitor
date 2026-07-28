@@ -21,7 +21,7 @@ import {
   getCachedGasolinePrices,
   getCachedLatestMarketSnapshots,
   getCachedLatestStraitMetric,
-  getCachedLatestSummary,
+  getCachedLatestSummaryForLocale,
   getCachedMarketIntraday,
   getCachedMarketOHLCV,
   getCachedOilPriceSeries,
@@ -87,7 +87,7 @@ export default async function DashboardPage({ params }: Props) {
     getCachedTransitSeries(90),
     getCachedGasolinePrices(90),
     getCachedTrumpPosts(20),
-    getCachedLatestSummary(),
+    getCachedLatestSummaryForLocale(locale),
     getCachedRiskScoreHistory(),
   ]);
 
