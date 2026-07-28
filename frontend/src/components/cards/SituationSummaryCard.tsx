@@ -115,12 +115,19 @@ export default function SituationSummaryCard({ summary }: Props) {
     return () => window.clearTimeout(timer);
   }, []);
 
-  // 12개 신규 언어 접속 시 온디맨드 구조화 AI 번역 API 호출
+  const hasServerTranslation = Boolean(
+    summary
+    && summary.locale_translated === locale
+    && (isStructuredSummary(summary.summary_translated_structured) || summary.summary_translated_text)
+  );
+
+  // 12개 신규 언어 접속 시 서버 번역 데이터가 없을 때만 온디맨드 구조화 AI 번역 API 호출
   useEffect(() => {
-    if (!summary || locale === "ko" || locale === "en") {
+    if (!summary || locale === "ko" || locale === "en" || hasServerTranslation) {
       setTranslatedText(null);
       setTranslatedStructured(null);
       setTranslationFailed(false);
+      setLoadingTranslation(false);
       return;
     }
 
@@ -154,23 +161,32 @@ export default function SituationSummaryCard({ summary }: Props) {
     return () => {
       cancelled = true;
     };
-  }, [summary, locale]);
+  }, [summary, locale, hasServerTranslation]);
+
+  const isCustomLocale = locale !== "ko" && locale !== "en";
 
   const baseText = summary
     ? (locale === "ko" ? summary.summary_ko : (summary.summary_en || summary.summary_ko))
     : null;
 
-  const isCustomLocale = locale !== "ko" && locale !== "en";
-  const text = isCustomLocale ? translatedText : baseText;
+  const serverTranslatedText = (summary && summary.locale_translated === locale) ? (summary.summary_translated_text ?? null) : null;
+  const text = isCustomLocale ? (serverTranslatedText || translatedText) : baseText;
 
   const baseStructuredCandidate = summary
     ? (locale === "ko" ? summary.summary_ko_structured : (summary.summary_en_structured || summary.summary_ko_structured))
     : null;
+
   const baseStructured = (locale === "ko" || locale === "en") && isStructuredSummary(baseStructuredCandidate)
     ? baseStructuredCandidate
     : null;
 
-  const structuredToRender = isCustomLocale ? translatedStructured : baseStructured;
+  const serverTranslatedStructured = (summary && summary.locale_translated === locale && isStructuredSummary(summary.summary_translated_structured))
+    ? summary.summary_translated_structured
+    : null;
+
+  const structuredToRender = isCustomLocale
+    ? (serverTranslatedStructured || translatedStructured)
+    : baseStructured;
 
   const updatedAt = summary ? formatUpdatedAt(summary.generated_at, locale, timeZone) : null;
 

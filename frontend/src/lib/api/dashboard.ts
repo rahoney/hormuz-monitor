@@ -32,8 +32,9 @@ export async function fetchLatestSummaryForLocale(locale: string): Promise<Situa
   if (translation) {
     return {
       ...summary,
-      summary_en: translation.summary_text || summary.summary_en,
-      summary_en_structured: translation.summary_structured || summary.summary_en_structured,
+      summary_translated_text: translation.summary_text,
+      summary_translated_structured: translation.summary_structured as any,
+      locale_translated: locale,
     };
   }
 
