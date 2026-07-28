@@ -72,8 +72,11 @@
   },
   "status": {
     "normal": "Normal",
-    "restricted": "Restricted",
-    "highRisk": "High Risk",
+    "slightly_delayed": "Slightly Delayed",
+    "congested": "Congested",
+    "high_risk": "High Risk",
+    "critical": "Critical",
+    "blockade_level": "Blockade Level",
     "unknown": "Unknown"
   },
   "trump": {
@@ -92,15 +95,6 @@
     "region": "region",
     "noData": "No gasoline price data"
   },
-  "status": {
-    "normal": "Normal",
-    "slightly_delayed": "Slightly Delayed",
-    "congested": "Congested",
-    "high_risk": "High Risk",
-    "critical": "Critical",
-    "blockade_level": "Blockade Level",
-    "unknown": "Unknown"
-  },
   "gauge": {
     "title": "Hormuz Risk Index",
     "safe": "SAFE",
@@ -114,7 +108,8 @@
     "hist2d": "2D ago",
     "hist1w": "1W ago",
     "hist2w": "2W ago",
-    "hist1m": "1M ago"
+    "hist1m": "1M ago",
+    "hist2m": "2M ago"
   },
   "summary": {
     "title": "Situation Summary",
