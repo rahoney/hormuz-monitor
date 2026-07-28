@@ -4,5 +4,9 @@ import { routing } from "./i18n/routing";
 export default createMiddleware(routing);
 
 export const config = {
-  matcher: ["/((?!api|_next|_vercel|.*\\..*).*)"],
+  // next-intl 라우트 매칭: 정적 자산, API 경로 제외
+  matcher: [
+    "/",
+    "/(ar|de|en|es|fa|fr|it|ja|ko|pt-BR|ru|tr|zh-CN|zh-TW)/:path*",
+  ],
 };
