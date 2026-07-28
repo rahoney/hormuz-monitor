@@ -43,7 +43,7 @@ const CATEGORIES = [
   {
     id: "macro",
     labels: {
-      en: "Rates & Commodities", ko: "금리/원자재/외환", ar: "الفائدة والسلع", fa: "نرخ‌ها و کالاها", ja: "금리・원자재・외환",
+      en: "Rates & Commodities", ko: "금리/원자재/외환", ar: "الفائدة والسلع", fa: "نرخ‌ها و کالاها", ja: "金利・コモディティ・為替",
       es: "Tasas y Materias Primas", tr: "Faiz ve Emtialar", de: "Zinsen & Rohstoffe", fr: "Taux et Matières Premières", "pt-BR": "Juros e Commodities",
       it: "Tassi e Commodity", "zh-CN": "利率与商品", "zh-TW": "利率與商品", ru: "Ставки и товары"
     }
