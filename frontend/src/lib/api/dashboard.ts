@@ -1,6 +1,11 @@
 import { supabase } from "@/lib/supabase";
 import type { Event, GasolinePrice, MarketOHLCV, MarketSnapshot, OilPriceSeries, RiskScoreHistory, SituationSummary, StraitMetric, TransitRecord, TrumpPost, WeeklyTransitSummary, StatusLevel } from "@/types";
-import { ALL_SYMBOLS } from "@/components/cards/MarketSnapshotCards";
+
+const MARKET_SYMBOLS = [
+  "SP500", "NASDAQ", "ES_FUTURES", "NQ_FUTURES", "VIX",
+  "KOSPI", "KOSDAQ", "STOXX600", "NIKKEI225", "HANG_SENG", "SHANGHAI",
+  "US10Y", "GOLD_FUTURES", "USD_INDEX", "GASOLINE_FUTURES", "HEATING_OIL_FUTURES"
+];
 
 export async function fetchLatestSummary(): Promise<SituationSummary | null> {
   const { data } = await supabase
@@ -127,11 +132,10 @@ export async function fetchLatestOilPrices(): Promise<Record<string, OilPriceSer
 }
 
 export async function fetchLatestMarketSnapshots(): Promise<Record<string, MarketSnapshot>> {
-  const symbols = [...ALL_SYMBOLS];
   const { data } = await supabase
     .from("market_snapshots")
     .select("symbol, snapshot_date, price, change_pct, source")
-    .in("symbol", symbols)
+    .in("symbol", MARKET_SYMBOLS)
     .order("snapshot_date", { ascending: false })
     .limit(1000);
 
@@ -144,10 +148,9 @@ export async function fetchLatestMarketSnapshots(): Promise<Record<string, Marke
 
 export async function fetchMarketIntraday(): Promise<Record<string, { time: string; price: number }[]>> {
   const since = new Date(Date.now() - 10 * 86_400_000).toISOString();
-  const symbols = [...ALL_SYMBOLS];
 
   const fetches = await Promise.all(
-    symbols.map((symbol) =>
+    MARKET_SYMBOLS.map((symbol) =>
       supabase
         .from("market_intraday")
         .select("recorded_at, price")
@@ -167,11 +170,10 @@ export async function fetchMarketIntraday(): Promise<Record<string, { time: stri
 
 export async function fetchMarketOHLCV(): Promise<Record<string, MarketOHLCV[]>> {
   const since = new Date(Date.now() - 90 * 86_400_000).toISOString().slice(0, 10);
-  const symbols = [...ALL_SYMBOLS];
   const { data } = await supabase
     .from("market_ohlcv")
     .select("symbol, price_date, open, high, low, close")
-    .in("symbol", symbols)
+    .in("symbol", MARKET_SYMBOLS)
     .gte("price_date", since)
     .order("price_date", { ascending: true });
 
@@ -185,11 +187,10 @@ export async function fetchMarketOHLCV(): Promise<Record<string, MarketOHLCV[]>>
 
 export async function fetchMarketHistory(days = 30): Promise<Record<string, { date: string; price: number }[]>> {
   const since = new Date(Date.now() - days * 86_400_000).toISOString().slice(0, 10);
-  const symbols = [...ALL_SYMBOLS];
   const { data } = await supabase
     .from("market_snapshots")
     .select("symbol, snapshot_date, price")
-    .in("symbol", symbols)
+    .in("symbol", MARKET_SYMBOLS)
     .gte("snapshot_date", since)
     .order("snapshot_date", { ascending: true });
 

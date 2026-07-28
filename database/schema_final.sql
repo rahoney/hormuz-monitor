@@ -273,6 +273,30 @@ CREATE POLICY "public read" ON trump_posts FOR SELECT USING (true);
 
 
 -- ============================================================
+-- 트럼프 소셜 미디어 포스트 다국어 번역 캐시
+-- ============================================================
+CREATE TABLE IF NOT EXISTS trump_post_translations (
+    id                  bigserial   PRIMARY KEY,
+    post_id             bigint      NOT NULL REFERENCES trump_posts (id) ON DELETE CASCADE,
+    locale              text        NOT NULL CHECK (locale IN (
+                            'ar', 'fa', 'ja', 'es', 'tr',
+                            'de', 'fr', 'pt-BR', 'it', 'zh-CN', 'zh-TW', 'ru'
+                        )),
+    content_translated  text        NOT NULL,
+    model               text,
+    created_at          timestamptz NOT NULL DEFAULT now(),
+    UNIQUE (post_id, locale)
+);
+
+CREATE INDEX IF NOT EXISTS idx_trump_trans_post_locale
+    ON trump_post_translations (post_id, locale);
+
+ALTER TABLE trump_post_translations ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "public read" ON trump_post_translations FOR SELECT USING (true);
+
+
+
+-- ============================================================
 -- 상황 요약 (AI 생성, + geo_score from 010, + structured summaries)
 -- ============================================================
 CREATE TABLE IF NOT EXISTS situation_summaries (
@@ -394,6 +418,7 @@ GRANT SELECT ON TABLE
     public.events,
     public.event_timeline_markers,
     public.trump_posts,
+    public.trump_post_translations,
     public.situation_summaries,
     public.situation_summary_translations,
     public.risk_score_history
@@ -413,6 +438,7 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE
     public.event_article_summaries,
     public.event_timeline_markers,
     public.trump_posts,
+    public.trump_post_translations,
     public.situation_summaries,
     public.situation_summary_translations,
     public.risk_score_history,
