@@ -214,7 +214,10 @@ CREATE TABLE IF NOT EXISTS event_article_summaries (
     id          bigserial   PRIMARY KEY,
     event_id    bigint      NOT NULL REFERENCES events (id) ON DELETE CASCADE,
     source_url  text,
-    locale      text        NOT NULL CHECK (locale IN ('ko', 'en')),
+    locale      text        NOT NULL CHECK (locale IN (
+                    'ko', 'en', 'ar', 'fa', 'ja', 'es', 'tr',
+                    'de', 'fr', 'pt-BR', 'it', 'zh-CN', 'zh-TW', 'ru'
+                )),
     summary     text        NOT NULL,
     model       text,
     created_at  timestamptz NOT NULL DEFAULT now(),
@@ -286,6 +289,34 @@ CREATE INDEX IF NOT EXISTS idx_situation_summaries_generated_at ON situation_sum
 
 ALTER TABLE situation_summaries ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "public read" ON situation_summaries FOR SELECT USING (true);
+
+
+-- ============================================================
+-- 상황 요약 다국어 번역 캐시 (온디맨드 AI 번역 결과 저장)
+-- ko/en 기본 요약은 situation_summaries에 저장되고,
+-- 나머지 12개 언어 접속 시 온디맨드로 번역 후 이 테이블에 캐시한다.
+-- ============================================================
+CREATE TABLE IF NOT EXISTS situation_summary_translations (
+    id                  bigserial   PRIMARY KEY,
+    summary_id          bigint      NOT NULL REFERENCES situation_summaries (id) ON DELETE CASCADE,
+    locale              text        NOT NULL CHECK (locale IN (
+                            'ar', 'fa', 'ja', 'es', 'tr',
+                            'de', 'fr', 'pt-BR', 'it', 'zh-CN', 'zh-TW', 'ru'
+                        )),
+    summary_text        text        NOT NULL,
+    summary_structured  jsonb,
+    model               text,
+    created_at          timestamptz NOT NULL DEFAULT now(),
+    UNIQUE (summary_id, locale)
+);
+
+CREATE INDEX IF NOT EXISTS idx_situation_trans_summary_locale
+    ON situation_summary_translations (summary_id, locale);
+CREATE INDEX IF NOT EXISTS idx_situation_trans_created_at
+    ON situation_summary_translations (created_at DESC);
+
+ALTER TABLE situation_summary_translations ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "public read" ON situation_summary_translations FOR SELECT USING (true);
 
 
 -- ============================================================
@@ -364,6 +395,7 @@ GRANT SELECT ON TABLE
     public.event_timeline_markers,
     public.trump_posts,
     public.situation_summaries,
+    public.situation_summary_translations,
     public.risk_score_history
 TO anon, authenticated;
 
@@ -382,6 +414,7 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE
     public.event_timeline_markers,
     public.trump_posts,
     public.situation_summaries,
+    public.situation_summary_translations,
     public.risk_score_history,
     public.source_runs,
     public.source_errors
@@ -389,3 +422,4 @@ TO service_role;
 
 -- Required for inserts into bigserial-backed tables through PostgREST.
 GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO service_role;
+
