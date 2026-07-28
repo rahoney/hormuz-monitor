@@ -37,6 +37,21 @@ const LOCALE_NAME_MAP: Record<string, string> = {
   ru: "Russian",
 };
 
+const SECTION_TITLES: Record<string, [string, string, string, string]> = {
+  ar: ["الوضع الرئيسي", "التحركات العسكرية والدبلوماسية", "رد فعل السوق", "الرؤية والنقاط المرتقبة"],
+  fa: ["وضعیت اصلی", "تحرکات نظامی و دیپلماتیک", "واکنش بازار", "چشم‌انداز و نقاط کلیدی"],
+  ja: ["主な状況", "軍事・外交の動き", "市場の反応", "見通しと注視ポイント"],
+  es: ["Situación principal", "Movimientos militares y diplomáticos", "Reacción del mercado", "Perspectivas y puntos a vigilar"],
+  tr: ["Ana Durum", "Askeri ve Diplomatik Hareketler", "Piyasa Tepkisi", "Görünüm ve Takip Noktaları"],
+  de: ["Kernsituation", "Militärische & diplomatische Schritte", "Marktreaktion", "Ausblick & Beobachtungspunkte"],
+  fr: ["Situation principale", "Mouvements militaires et diplomatiques", "Réaction du marché", "Perspectives et points clés"],
+  "pt-BR": ["Situação principal", "Movimentos militares e diplomáticos", "Reação do mercado", "Perspectivas e pontos de atenção"],
+  it: ["Situazione principale", "Mosse militari e diplomatiche", "Reazione del mercato", "Prospettive e punti chiave"],
+  "zh-CN": ["核心局势", "军事与外交动态", "市场反应", "前景与关注要点"],
+  "zh-TW": ["核心局勢", "軍事與外交動態", "市場反應", "前景與關注要點"],
+  ru: ["Ключевая ситуация", "Военно-дипломатические шаги", "Реакция рынка", "Перспективы и контрольные точки"],
+};
+
 function serviceClient() {
   const url = process.env.SUPABASE_URL ?? process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -61,30 +76,82 @@ function normalizeModel(model: string): string {
   return model.startsWith("models/") ? model : `models/${model}`;
 }
 
-async function translateText(text: string, targetLocale: string): Promise<{ translatedText: string; model: string }> {
+type StructuredSummary = {
+  version: 1;
+  sections: Array<{
+    title: string;
+    body: string;
+    highlights: Array<{ text: string; tone: "risk" | "market" | "watch" }>;
+  }>;
+};
+
+async function translateAndStructure(
+  sourceStructured: StructuredSummary | null,
+  sourceText: string,
+  targetLocale: string
+): Promise<{ summaryText: string; structuredData: StructuredSummary; model: string }> {
   const apiKey = process.env.GOOGLE_GEMINI_API_KEY;
   if (!apiKey) {
     throw new Error("GOOGLE_GEMINI_API_KEY is not set");
   }
 
   const targetLang = LOCALE_NAME_MAP[targetLocale] ?? "English";
+  const titles = SECTION_TITLES[targetLocale] ?? ["Core situation", "Military and diplomatic moves", "Market reaction", "Outlook and watch points"];
+
   const prompt = `
 Translate the following situation summary report into ${targetLang}.
+You must produce a valid JSON object matching the structured schema below.
+
+JSON Schema:
+{
+  "version": 1,
+  "sections": [
+    {
+      "title": "${titles[0]}",
+      "body": "Translated body paragraph for section 1",
+      "highlights": [
+        { "text": "exact sub-phrase in translated body", "tone": "risk" }
+      ]
+    },
+    {
+      "title": "${titles[1]}",
+      "body": "Translated body paragraph for section 2",
+      "highlights": [
+        { "text": "exact sub-phrase in translated body", "tone": "watch" }
+      ]
+    },
+    {
+      "title": "${titles[2]}",
+      "body": "Translated body paragraph for section 3",
+      "highlights": [
+        { "text": "exact sub-phrase in translated body", "tone": "market" }
+      ]
+    },
+    {
+      "title": "${titles[3]}",
+      "body": "Translated body paragraph for section 4",
+      "highlights": [
+        { "text": "exact sub-phrase in translated body", "tone": "watch" }
+      ]
+    }
+  ]
+}
 
 Rules:
-- Preserve the exact bullet labels and structure if any.
-- Do not add or remove facts or statements.
 - Translate accurately and naturally into ${targetLang}.
-- Keep formatting clean with no extra titles.
+- Keep 4 sections exactly with the given section titles: "${titles[0]}", "${titles[1]}", "${titles[2]}", "${titles[3]}".
+- In each section's "highlights", pick 1-3 key terms or short phrases that appear EXACTLY in that section's "body" string, with tone being one of "risk", "market", or "watch".
+- Output strictly valid JSON with NO markdown code fences or conversational text.
 
-Original Text:
-${text}
+Original Source Report:
+${sourceStructured ? JSON.stringify(sourceStructured, null, 2) : sourceText}
 `.trim();
 
   const payload = {
     contents: [{ parts: [{ text: prompt }] }],
     generationConfig: {
-      maxOutputTokens: 1500,
+      responseMimeType: "application/json",
+      maxOutputTokens: 2048,
       temperature: 0.1,
     },
   };
@@ -100,18 +167,20 @@ ${text}
       const data = await response.json();
       const candidates = data?.candidates;
       if (!Array.isArray(candidates) || candidates.length === 0) continue;
-      const parts = candidates[0]?.content?.parts;
-      if (!Array.isArray(parts) || parts.length === 0) continue;
-      const translatedText = parts.map((p: any) => p.text || "").join("").trim();
-      if (translatedText) {
-        return { translatedText, model };
+      const rawJsonStr = candidates[0]?.content?.parts?.[0]?.text?.trim() ?? "";
+      if (!rawJsonStr) continue;
+
+      const parsed: StructuredSummary = JSON.parse(rawJsonStr);
+      if (parsed.version === 1 && Array.isArray(parsed.sections) && parsed.sections.length === 4) {
+        const plainText = parsed.sections.map((s) => `- ${s.title}:\n${s.body}`).join("\n\n");
+        return { summaryText: plainText, structuredData: parsed, model };
       }
     } catch {
       continue;
     }
   }
 
-  throw new Error("Gemini translation failed across all models");
+  throw new Error("Gemini structured translation failed across all models");
 }
 
 export async function GET(request: Request) {
@@ -138,7 +207,7 @@ export async function GET(request: Request) {
       return NextResponse.json({ ...cached, cached: true });
     }
 
-    // 2. 원본 situation_summary 조회 (영어 원문 우선, 없으면 한국어)
+    // 2. 원본 situation_summary 조회
     const { data: summaryRow } = await supabase
       .from("situation_summaries")
       .select("id,summary_en,summary_ko,summary_en_structured,summary_ko_structured")
@@ -149,20 +218,26 @@ export async function GET(request: Request) {
       return NextResponse.json({ detail: "situation summary not found" }, { status: 404 });
     }
 
+    const sourceStructured: StructuredSummary | null = summaryRow.summary_en_structured || summaryRow.summary_ko_structured;
     const sourceText = summaryRow.summary_en || summaryRow.summary_ko;
-    if (!sourceText) {
+
+    if (!sourceText && !sourceStructured) {
       return NextResponse.json({ detail: "source text is empty" }, { status: 422 });
     }
 
-    // 3. 온디맨드 AI 번역 수행
-    const { translatedText, model } = await translateText(sourceText, locale);
+    // 3. 단 1회 AI 호출로 구조화 번역 + 컬러 하이라이트 생성
+    const { summaryText, structuredData, model } = await translateAndStructure(
+      sourceStructured,
+      sourceText,
+      locale
+    );
 
     // 4. DB 캐시에 저장
     const record = {
       summary_id: summaryId,
       locale,
-      summary_text: translatedText,
-      summary_structured: null,
+      summary_text: summaryText,
+      summary_structured: structuredData,
       model,
     };
 

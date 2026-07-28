@@ -20,7 +20,7 @@ const TTL = {
   shipping: 425,
   riskAndTransitSummary: 513,
   events: 1636,
-  trump: 3477,
+  trump: 180,
   daily: 7269,
 } as const;
 
