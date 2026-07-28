@@ -26,7 +26,7 @@ const META = {
     ],
   },
   en: {
-    title: "Hormuz Related Issues | U.S.-Iran Conflict, Trump Social, Oil Impact",
+    title: "Strait of Hormuz News | Iran, Trump & Oil Price Impact",
     description: "Track Strait of Hormuz related issues, U.S.-Iran conflict updates, Trump Truth Social posts, oil market impact, and AI article summaries in one page.",
     keywords: [
       "Hormuz related issues",
