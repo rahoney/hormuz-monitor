@@ -1,4 +1,4 @@
-"""Event article summary cache and generation."""
+"""Event article summary cache and generation with 14-locale support and 2-step token-efficient translation."""
 from __future__ import annotations
 
 import json
@@ -9,13 +9,33 @@ from db.select import fetch
 from db.upsert import upsert
 from utils.gemini_client import GeminiError, generate_text
 
-Locale = Literal["ko", "en"]
+Locale = Literal[
+    "ko", "en", "ar", "fa", "ja", "es", "tr",
+    "de", "fr", "pt-BR", "it", "zh-CN", "zh-TW", "ru"
+]
 
 _DEFAULT_MODELS = (
     "models/gemini-3.1-flash-lite",
     "models/gemini-2.5-flash",
     "models/gemini-3-flash-preview",
 )
+
+_LOCALE_NAMES: dict[str, str] = {
+    "ko": "Korean",
+    "en": "English",
+    "ar": "Arabic",
+    "fa": "Persian",
+    "ja": "Japanese",
+    "es": "Spanish",
+    "tr": "Turkish",
+    "de": "German",
+    "fr": "French",
+    "pt-BR": "Brazilian Portuguese",
+    "it": "Italian",
+    "zh-CN": "Simplified Chinese",
+    "zh-TW": "Traditional Chinese",
+    "ru": "Russian",
+}
 
 
 def _summary_models() -> list[str]:
@@ -36,7 +56,7 @@ def _load_event(event_id: int) -> dict[str, Any]:
     return rows[0]
 
 
-def _load_cached(event_id: int, locale: Locale) -> dict[str, Any] | None:
+def _load_cached(event_id: int, locale: str) -> dict[str, Any] | None:
     rows = fetch(
         "event_article_summaries",
         columns="event_id,source_url,locale,summary,model,created_at",
@@ -47,8 +67,8 @@ def _load_cached(event_id: int, locale: Locale) -> dict[str, Any] | None:
     return rows[0] if rows else None
 
 
-def _prompt(event: dict[str, Any], locale: Locale) -> str:
-    language = "Korean" if locale == "ko" else "English"
+def _full_prompt(event: dict[str, Any], locale: str) -> str:
+    language = _LOCALE_NAMES.get(locale, "English")
     source_summary = event.get("summary") or ""
     return f"""
 You summarize a news item for a Hormuz Strait monitoring dashboard.
@@ -74,6 +94,24 @@ Severity: {event.get("severity") or ""}
 Published at: {event.get("published_at") or event.get("event_date") or ""}
 Existing excerpt/summary: {source_summary}
 Original URL: {event.get("source_url") or ""}
+""".strip()
+
+
+def _translate_prompt(base_summary: str, target_locale: str) -> str:
+    target_language = _LOCALE_NAMES.get(target_locale, "English")
+    return f"""
+Translate the following article summary into {target_language}.
+
+Rules:
+- Preserve the exact meaning and tone.
+- Do not add or remove information.
+- Keep the same 3 to 5 sentence structure.
+- Do not include markdown.
+- Return only one JSON object: {{"summary":"..."}}
+- If strict JSON is not possible, return only the summary text.
+
+Summary to translate:
+{base_summary}
 """.strip()
 
 
@@ -110,8 +148,19 @@ def get_or_create_summary(event_id: int, locale: Locale) -> dict[str, Any]:
             "cached": True,
         }
 
+    # 토큰 효율화: 요청된 locale 캐시가 없고 en/ko가 아니면 기존 en/ko 요약을 바탕으로 번역 수행
+    prompt_str: str
+    base_cached: dict[str, Any] | None = None
+    if locale not in ("en", "ko"):
+        base_cached = _load_cached(event_id, "en") or _load_cached(event_id, "ko")
+
+    if base_cached and base_cached.get("summary"):
+        prompt_str = _translate_prompt(base_cached["summary"], locale)
+    else:
+        prompt_str = _full_prompt(event, locale)
+
     result = generate_text(
-        _prompt(event, locale),
+        prompt_str,
         task="event_article_summary",
         models=_summary_models(),
         max_output_tokens=420,
