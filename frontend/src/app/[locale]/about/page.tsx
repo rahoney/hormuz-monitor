@@ -11,7 +11,7 @@ const META = {
     keywords: ["호르무즈 모니터", "호르무즈 해협 모니터", "호르무즈 해협 트래커", "호르무즈 해협 지도", "호르무즈 해협 실시간 상황", "트럼프 SNS"],
   },
   en: {
-    title: "About Hormuz Monitor | Vessel Traffic, Oil, Markets, and Issues Dashboard",
+    title: "About Strait of Hormuz Monitor | Map, Oil Price, News, Iran & Trump",
     description: "Hormuz Monitor is a personal dashboard project for tracking Strait of Hormuz live conditions, vessel traffic, oil prices, U.S. gasoline prices, stock markets, related news, and Trump social posts.",
     keywords: ["Hormuz Monitor", "Strait of Hormuz monitor", "Hormuz tracker", "Strait of Hormuz map", "Strait of Hormuz live status", "Trump social"],
   },
