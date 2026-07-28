@@ -1,0 +1,37 @@
+{
+  "title": "Problemi Correlati",
+  "subtitle": "Eventi geopolitici che interessano lo Stretto di Hormuz",
+  "emptyState": "Nessun evento ancora registrato",
+  "tabs": {
+    "events": "Eventi",
+    "trump": "Trump Social"
+  },
+  "filters": {
+    "all": "Tutti",
+    "attack": "Attacco",
+    "closure": "Chiusura",
+    "reopening": "Riapertura",
+    "sanctions": "Sanzioni",
+    "ceasefire": "Cessate il fuoco",
+    "negotiation": "Negoziati",
+    "escort_operation": "Op. di scorta"
+  },
+  "severity": {
+    "critical": "Critica",
+    "high": "Alta",
+    "medium": "Media",
+    "low": "Bassa"
+  },
+  "source": "Fonte",
+  "noSource": "Nessuna fonte",
+  "articleSummary": {
+    "label": "Riepilogo articolo",
+    "loading": "Creazione del riepilogo in corso...",
+    "error": "Impossibile caricare il riepilogo. Apri l'articolo originale.",
+    "openOriginal": "Apri originale",
+    "close": "Chiudi",
+    "cached": "Riepilogo memorizzato",
+    "generated": "Nuovo riepilogo",
+    "unknownSource": "Nessuna fonte"
+  }
+}

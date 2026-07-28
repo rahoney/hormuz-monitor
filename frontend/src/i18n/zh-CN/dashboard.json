@@ -1,0 +1,127 @@
+{
+  "title": "霍尔木兹海峡实时监控",
+  "subtitle": "关键信息集中于此，让您一目了然地评估海峡局势。",
+  "cards": {
+    "straitStatus": "海峡状态",
+    "vesselCount": "活跃船只",
+    "lngVessels": "LNG运输船",
+    "crudeVessels": "原油油轮",
+    "tankerVessels": "油轮",
+    "containerVessels": "集装箱船",
+    "dryBulkVessels": "干散货船",
+    "generalCargoVessels": "杂货船",
+    "inlandEntry": "进入内海",
+    "offshoreExit": "驶向公海",
+    "oilPrice": "布伦特原油",
+    "riskLevel": "风险等级",
+    "insideStrait": "海峡内",
+    "persianGulf": "波斯湾",
+    "arabianSea": "阿拉伯海",
+    "notTracked": "未追踪",
+    "weeklyAverage": "7天平均",
+    "aisEstimated": "AIS 估计",
+    "ais24hEstimated": "24小时 AIS 估计",
+    "confirmed": "已确认",
+    "estimated": "已估计"
+  },
+  "sections": {
+    "jump": "跳转至",
+    "summary": "局势摘要",
+    "statusCards": "当前状态",
+    "weeklyTransit": "周平均通行量",
+    "map": "海峡地图",
+    "transitFlow": "通行流量 (90天)",
+    "oilPrices": "油价 (90天历史)",
+    "oilRealtime": "油价 (实时)",
+    "transitOilComparison": "通行量与油价对比 (90天)",
+    "marketSnapshot": "市场快照",
+    "recentEvents": "相关事件"
+  },
+  "map": {
+    "title": "海峡地图",
+    "placeholder": "实时船只地图",
+    "map1": "地图 1",
+    "map2": "地图 2"
+  },
+  "oil": {
+    "wti": "WTI",
+    "brent": "Brent",
+    "naturalGas": "天然气",
+    "perBbl": "USD/bbl",
+    "perMmbtu": "USD/MMBtu",
+    "realtimeWidget": "实时"
+  },
+  "transit": {
+    "comparison": "通行量与油价",
+    "total": "总计",
+    "breakdown": "按类型",
+    "brent": "Brent",
+    "totalVessels": "船只总数",
+    "tanker": "油轮",
+    "container": "集装箱船",
+    "dryBulk": "干散货船",
+    "general": "杂货船",
+    "offshoreExitEstimate": "驶向公海估计",
+    "confirmed": "已确认",
+    "estimated": "已估计",
+    "noData": "无通行数据"
+  },
+  "events": {
+    "viewAll": "查看所有事件 →",
+    "noEvents": "近期无事件"
+  },
+  "status": {
+    "normal": "正常",
+    "slightly_delayed": "轻微延误",
+    "congested": "拥堵",
+    "high_risk": "高风险",
+    "critical": "危急",
+    "blockade_level": "封锁级别",
+    "unknown": "未知"
+  },
+  "trump": {
+    "title": "特朗普社交媒体",
+    "noData": "暂无帖子",
+    "viewOriginal": "查看原文"
+  },
+  "gasoline": {
+    "title": "美国汽油价格",
+    "national": "全国平均",
+    "state": "按地区/州",
+    "pricePerGallon": "$/gallon",
+    "area": "区域",
+    "price": "价格 ($/gal)",
+    "weekChange": "周变化",
+    "region": "地区",
+    "noData": "无汽油价格数据"
+  },
+  "gauge": {
+    "title": "霍尔木兹风险指数",
+    "safe": "安全",
+    "caution": "谨慎",
+    "warning": "警告",
+    "danger": "危险",
+    "vessels": "船只",
+    "geoLabel": "地缘政治紧张局势",
+    "histLabel": "历史",
+    "hist1d": "昨天",
+    "hist2d": "2天前",
+    "hist1w": "1周前",
+    "hist2w": "2周前",
+    "hist1m": "1个月前",
+    "hist2m": "2个月前"
+  },
+  "summary": {
+    "title": "局势摘要",
+    "aiLabel": "AI 摘要",
+    "updated": "已更新",
+    "noData": "正在加载摘要...",
+    "share": "分享",
+    "shareCopied": "已复制！",
+    "shareSource": "来源: Hormuz Monitor",
+    "shareService": "Hormuz Monitor",
+    "shareServiceUrl": "https://www.hrmz.today"
+  },
+  "loading": "加载中...",
+  "noData": "无数据"
+}

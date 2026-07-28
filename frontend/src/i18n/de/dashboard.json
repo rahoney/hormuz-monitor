@@ -1,0 +1,127 @@
+{
+  "title": "Hormus-Straße Echtzeit-Monitor",
+  "subtitle": "Wichtige Informationen werden an einem Ort gesammelt, damit Sie die Situation der Meerenge auf einen Blick beurteilen können.",
+  "cards": {
+    "straitStatus": "Status der Meerenge",
+    "vesselCount": "Aktive Schiffe",
+    "lngVessels": "LNG-Tanker",
+    "crudeVessels": "Rohöltanker",
+    "tankerVessels": "Tanker",
+    "containerVessels": "Containerschiffe",
+    "dryBulkVessels": "Schüttgut",
+    "generalCargoVessels": "Stückgut",
+    "inlandEntry": "Inland-Einfahrt",
+    "offshoreExit": "Offshore-Ausfahrt",
+    "oilPrice": "Brent-Rohöl",
+    "riskLevel": "Risikostufe",
+    "insideStrait": "Innerhalb der Meerenge",
+    "persianGulf": "Persischer Golf",
+    "arabianSea": "Arabisches Meer",
+    "notTracked": "Nicht verfolgt",
+    "weeklyAverage": "7-Tage-Durchschnitt",
+    "aisEstimated": "AIS-Schätzung",
+    "ais24hEstimated": "24h-AIS-Schätzung",
+    "confirmed": "Bestätigt",
+    "estimated": "Geschätzt"
+  },
+  "sections": {
+    "jump": "Zum Abschnitt springen",
+    "summary": "Zusammenfassung der Situation",
+    "statusCards": "Aktueller Status",
+    "weeklyTransit": "Wöchentlicher Durchschnittstransit",
+    "map": "Karte der Meerenge",
+    "transitFlow": "Transitfluss (90 Tage)",
+    "oilPrices": "Ölpreise (90-Tage-Verlauf)",
+    "oilRealtime": "Ölpreise (Echtzeit)",
+    "transitOilComparison": "Transit vs Ölpreis (90 Tage)",
+    "marketSnapshot": "Marktübersicht",
+    "recentEvents": "Verwandte Themen"
+  },
+  "map": {
+    "title": "Karte der Meerenge",
+    "placeholder": "Live-Schiffskarte",
+    "map1": "Karte 1",
+    "map2": "Karte 2"
+  },
+  "oil": {
+    "wti": "WTI",
+    "brent": "Brent",
+    "naturalGas": "Erdgas",
+    "perBbl": "USD/bbl",
+    "perMmbtu": "USD/MMBtu",
+    "realtimeWidget": "Echtzeit"
+  },
+  "transit": {
+    "comparison": "Transit + Öl",
+    "total": "Gesamt",
+    "breakdown": "Nach Typ",
+    "brent": "Brent",
+    "totalVessels": "Gesamte Schiffe",
+    "tanker": "Tanker",
+    "container": "Containerschiff",
+    "dryBulk": "Schüttgut",
+    "general": "Stückgut",
+    "offshoreExitEstimate": "Schätzung der Offshore-Ausfahrt",
+    "confirmed": "Bestätigt",
+    "estimated": "Geschätzt",
+    "noData": "Keine Transitdaten"
+  },
+  "events": {
+    "viewAll": "Alle Ereignisse anzeigen →",
+    "noEvents": "Keine aktuellen Ereignisse"
+  },
+  "status": {
+    "normal": "Normal",
+    "slightly_delayed": "Leicht verzögert",
+    "congested": "Überlastet",
+    "high_risk": "Hohes Risiko",
+    "critical": "Kritisch",
+    "blockade_level": "Blockadestufe",
+    "unknown": "Unbekannt"
+  },
+  "trump": {
+    "title": "Trump Social Media",
+    "noData": "Keine Beiträge verfügbar",
+    "viewOriginal": "Original ansehen"
+  },
+  "gasoline": {
+    "title": "US-Benzinpreise",
+    "national": "Nationaler Durchschnitt",
+    "state": "Nach Region / Staat",
+    "pricePerGallon": "$/Gallone",
+    "area": "Gebiet",
+    "price": "Preis ($/gal)",
+    "weekChange": "Wöchentliche Änd.",
+    "region": "Region",
+    "noData": "Keine Benzinpreisdaten"
+  },
+  "gauge": {
+    "title": "Hormus-Risikoindex",
+    "safe": "SICHER",
+    "caution": "VORSICHT",
+    "warning": "WARNUNG",
+    "danger": "GEFAHR",
+    "vessels": "Schiffe",
+    "geoLabel": "Geopolitische Spannung",
+    "histLabel": "Historisch",
+    "hist1d": "Gestern",
+    "hist2d": "Vor 2T",
+    "hist1w": "Vor 1W",
+    "hist2w": "Vor 2W",
+    "hist1m": "Vor 1M",
+    "hist2m": "Vor 2M"
+  },
+  "summary": {
+    "title": "Zusammenfassung der Situation",
+    "aiLabel": "KI-Zusammenfassung",
+    "updated": "Aktualisiert",
+    "noData": "Zusammenfassung wird geladen...",
+    "share": "Teilen",
+    "shareCopied": "Kopiert!",
+    "shareSource": "Quelle: Hormuz Monitor",
+    "shareService": "Hormuz Monitor",
+    "shareServiceUrl": "https://www.hrmz.today"
+  },
+  "loading": "Wird geladen...",
+  "noData": "Keine Daten"
+}

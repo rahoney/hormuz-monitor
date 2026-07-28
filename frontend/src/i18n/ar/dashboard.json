@@ -1,0 +1,127 @@
+{
+  "title": "مراقب مضيق هرمز في الوقت الفعلي",
+  "subtitle": "يتم جمع المعلومات الرئيسية في مكان واحد حتى تتمكن من تقييم حالة المضيق بلمحة.",
+  "cards": {
+    "straitStatus": "حالة المضيق",
+    "vesselCount": "السفن النشطة",
+    "lngVessels": "ناقلات الغاز الطبيعي المسال (LNG)",
+    "crudeVessels": "ناقلات النفط الخام",
+    "tankerVessels": "الناقلات",
+    "containerVessels": "سفن الحاويات",
+    "dryBulkVessels": "سفن البضائع السائبة",
+    "generalCargoVessels": "سفن البضائع العامة",
+    "inlandEntry": "الدخول الداخلي",
+    "offshoreExit": "الخروج الخارجي",
+    "oilPrice": "خام برنت (Brent)",
+    "riskLevel": "مستوى الخطر",
+    "insideStrait": "داخل المضيق",
+    "persianGulf": "الخليج الفارسي",
+    "arabianSea": "بحر العرب",
+    "notTracked": "غير متتبع",
+    "weeklyAverage": "متوسط 7 أيام",
+    "aisEstimated": "تقدير AIS",
+    "ais24hEstimated": "تقدير AIS لـ 24 ساعة",
+    "confirmed": "مؤكد",
+    "estimated": "مقدر"
+  },
+  "sections": {
+    "jump": "انتقل إلى القسم",
+    "summary": "ملخص الحالة",
+    "statusCards": "الحالة الحالية",
+    "weeklyTransit": "متوسط العبور الأسبوعي",
+    "map": "خريطة المضيق",
+    "transitFlow": "تدفق العبور (90 يومًا)",
+    "oilPrices": "أسعار النفط (تاريخ 90 يومًا)",
+    "oilRealtime": "أسعار النفط (الوقت الفعلي)",
+    "transitOilComparison": "العبور مقابل سعر النفط (90 يومًا)",
+    "marketSnapshot": "لمحة عن السوق",
+    "recentEvents": "القضايا ذات الصلة"
+  },
+  "map": {
+    "title": "خريطة المضيق",
+    "placeholder": "خريطة السفن المباشرة",
+    "map1": "الخريطة 1",
+    "map2": "الخريطة 2"
+  },
+  "oil": {
+    "wti": "WTI",
+    "brent": "Brent",
+    "naturalGas": "الغاز الطبيعي",
+    "perBbl": "دولار/برميل",
+    "perMmbtu": "دولار/مليون وحدة حرارية بريطانية",
+    "realtimeWidget": "الوقت الفعلي"
+  },
+  "transit": {
+    "comparison": "العبور + النفط",
+    "total": "الإجمالي",
+    "breakdown": "حسب النوع",
+    "brent": "Brent",
+    "totalVessels": "إجمالي السفن",
+    "tanker": "ناقلة",
+    "container": "حاوية",
+    "dryBulk": "بضائع سائبة",
+    "general": "بضائع عامة",
+    "offshoreExitEstimate": "تقدير الخروج الخارجي",
+    "confirmed": "مؤكد",
+    "estimated": "مقدر",
+    "noData": "لا توجد بيانات عبور"
+  },
+  "events": {
+    "viewAll": "عرض جميع الأحداث ←",
+    "noEvents": "لا توجد أحداث حديثة"
+  },
+  "status": {
+    "normal": "طبيعي",
+    "slightly_delayed": "تأخير طفيف",
+    "congested": "مزدحم",
+    "high_risk": "خطر عالي",
+    "critical": "حرج",
+    "blockade_level": "مستوى الحصار",
+    "unknown": "غير معروف"
+  },
+  "trump": {
+    "title": "وسائل التواصل الاجتماعي لترامب",
+    "noData": "لا توجد منشورات متاحة",
+    "viewOriginal": "عرض الأصل"
+  },
+  "gasoline": {
+    "title": "أسعار البنزين في الولايات المتحدة",
+    "national": "المتوسط الوطني",
+    "state": "حسب المنطقة / الولاية",
+    "pricePerGallon": "$/غالون",
+    "area": "المنطقة",
+    "price": "السعر ($/غالون)",
+    "weekChange": "تغيير الأسبوع",
+    "region": "منطقة",
+    "noData": "لا توجد بيانات عن أسعار البنزين"
+  },
+  "gauge": {
+    "title": "مؤشر خطر هرمز",
+    "safe": "آمن",
+    "caution": "تنبيه",
+    "warning": "تحذير",
+    "danger": "خطر",
+    "vessels": "السفن",
+    "geoLabel": "التوتر الجيوسياسي",
+    "histLabel": "تاريخي",
+    "hist1d": "أمس",
+    "hist2d": "منذ يومين",
+    "hist1w": "منذ أسبوع",
+    "hist2w": "منذ أسبوعين",
+    "hist1m": "منذ شهر",
+    "hist2m": "منذ شهرين"
+  },
+  "summary": {
+    "title": "ملخص الحالة",
+    "aiLabel": "ملخص الذكاء الاصطناعي",
+    "updated": "تم التحديث",
+    "noData": "جاري تحميل الملخص...",
+    "share": "مشاركة",
+    "shareCopied": "تم النسخ!",
+    "shareSource": "المصدر: Hormuz Monitor",
+    "shareService": "Hormuz Monitor",
+    "shareServiceUrl": "https://www.hrmz.today"
+  },
+  "loading": "جاري التحميل...",
+  "noData": "لا توجد بيانات"
+}

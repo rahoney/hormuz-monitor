@@ -1,0 +1,32 @@
+{
+  "title": "Sobre",
+  "subtitle": "O que é o Hormuz Monitor?",
+  "description": {
+    "p1": "De acordo com a EIA, em 2024, o fluxo médio diário de petróleo bruto e derivados que passou pelo Estreito de Ormuz foi de 20 milhões de barris — cerca de 20% do consumo global de petróleo.",
+    "p2": "Cerca de 20% do comércio global de GNL também passou pelo estreito, com 84% do petróleo bruto e condensado e 83% do GNL indo para os mercados asiáticos.",
+    "p3": "Qualquer interrupção no fornecimento de energia através do Estreito de Ormuz pode ter um grande impacto na indústria e na economia globais. Este projeto foi criado para reunir todas essas informações em um só lugar, em vez de pesquisar em várias fontes.",
+    "p4": "Hormuz Monitor é um painel que permite ver os movimentos das embarcações pelo Estreito de Ormuz, preços do petróleo e os principais índices do mercado dos EUA num piscar de olhos. Ele foi projetado para ajudá-lo a acessar informações dispersas de forma mais rápida, em um só lugar."
+  },
+  "sources": {
+    "heading": "Fontes de Dados",
+    "list": "IMF PortWatch, AISStream, MarineTraffic, EIA, TradingView, Yahoo Finance, BBC RSS, Anadolu Agency RSS, NYT/CNBC RSS, Google News RSS, principais RSS de notícias coreanas, Truth Social RSS"
+  },
+  "github": "GitHub",
+  "contact": {
+    "heading": "Contato",
+    "body": "Para dúvidas sobre o projeto, por favor, use o formulário de contato.",
+    "button": "Contate-nos"
+  },
+  "support": {
+    "heading": "Apoio",
+    "body1": "Se você gostaria de apoiar este projeto, pode fazê-lo através dos links abaixo.",
+    "body2": "Seu apoio ajuda na manutenção e em melhorias futuras.",
+    "kr": "Apoio KR",
+    "global": "Apoio Global"
+  },
+  "notice": {
+    "heading": "Nota",
+    "body": "Hormuz Monitor é operado como um projeto pessoal.",
+    "peace": "Esperamos que a guerra acabe em breve e a paz chegue a todos."
+  }
+}

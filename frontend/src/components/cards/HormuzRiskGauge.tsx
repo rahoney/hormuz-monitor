@@ -120,6 +120,7 @@ export default function HormuzRiskGauge({ vessels, inlandEntry, offshoreExit, br
     { labelKey: "hist1w",  daysAgo: 7  },
     { labelKey: "hist2w",  daysAgo: 14 },
     { labelKey: "hist1m",  daysAgo: 30 },
+    { labelKey: "hist2m",  daysAgo: 60 },
   ] as const;
 
   return (

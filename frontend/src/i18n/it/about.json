@@ -1,0 +1,32 @@
+{
+  "title": "Informazioni",
+  "subtitle": "Cos'è Hormuz Monitor?",
+  "description": {
+    "p1": "Secondo l'EIA, nel 2024 il flusso medio giornaliero di petrolio greggio e prodotti petroliferi attraverso lo Stretto di Hormuz è stato di 20 milioni di barili — circa il 20% del consumo globale di petrolio.",
+    "p2": "Circa il 20% del commercio globale di GNL è passato anche attraverso lo stretto, con l'84% del greggio e dei condensati e l'83% del GNL diretti ai mercati asiatici.",
+    "p3": "Qualsiasi interruzione dell'approvvigionamento energetico attraverso lo Stretto di Hormuz può avere un impatto rilevante sull'industria e sulle economie globali. Questo progetto è stato creato per riunire tutte queste informazioni in un unico posto, invece di cercare tra diverse fonti.",
+    "p4": "Hormuz Monitor è una dashboard che ti permette di vedere i movimenti delle navi attraverso lo Stretto di Hormuz, i prezzi del petrolio e i principali indici di mercato statunitensi a colpo d'occhio. È progettata per aiutarti ad accedere più rapidamente a informazioni frammentate, in un unico posto."
+  },
+  "sources": {
+    "heading": "Fonti dei Dati",
+    "list": "IMF PortWatch, AISStream, MarineTraffic, EIA, TradingView, Yahoo Finance, BBC RSS, Anadolu Agency RSS, NYT/CNBC RSS, Google News RSS, principali RSS di notizie coreane, Truth Social RSS"
+  },
+  "github": "GitHub",
+  "contact": {
+    "heading": "Contatti",
+    "body": "Per richieste di informazioni sul progetto, si prega di utilizzare il modulo di contatto.",
+    "button": "Contattaci"
+  },
+  "support": {
+    "heading": "Supporto",
+    "body1": "Se desideri supportare questo progetto, puoi farlo attraverso i link sottostanti.",
+    "body2": "Il tuo supporto aiuta nella manutenzione e nei futuri miglioramenti.",
+    "kr": "Supporto KR",
+    "global": "Supporto Globale"
+  },
+  "notice": {
+    "heading": "Nota",
+    "body": "Hormuz Monitor è gestito come progetto personale.",
+    "peace": "Speriamo che la guerra finisca presto e che la pace arrivi per tutti."
+  }
+}

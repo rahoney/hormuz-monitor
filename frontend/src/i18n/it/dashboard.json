@@ -1,0 +1,127 @@
+{
+  "title": "Monitor in Tempo Reale dello Stretto di Hormuz",
+  "subtitle": "Le informazioni chiave sono raccolte in un unico posto per consentirti di valutare la situazione dello stretto a colpo d'occhio.",
+  "cards": {
+    "straitStatus": "Stato dello Stretto",
+    "vesselCount": "Navi Attive",
+    "lngVessels": "Metaniere (GNL)",
+    "crudeVessels": "Petroliere",
+    "tankerVessels": "Cisterne",
+    "containerVessels": "Portacontainer",
+    "dryBulkVessels": "Rinfusiere",
+    "generalCargoVessels": "Merci Generali",
+    "inlandEntry": "Ingresso Interno",
+    "offshoreExit": "Uscita Offshore",
+    "oilPrice": "Greggio Brent",
+    "riskLevel": "Livello di Rischio",
+    "insideStrait": "All'interno dello Stretto",
+    "persianGulf": "Golfo Persico",
+    "arabianSea": "Mar Arabico",
+    "notTracked": "Non tracciato",
+    "weeklyAverage": "Media 7g",
+    "aisEstimated": "Stima AIS",
+    "ais24hEstimated": "Stima AIS 24h",
+    "confirmed": "Confermato",
+    "estimated": "Stimato"
+  },
+  "sections": {
+    "jump": "Vai alla sezione",
+    "summary": "Riepilogo della Situazione",
+    "statusCards": "Stato Attuale",
+    "weeklyTransit": "Transito Medio Settimanale",
+    "map": "Mappa dello Stretto",
+    "transitFlow": "Flusso di Transito (90 giorni)",
+    "oilPrices": "Prezzi del Petrolio (storico 90 giorni)",
+    "oilRealtime": "Prezzi del Petrolio (Tempo Reale)",
+    "transitOilComparison": "Transito vs Prezzo del Petrolio (90 giorni)",
+    "marketSnapshot": "Panoramica di Mercato",
+    "recentEvents": "Problemi Correlati"
+  },
+  "map": {
+    "title": "Mappa dello Stretto",
+    "placeholder": "Mappa live delle navi",
+    "map1": "Mappa 1",
+    "map2": "Mappa 2"
+  },
+  "oil": {
+    "wti": "WTI",
+    "brent": "Brent",
+    "naturalGas": "Gas Naturale",
+    "perBbl": "USD/bbl",
+    "perMmbtu": "USD/MMBtu",
+    "realtimeWidget": "Tempo reale"
+  },
+  "transit": {
+    "comparison": "Transito + Petrolio",
+    "total": "Totale",
+    "breakdown": "Per Tipo",
+    "brent": "Brent",
+    "totalVessels": "Totale Navi",
+    "tanker": "Cisterna",
+    "container": "Portacontainer",
+    "dryBulk": "Rinfusiera",
+    "general": "Merci Generali",
+    "offshoreExitEstimate": "Stima di uscita offshore",
+    "confirmed": "Confermato",
+    "estimated": "Stimato",
+    "noData": "Nessun dato di transito"
+  },
+  "events": {
+    "viewAll": "Vedi tutti gli eventi →",
+    "noEvents": "Nessun evento recente"
+  },
+  "status": {
+    "normal": "Normale",
+    "slightly_delayed": "Leggermente in Ritardo",
+    "congested": "Congestionato",
+    "high_risk": "Alto Risco",
+    "critical": "Critico",
+    "blockade_level": "Livello di Blocco",
+    "unknown": "Sconosciuto"
+  },
+  "trump": {
+    "title": "Trump Social Media",
+    "noData": "Nessun post disponibile",
+    "viewOriginal": "Visualizza originale"
+  },
+  "gasoline": {
+    "title": "Prezzi della Benzina negli Stati Uniti",
+    "national": "Media Naz.",
+    "state": "Per Regione / Stato",
+    "pricePerGallon": "$/gallone",
+    "area": "Area",
+    "price": "Prezzo ($/gal)",
+    "weekChange": "Variazione Sett.",
+    "region": "regione",
+    "noData": "Nessun dato sul prezzo della benzina"
+  },
+  "gauge": {
+    "title": "Indice di Rischio di Hormuz",
+    "safe": "SICURO",
+    "caution": "ATTENZIONE",
+    "warning": "AVVERTIMENTO",
+    "danger": "PERICOLO",
+    "vessels": "Navi",
+    "geoLabel": "Tensione Geopolitica",
+    "histLabel": "Storico",
+    "hist1d": "Ieri",
+    "hist2d": "2G fa",
+    "hist1w": "1S fa",
+    "hist2w": "2S fa",
+    "hist1m": "1M fa",
+    "hist2m": "2M fa"
+  },
+  "summary": {
+    "title": "Riepilogo della Situazione",
+    "aiLabel": "Riepilogo AI",
+    "updated": "Aggiornato",
+    "noData": "Caricamento riepilogo...",
+    "share": "Condividi",
+    "shareCopied": "Copiato!",
+    "shareSource": "Fonte: Hormuz Monitor",
+    "shareService": "Hormuz Monitor",
+    "shareServiceUrl": "https://www.hrmz.today"
+  },
+  "loading": "Caricamento...",
+  "noData": "Nessun dato"
+}

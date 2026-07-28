@@ -1,0 +1,32 @@
+{
+  "title": "Hakkında",
+  "subtitle": "Hormuz Monitor nedir?",
+  "description": {
+    "p1": "EIA'ya göre, 2024 yılında Hürmüz Boğazı'ndan geçen günlük ortalama ham petrol ve petrol ürünleri akışı 20 milyon varil idi - bu, küresel petrol tüketiminin yaklaşık %20'sidir.",
+    "p2": "Küresel LNG ticaretinin yaklaşık %20'si de boğazdan geçerken, ham petrol ve kondensatın %84'ü ve LNG'nin %83'ü Asya pazarlarına yöneldi.",
+    "p3": "Hürmüz Boğazı üzerinden enerji arzındaki herhangi bir kesinti, küresel endüstri ve ekonomiler üzerinde büyük bir etkiye sahip olabilir. Bu proje, bilgiyi birden fazla kaynakta aramak yerine tek bir yerde toplamak için oluşturuldu.",
+    "p4": "Hormuz Monitor, Hürmüz Boğazı'ndaki gemi hareketlerini, petrol fiyatlarını ve temel ABD piyasa endekslerini bir bakışta görmenizi sağlayan bir kontrol panelidir. Dağınık bilgilere tek bir yerden daha hızlı erişmenize yardımcı olmak için tasarlanmıştır."
+  },
+  "sources": {
+    "heading": "Veri Kaynakları",
+    "list": "IMF PortWatch, AISStream, MarineTraffic, EIA, TradingView, Yahoo Finance, BBC RSS, Anadolu Agency RSS, NYT/CNBC RSS, Google News RSS, önde gelen Kore haberleri RSS, Truth Social RSS"
+  },
+  "github": "GitHub",
+  "contact": {
+    "heading": "İletişim",
+    "body": "Projeyle ilgili sorularınız için lütfen iletişim formunu kullanın.",
+    "button": "Bize Ulaşın"
+  },
+  "support": {
+    "heading": "Destek",
+    "body1": "Bu projeyi desteklemek isterseniz, aşağıdaki bağlantılar aracılığıyla yapabilirsiniz.",
+    "body2": "Desteğiniz bakım ve gelecekteki iyileştirmelere yardımcı olur.",
+    "kr": "KR Destek",
+    "global": "Küresel Destek"
+  },
+  "notice": {
+    "heading": "Not",
+    "body": "Hormuz Monitor kişisel bir proje olarak yürütülmektedir.",
+    "peace": "Savaşın bir an önce bitmesini ve herkese barış gelmesini umuyoruz."
+  }
+}

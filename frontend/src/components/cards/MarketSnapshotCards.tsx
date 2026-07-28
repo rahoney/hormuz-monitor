@@ -7,19 +7,45 @@ import { formatPrice, formatChangePct, changePctColor } from "@/lib/formatters";
 import type { MarketOHLCV, MarketSnapshot } from "@/types";
 import MarketCustomChart from "./MarketCustomChart";
 
-const SYMBOLS = [
-  "SP500", "NASDAQ", "ES_FUTURES", "NQ_FUTURES", "VIX", "KOSPI", "KOSDAQ",
-  "GOLD_FUTURES", "USD_INDEX", "GASOLINE_FUTURES", "HEATING_OIL_FUTURES"
+export const ALL_SYMBOLS = [
+  "SP500", "NASDAQ", "ES_FUTURES", "NQ_FUTURES", "VIX",
+  "KOSPI", "KOSDAQ", "STOXX600", "NIKKEI225", "HANG_SENG", "SHANGHAI",
+  "US10Y", "GOLD_FUTURES", "USD_INDEX", "GASOLINE_FUTURES", "HEATING_OIL_FUTURES"
 ] as const;
+
+type SymbolType = typeof ALL_SYMBOLS[number];
+
+const CATEGORIES = [
+  { id: "all", labelEn: "All", labelKo: "전체" },
+  { id: "us", labelEn: "U.S. Indices", labelKo: "미국 증시" },
+  { id: "global", labelEn: "Global Indices", labelKo: "글로벌 증시" },
+  { id: "macro", labelEn: "Rates & Commodities", labelKo: "금리/원자재/외환" },
+] as const;
+
+const CATEGORY_SYMBOLS: Record<string, SymbolType[]> = {
+  all: [...ALL_SYMBOLS],
+  us: ["SP500", "NASDAQ", "ES_FUTURES", "NQ_FUTURES", "VIX"],
+  global: ["KOSPI", "KOSDAQ", "STOXX600", "NIKKEI225", "HANG_SENG", "SHANGHAI"],
+  macro: ["US10Y", "GOLD_FUTURES", "USD_INDEX", "GASOLINE_FUTURES", "HEATING_OIL_FUTURES"],
+};
 
 const DISPLAY_NAMES: Record<string, string> = {
   SP500:               "S&P 500",
+  NASDAQ:              "NASDAQ",
   ES_FUTURES:          "S&P Fut.",
   NQ_FUTURES:          "NASDAQ Fut.",
+  VIX:                 "VIX",
+  KOSPI:               "KOSPI",
+  KOSDAQ:              "KOSDAQ",
+  STOXX600:            "STOXX Europe 600",
+  NIKKEI225:           "Nikkei 225",
+  HANG_SENG:           "Hang Seng",
+  SHANGHAI:            "Shanghai Comp.",
+  US10Y:               "U.S. 10Y Yield",
   GOLD_FUTURES:        "Gold Fut.",
   USD_INDEX:           "USD Index",
   GASOLINE_FUTURES:    "Gasoline Fut.",
-  HEATING_OIL_FUTURES: "Diesel Fut.",
+  HEATING_OIL_FUTURES: "Heating Oil Fut.",
 };
 
 const DISPLAY_NAMES_KO: Record<string, string> = {
@@ -27,15 +53,21 @@ const DISPLAY_NAMES_KO: Record<string, string> = {
   NASDAQ:              "나스닥",
   ES_FUTURES:          "S&P 선물",
   NQ_FUTURES:          "나스닥 선물",
+  VIX:                 "VIX",
   KOSPI:               "코스피",
   KOSDAQ:              "코스닥",
+  STOXX600:            "유럽 STOXX 600",
+  NIKKEI225:           "닛케이 225",
+  HANG_SENG:           "항셍 지수",
+  SHANGHAI:            "상하이 종합",
+  US10Y:               "미국 10년물 국채금리",
   GOLD_FUTURES:        "금 선물",
   USD_INDEX:           "달러 인덱스",
   GASOLINE_FUTURES:    "휘발유 선물",
   HEATING_OIL_FUTURES: "경유 선물",
 };
 
-const DECIMAL_2 = new Set(["VIX", "USD_INDEX"]);
+const DECIMAL_2 = new Set(["VIX", "USD_INDEX", "US10Y"]);
 const POPOVER_WIDTH = 480;
 const POPOVER_MARGIN = 12;
 
@@ -46,7 +78,7 @@ type Props = {
 };
 
 type CardProps = {
-  sym: typeof SYMBOLS[number];
+  sym: SymbolType;
   snap: MarketSnapshot | undefined;
   spark: { time: string; price: number }[];
   ohlcv: MarketOHLCV[];
@@ -112,6 +144,12 @@ function MarketCard({ sym, snap, spark, ohlcv, noDataLabel, displayName }: CardP
 
   useEffect(() => () => cancelClose(), []);
 
+  const formattedPrice = snap
+    ? sym === "US10Y"
+      ? `${snap.price.toFixed(3)}%`
+      : formatPrice(snap.price, DECIMAL_2.has(sym) ? 2 : 0)
+    : noDataLabel;
+
   return (
     <div
       ref={wrapperRef}
@@ -140,9 +178,9 @@ function MarketCard({ sym, snap, spark, ohlcv, noDataLabel, displayName }: CardP
             : "border-slate-700/50 bg-slate-900 hover:border-white/[0.10] hover:bg-white/[0.03]",
         ].join(" ")}
       >
-        <p className="text-sm font-bold text-slate-200">{displayName}</p>
+        <p className="text-sm font-bold text-slate-200 truncate">{displayName}</p>
         <p className="mt-1 text-lg font-semibold text-slate-100">
-          {snap ? formatPrice(snap.price, DECIMAL_2.has(sym) ? 2 : 0) : noDataLabel}
+          {formattedPrice}
         </p>
         {snap?.change_pct != null && (
           <p className={`text-xs ${changePctColor(snap.change_pct)}`}>
@@ -196,20 +234,43 @@ export default function MarketSnapshotCards({ snapshots, intraday, ohlcv }: Prop
   const t = useTranslations("dashboard");
   const locale = useLocale();
   const names = locale === "ko" ? DISPLAY_NAMES_KO : DISPLAY_NAMES;
+  const [activeTab, setActiveTab] = useState<string>("all");
+
+  const visibleSymbols = CATEGORY_SYMBOLS[activeTab] ?? CATEGORY_SYMBOLS.all;
 
   return (
-    <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-4">
-      {SYMBOLS.map((sym) => (
-        <MarketCard
-          key={sym}
-          sym={sym}
-          snap={snapshots[sym]}
-          spark={intraday[sym] ?? []}
-          ohlcv={ohlcv[sym] ?? []}
-          noDataLabel={t("noData")}
-          displayName={names[sym] ?? sym}
-        />
-      ))}
+    <div className="space-y-3">
+      {/* 카테고리 필터 탭 */}
+      <div className="flex flex-wrap gap-1.5 border-b border-slate-800 pb-2">
+        {CATEGORIES.map((cat) => (
+          <button
+            key={cat.id}
+            onClick={() => setActiveTab(cat.id)}
+            className={`rounded-md px-3 py-1 text-xs font-medium transition-colors ${
+              activeTab === cat.id
+                ? "bg-amber-500/20 text-amber-300 border border-amber-500/40"
+                : "bg-slate-900 text-slate-400 hover:bg-slate-800 hover:text-slate-200 border border-slate-800"
+            }`}
+          >
+            {locale === "ko" ? cat.labelKo : cat.labelEn}
+          </button>
+        ))}
+      </div>
+
+      {/* 카드 그리드 */}
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
+        {visibleSymbols.map((sym) => (
+          <MarketCard
+            key={sym}
+            sym={sym}
+            snap={snapshots[sym]}
+            spark={intraday[sym] ?? []}
+            ohlcv={ohlcv[sym] ?? []}
+            noDataLabel={t("noData")}
+            displayName={names[sym] ?? sym}
+          />
+        ))}
+      </div>
     </div>
   );
 }

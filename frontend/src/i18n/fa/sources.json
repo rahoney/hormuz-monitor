@@ -1,0 +1,120 @@
+{
+  "title": "منابع داده",
+  "subtitle": "داده‌ها از کجا می‌آیند؟",
+  "emptyState": "جزئیات منبع در اینجا ظاهر خواهد شد",
+  "shipping": {
+    "heading": "ترافیک کشتی‌ها",
+    "items": [
+      {
+        "name": "IMF PortWatch",
+        "detail": "آمار عبور روزانه از نقاط حساس از طریق ArcGIS REST API. مبتنی بر AIS ماهواره‌ای. یک بار در روز به‌روز می‌شود.",
+        "url": "https://portwatch.imf.org"
+      },
+      {
+        "name": "AISStream",
+        "detail": "جریان موقعیت کشتی‌های AIS که برای تخمین حرکات ورودی و خروجی در ۲۴ ساعت گذشته استفاده می‌شود.",
+        "url": "https://aisstream.io"
+      },
+      {
+        "name": "MarineTraffic (map)",
+        "detail": "نقشه زنده کشتی‌های AIS جاسازی شده از طریق iframe. موقعیت‌های لحظه‌ای کشتی‌ها.",
+        "url": "https://www.marinetraffic.com"
+      }
+    ]
+  },
+  "oil": {
+    "heading": "قیمت نفت و گاز",
+    "items": [
+      {
+        "name": "EIA (U.S. Energy Information Administration)",
+        "detail": "داده‌های قیمت WTI، Brent، گاز طبیعی هنری هاب و بنزین ایالات متحده.",
+        "url": "https://www.eia.gov/opendata"
+      },
+      {
+        "name": "Yahoo Finance (yfinance)",
+        "detail": "معاملات آتی WTI و Brent به همراه شاخص‌های اصلی بازار که در زمان تأخیر داده‌های نقدی به عنوان جایگزین استفاده می‌شوند.",
+        "url": "https://finance.yahoo.com"
+      },
+      {
+        "name": "TradingView",
+        "detail": "نمودارهای قیمت لحظه‌ای جاسازی شده از طریق ویجت (TVC:USOIL, TVC:UKOIL, CAPITALCOM:NATURALGAS).",
+        "url": "https://www.tradingview.com"
+      }
+    ]
+  },
+  "market": {
+    "heading": "شاخص‌های بازار",
+    "items": [
+      {
+        "name": "Yahoo Finance (yfinance)",
+        "detail": "اسنپ‌شات‌ها، کندل‌های ۵ دقیقه‌ای و روزانه برای VIX، Nasdaq، S&P 500، KOSPI، KOSDAQ، آتی شاخص ایالات متحده، آتی طلا، شاخص دلار، آتی بنزین و آتی نفت کوره.",
+        "url": "https://finance.yahoo.com"
+      }
+    ]
+  },
+  "events": {
+    "heading": "رویدادهای ژئوپلیتیک",
+    "items": [
+      {
+        "name": "BBC Middle East RSS",
+        "detail": "عناوین خاورمیانه از اخبار BBC.",
+        "url": "https://www.bbc.com/news/world/middle_east"
+      },
+      {
+        "name": "Anadolu Agency RSS",
+        "detail": "اخبار منطقه‌ای از خبرگزاری دولتی ترکیه.",
+        "url": "https://www.aa.com.tr/en"
+      },
+      {
+        "name": "NYT and CNBC RSS",
+        "detail": "عناوین انگلیسی مربوط به خاورمیانه، انرژی و بازارهای جهانی.",
+        "url": "https://www.nytimes.com"
+      },
+      {
+        "name": "Reuters and AP News (Google News RSS)",
+        "detail": "عناوین مرتبط از رسانه‌های منتخب از طریق فیدهای جستجوی Google News RSS در جایی که دسترسی رسمی RSS محدود است.",
+        "url": "https://news.google.com"
+      },
+      {
+        "name": "Yonhap, Korea Economic Daily, Maeil Business RSS",
+        "detail": "عناوین بین‌المللی و بازار کره دسته‌بندی شده بر اساس کلمه کلیدی.",
+        "url": "https://www.yna.co.kr"
+      },
+      {
+        "name": "Truth Social RSS",
+        "detail": "پست‌های ترامپ در Truth Social جمع‌آوری و به زبان کره‌ای ترجمه شده‌اند.",
+        "url": "https://trumpstruth.org/feed"
+      }
+    ]
+  },
+  "updateFrequency": {
+    "heading": "فرکانس به‌روزرسانی",
+    "rows": [
+      {
+        "source": "موقعیت‌های کشتی AIS و تخمین جهت",
+        "frequency": "هر ۲۰ دقیقه"
+      },
+      {
+        "source": "شاخص‌های بازار و کندل‌های ۵ دقیقه‌ای",
+        "frequency": "هر ۲۰ دقیقه"
+      },
+      {
+        "source": "مسائل مرتبط (RSS)",
+        "frequency": "هر یک ساعت"
+      },
+      {
+        "source": "خلاصه وضعیت و ترجمه ترامپ",
+        "frequency": "هر یک ساعت"
+      },
+      {
+        "source": "جمع‌آوری Truth Social ترامپ",
+        "frequency": "هر ۲ ساعت"
+      },
+      {
+        "source": "PortWatch، نفت، بنزین، و پاکسازی",
+        "frequency": "روزانه در 06:00 UTC"
+      }
+    ]
+  },
+  "disclaimer": "تمام داده‌ها از APIها و فیدهای در دسترس عموم تهیه می‌شوند. Hormuz Monitor به هیچ یک از ارائه‌دهندگان داده که در بالا ذکر شده‌اند وابسته نیست."
+}

@@ -1,0 +1,20 @@
+{
+  "nav": {
+    "dashboard": "Kontrol Paneli",
+    "events": "İlgili Sorunlar",
+    "about": "Hakkında"
+  },
+  "footer": {
+    "copyright": "© 2026 Hormuz Monitor by WikiHoney. Tüm hakları saklıdır.",
+    "supportText": "Bu projeyi destekle",
+    "supportKr": "KR Destek",
+    "supportGlobal": "Küresel Destek",
+    "otherProjects": "Diğer Projeler"
+  },
+  "status": {
+    "loading": "Yükleniyor...",
+    "noData": "Veri bulunmuyor",
+    "error": "Veri yüklenemedi",
+    "lastUpdated": "Son güncelleme"
+  }
+}

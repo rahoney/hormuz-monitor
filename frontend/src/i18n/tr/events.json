@@ -1,0 +1,37 @@
+{
+  "title": "İlgili Sorunlar",
+  "subtitle": "Hürmüz Boğazı'nı etkileyen jeopolitik olaylar",
+  "emptyState": "Henüz kaydedilmiş etkinlik yok",
+  "tabs": {
+    "events": "Etkinlikler",
+    "trump": "Trump Sosyal"
+  },
+  "filters": {
+    "all": "Tümü",
+    "attack": "Saldırı",
+    "closure": "Kapanış",
+    "reopening": "Yeniden Açılış",
+    "sanctions": "Yaptırımlar",
+    "ceasefire": "Ateşkes",
+    "negotiation": "Müzakere",
+    "escort_operation": "Eskort Operasyonu"
+  },
+  "severity": {
+    "critical": "Kritik",
+    "high": "Yüksek",
+    "medium": "Orta",
+    "low": "Düşük"
+  },
+  "source": "Kaynak",
+  "noSource": "Kaynak yok",
+  "articleSummary": {
+    "label": "Makale Özeti",
+    "loading": "Makale özetleniyor...",
+    "error": "Özet yüklenemedi. Lütfen orijinal makaleyi açın.",
+    "openOriginal": "Orijinalini aç",
+    "close": "Kapat",
+    "cached": "Önbelleğe alınmış özet",
+    "generated": "Yeni özet",
+    "unknownSource": "Kaynak yok"
+  }
+}

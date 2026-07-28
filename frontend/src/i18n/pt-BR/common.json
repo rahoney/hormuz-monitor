@@ -1,0 +1,20 @@
+{
+  "nav": {
+    "dashboard": "Painel",
+    "events": "Problemas Relacionados",
+    "about": "Sobre"
+  },
+  "footer": {
+    "copyright": "© 2026 Hormuz Monitor por WikiHoney. Todos os direitos reservados.",
+    "supportText": "Apoie este projeto",
+    "supportKr": "Apoio KR",
+    "supportGlobal": "Apoio Global",
+    "otherProjects": "Outros Projetos"
+  },
+  "status": {
+    "loading": "Carregando...",
+    "noData": "Nenhum dado disponível",
+    "error": "Falha ao carregar dados",
+    "lastUpdated": "Última atualização"
+  }
+}

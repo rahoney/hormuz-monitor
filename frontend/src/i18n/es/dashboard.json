@@ -1,0 +1,127 @@
+{
+  "title": "Monitor en tiempo real del estrecho de Ormuz",
+  "subtitle": "La información clave se reúne en un solo lugar para que pueda evaluar la situación del estrecho de un vistazo.",
+  "cards": {
+    "straitStatus": "Estado del estrecho",
+    "vesselCount": "Buques activos",
+    "lngVessels": "Metaneros",
+    "crudeVessels": "Petroleros",
+    "tankerVessels": "Cisterna",
+    "containerVessels": "Portacontenedores",
+    "dryBulkVessels": "Graneleros",
+    "generalCargoVessels": "Carga general",
+    "inlandEntry": "Entrada interior",
+    "offshoreExit": "Salida a mar abierto",
+    "oilPrice": "Crudo Brent",
+    "riskLevel": "Nivel de riesgo",
+    "insideStrait": "Dentro del estrecho",
+    "persianGulf": "Golfo Pérsico",
+    "arabianSea": "Mar Arábigo",
+    "notTracked": "No rastreado",
+    "weeklyAverage": "Prom. de 7 días",
+    "aisEstimated": "Estimado AIS",
+    "ais24hEstimated": "Estimado AIS 24h",
+    "confirmed": "Confirmado",
+    "estimated": "Estimado"
+  },
+  "sections": {
+    "jump": "Ir a la sección",
+    "summary": "Resumen de la situación",
+    "statusCards": "Estado actual",
+    "weeklyTransit": "Tránsito promedio semanal",
+    "map": "Mapa del estrecho",
+    "transitFlow": "Flujo de tránsito (90 días)",
+    "oilPrices": "Precios del petróleo (historial de 90 días)",
+    "oilRealtime": "Precios del petróleo (tiempo real)",
+    "transitOilComparison": "Tránsito vs Precio del petróleo (90 días)",
+    "marketSnapshot": "Resumen del mercado",
+    "recentEvents": "Problemas relacionados"
+  },
+  "map": {
+    "title": "Mapa del estrecho",
+    "placeholder": "Mapa de buques en vivo",
+    "map1": "Mapa 1",
+    "map2": "Mapa 2"
+  },
+  "oil": {
+    "wti": "WTI",
+    "brent": "Brent",
+    "naturalGas": "Gas Natural",
+    "perBbl": "USD/bbl",
+    "perMmbtu": "USD/MMBtu",
+    "realtimeWidget": "Tiempo real"
+  },
+  "transit": {
+    "comparison": "Tránsito + Petróleo",
+    "total": "Total",
+    "breakdown": "Por tipo",
+    "brent": "Brent",
+    "totalVessels": "Total de buques",
+    "tanker": "Cisterna",
+    "container": "Portacontenedores",
+    "dryBulk": "Graneleros",
+    "general": "Carga general",
+    "offshoreExitEstimate": "Estimación de salida",
+    "confirmed": "Confirmado",
+    "estimated": "Estimado",
+    "noData": "No hay datos de tránsito"
+  },
+  "events": {
+    "viewAll": "Ver todos los eventos →",
+    "noEvents": "No hay eventos recientes"
+  },
+  "status": {
+    "normal": "Normal",
+    "slightly_delayed": "Ligeramente retrasado",
+    "congested": "Congestionado",
+    "high_risk": "Alto riesgo",
+    "critical": "Crítico",
+    "blockade_level": "Nivel de bloqueo",
+    "unknown": "Desconocido"
+  },
+  "trump": {
+    "title": "Redes sociales de Trump",
+    "noData": "No hay publicaciones disponibles",
+    "viewOriginal": "Ver original"
+  },
+  "gasoline": {
+    "title": "Precios de la gasolina en EE. UU.",
+    "national": "Promedio nacional",
+    "state": "Por región / estado",
+    "pricePerGallon": "$/galón",
+    "area": "Área",
+    "price": "Precio ($/gal)",
+    "weekChange": "Cambio Semanal",
+    "region": "región",
+    "noData": "No hay datos de precios de gasolina"
+  },
+  "gauge": {
+    "title": "Índice de riesgo de Ormuz",
+    "safe": "SEGURO",
+    "caution": "PRECAUCIÓN",
+    "warning": "ADVERTENCIA",
+    "danger": "PELIGRO",
+    "vessels": "Buques",
+    "geoLabel": "Tensión geopolítica",
+    "histLabel": "Histórico",
+    "hist1d": "Ayer",
+    "hist2d": "Hace 2D",
+    "hist1w": "Hace 1S",
+    "hist2w": "Hace 2S",
+    "hist1m": "Hace 1M",
+    "hist2m": "Hace 2M"
+  },
+  "summary": {
+    "title": "Resumen de la situación",
+    "aiLabel": "Resumen de IA",
+    "updated": "Actualizado",
+    "noData": "Cargando resumen...",
+    "share": "Compartir",
+    "shareCopied": "¡Copiado!",
+    "shareSource": "Fuente: Hormuz Monitor",
+    "shareService": "Hormuz Monitor",
+    "shareServiceUrl": "https://www.hrmz.today"
+  },
+  "loading": "Cargando...",
+  "noData": "No hay datos"
+}

@@ -1,0 +1,127 @@
+{
+  "title": "Hürmüz Boğazı Gerçek Zamanlı Monitörü",
+  "subtitle": "Boğazdaki durumu bir bakışta değerlendirebilmeniz için temel bilgiler tek bir yerde toplanmıştır.",
+  "cards": {
+    "straitStatus": "Boğaz Durumu",
+    "vesselCount": "Aktif Gemiler",
+    "lngVessels": "LNG Tankerleri",
+    "crudeVessels": "Ham Petrol Tankerleri",
+    "tankerVessels": "Tankerler",
+    "containerVessels": "Konteynerler",
+    "dryBulkVessels": "Kuru Yük",
+    "generalCargoVessels": "Genel Kargo",
+    "inlandEntry": "İç Hat Girişi",
+    "offshoreExit": "Açık Deniz Çıkışı",
+    "oilPrice": "Brent Petrol",
+    "riskLevel": "Risk Seviyesi",
+    "insideStrait": "Boğaz İçi",
+    "persianGulf": "Basra Körfezi",
+    "arabianSea": "Umman Denizi",
+    "notTracked": "Takip Edilmiyor",
+    "weeklyAverage": "7 günlük ortalama",
+    "aisEstimated": "AIS tahmini",
+    "ais24hEstimated": "24 saatlik AIS tahmini",
+    "confirmed": "Onaylandı",
+    "estimated": "Tahmini"
+  },
+  "sections": {
+    "jump": "Bölüme atla",
+    "summary": "Durum Özeti",
+    "statusCards": "Mevcut Durum",
+    "weeklyTransit": "Haftalık Ortalama Geçiş",
+    "map": "Boğaz Haritası",
+    "transitFlow": "Geçiş Akışı (90 gün)",
+    "oilPrices": "Petrol Fiyatları (90 günlük geçmiş)",
+    "oilRealtime": "Petrol Fiyatları (Gerçek zamanlı)",
+    "transitOilComparison": "Geçiş ve Petrol Fiyatı (90 gün)",
+    "marketSnapshot": "Piyasa Özeti",
+    "recentEvents": "İlgili Sorunlar"
+  },
+  "map": {
+    "title": "Boğaz Haritası",
+    "placeholder": "Canlı gemi haritası",
+    "map1": "Harita 1",
+    "map2": "Harita 2"
+  },
+  "oil": {
+    "wti": "WTI",
+    "brent": "Brent",
+    "naturalGas": "Doğal Gaz",
+    "perBbl": "USD/varil",
+    "perMmbtu": "USD/MMBtu",
+    "realtimeWidget": "Gerçek zamanlı"
+  },
+  "transit": {
+    "comparison": "Geçiş + Petrol",
+    "total": "Toplam",
+    "breakdown": "Türe Göre",
+    "brent": "Brent",
+    "totalVessels": "Toplam Gemi",
+    "tanker": "Tanker",
+    "container": "Konteyner",
+    "dryBulk": "Kuru Yük",
+    "general": "Genel Kargo",
+    "offshoreExitEstimate": "Açık deniz çıkış tahmini",
+    "confirmed": "Onaylandı",
+    "estimated": "Tahmini",
+    "noData": "Geçiş verisi yok"
+  },
+  "events": {
+    "viewAll": "Tüm etkinlikleri görüntüle →",
+    "noEvents": "Yakın zamanda etkinlik yok"
+  },
+  "status": {
+    "normal": "Normal",
+    "slightly_delayed": "Biraz Gecikmeli",
+    "congested": "Sıkışık",
+    "high_risk": "Yüksek Risk",
+    "critical": "Kritik",
+    "blockade_level": "Abluka Seviyesi",
+    "unknown": "Bilinmiyor"
+  },
+  "trump": {
+    "title": "Trump Sosyal Medya",
+    "noData": "Gönderi bulunmuyor",
+    "viewOriginal": "Orijinalini görüntüle"
+  },
+  "gasoline": {
+    "title": "ABD Benzin Fiyatları",
+    "national": "Ulusal Ortalama",
+    "state": "Bölge / Eyalete Göre",
+    "pricePerGallon": "$/galon",
+    "area": "Bölge",
+    "price": "Fiyat ($/gal)",
+    "weekChange": "Haftalık Değişim",
+    "region": "bölge",
+    "noData": "Benzin fiyatı verisi yok"
+  },
+  "gauge": {
+    "title": "Hürmüz Risk Endeksi",
+    "safe": "GÜVENLİ",
+    "caution": "DİKKAT",
+    "warning": "UYARI",
+    "danger": "TEHLİKE",
+    "vessels": "Gemiler",
+    "geoLabel": "Jeopolitik Gerilim",
+    "histLabel": "Geçmiş",
+    "hist1d": "Dün",
+    "hist2d": "2G önce",
+    "hist1w": "1H önce",
+    "hist2w": "2H önce",
+    "hist1m": "1A önce",
+    "hist2m": "2A önce"
+  },
+  "summary": {
+    "title": "Durum Özeti",
+    "aiLabel": "Yapay Zeka Özeti",
+    "updated": "Güncellendi",
+    "noData": "Özet yükleniyor...",
+    "share": "Paylaş",
+    "shareCopied": "Kopyalandı!",
+    "shareSource": "Kaynak: Hormuz Monitor",
+    "shareService": "Hormuz Monitor",
+    "shareServiceUrl": "https://www.hrmz.today"
+  },
+  "loading": "Yükleniyor...",
+  "noData": "Veri yok"
+}

@@ -1,0 +1,127 @@
+{
+  "title": "Moniteur en temps réel du détroit d'Ormuz",
+  "subtitle": "Les informations clés sont rassemblées au même endroit pour vous permettre d'évaluer la situation du détroit en un coup d'œil.",
+  "cards": {
+    "straitStatus": "Statut du détroit",
+    "vesselCount": "Navires actifs",
+    "lngVessels": "Méthaniers",
+    "crudeVessels": "Pétroliers bruts",
+    "tankerVessels": "Pétroliers",
+    "containerVessels": "Porte-conteneurs",
+    "dryBulkVessels": "Vraquiers",
+    "generalCargoVessels": "Cargos généraux",
+    "inlandEntry": "Entrée intérieure",
+    "offshoreExit": "Sortie au large",
+    "oilPrice": "Brut Brent",
+    "riskLevel": "Niveau de risque",
+    "insideStrait": "À l'intérieur du détroit",
+    "persianGulf": "Golfe Persique",
+    "arabianSea": "Mer d'Oman",
+    "notTracked": "Non suivi",
+    "weeklyAverage": "Moy. sur 7j",
+    "aisEstimated": "Estimation AIS",
+    "ais24hEstimated": "Estimation AIS 24h",
+    "confirmed": "Confirmé",
+    "estimated": "Estimé"
+  },
+  "sections": {
+    "jump": "Aller à la section",
+    "summary": "Résumé de la situation",
+    "statusCards": "Statut actuel",
+    "weeklyTransit": "Transit moyen hebdomadaire",
+    "map": "Carte du détroit",
+    "transitFlow": "Flux de transit (90 jours)",
+    "oilPrices": "Prix du pétrole (historique 90 jours)",
+    "oilRealtime": "Prix du pétrole (En temps réel)",
+    "transitOilComparison": "Transit vs Prix du pétrole (90 jours)",
+    "marketSnapshot": "Aperçu du marché",
+    "recentEvents": "Problèmes liés"
+  },
+  "map": {
+    "title": "Carte du détroit",
+    "placeholder": "Carte en direct des navires",
+    "map1": "Carte 1",
+    "map2": "Carte 2"
+  },
+  "oil": {
+    "wti": "WTI",
+    "brent": "Brent",
+    "naturalGas": "Gaz naturel",
+    "perBbl": "USD/bbl",
+    "perMmbtu": "USD/MMBtu",
+    "realtimeWidget": "En temps réel"
+  },
+  "transit": {
+    "comparison": "Transit + Pétrole",
+    "total": "Total",
+    "breakdown": "Par type",
+    "brent": "Brent",
+    "totalVessels": "Total des navires",
+    "tanker": "Pétrolier",
+    "container": "Porte-conteneurs",
+    "dryBulk": "Vraquier",
+    "general": "Cargo général",
+    "offshoreExitEstimate": "Estimation de sortie au large",
+    "confirmed": "Confirmé",
+    "estimated": "Estimé",
+    "noData": "Aucune donnée de transit"
+  },
+  "events": {
+    "viewAll": "Voir tous les événements →",
+    "noEvents": "Aucun événement récent"
+  },
+  "status": {
+    "normal": "Normal",
+    "slightly_delayed": "Légèrement retardé",
+    "congested": "Congestionné",
+    "high_risk": "Risque élevé",
+    "critical": "Critique",
+    "blockade_level": "Niveau de blocus",
+    "unknown": "Inconnu"
+  },
+  "trump": {
+    "title": "Trump Réseaux Sociaux",
+    "noData": "Aucune publication disponible",
+    "viewOriginal": "Voir l'original"
+  },
+  "gasoline": {
+    "title": "Prix de l'essence aux États-Unis",
+    "national": "Moy. nationale",
+    "state": "Par région / État",
+    "pricePerGallon": "$/gallon",
+    "area": "Zone",
+    "price": "Prix ($/gal)",
+    "weekChange": "Changement hebdo.",
+    "region": "région",
+    "noData": "Aucune donnée sur le prix de l'essence"
+  },
+  "gauge": {
+    "title": "Indice de risque d'Ormuz",
+    "safe": "SÛR",
+    "caution": "ATTENTION",
+    "warning": "AVERTISSEMENT",
+    "danger": "DANGER",
+    "vessels": "Navires",
+    "geoLabel": "Tension géopolitique",
+    "histLabel": "Historique",
+    "hist1d": "Hier",
+    "hist2d": "Il y a 2J",
+    "hist1w": "Il y a 1S",
+    "hist2w": "Il y a 2S",
+    "hist1m": "Il y a 1M",
+    "hist2m": "Il y a 2M"
+  },
+  "summary": {
+    "title": "Résumé de la situation",
+    "aiLabel": "Résumé IA",
+    "updated": "Mis à jour",
+    "noData": "Chargement du résumé...",
+    "share": "Partager",
+    "shareCopied": "Copié !",
+    "shareSource": "Source : Hormuz Monitor",
+    "shareService": "Hormuz Monitor",
+    "shareServiceUrl": "https://www.hrmz.today"
+  },
+  "loading": "Chargement...",
+  "noData": "Aucune donnée"
+}

@@ -1,0 +1,50 @@
+{
+  "title": "Veri Kaynakları",
+  "subtitle": "Veriler nereden geliyor?",
+  "emptyState": "Kaynak ayrıntıları burada görünecektir",
+  "shipping": {
+    "heading": "Gemi Trafiği",
+    "items": [
+      { "name": "IMF PortWatch", "detail": "ArcGIS REST API aracılığıyla günlük darboğaz geçiş sayımları. Uydu AIS tabanlı. Günde bir kez güncellenir.", "url": "https://portwatch.imf.org" },
+      { "name": "AISStream", "detail": "Son 24 saat içindeki giriş ve çıkış hareketlerini tahmin etmek için kullanılan AIS gemi pozisyon akışı.", "url": "https://aisstream.io" },
+      { "name": "MarineTraffic (harita)", "detail": "İframe aracılığıyla yerleştirilmiş canlı AIS gemi haritası. Gerçek zamanlı gemi pozisyonları.", "url": "https://www.marinetraffic.com" }
+    ]
+  },
+  "oil": {
+    "heading": "Petrol ve Gaz Fiyatları",
+    "items": [
+      { "name": "EIA (ABD Enerji Bilgi İdaresi)", "detail": "WTI, Brent, Henry Hub doğal gaz ve ABD benzin fiyat verileri.", "url": "https://www.eia.gov/opendata" },
+      { "name": "Yahoo Finance (yfinance)", "detail": "Spot veriler geciktiğinde yedek olarak kullanılan WTI ve Brent vadeli işlemleri artı ana piyasa göstergeleri.", "url": "https://finance.yahoo.com" },
+      { "name": "TradingView", "detail": "Gereç (widget) aracılığıyla yerleştirilmiş gerçek zamanlı fiyat grafikleri (TVC:USOIL, TVC:UKOIL, CAPITALCOM:NATURALGAS).", "url": "https://www.tradingview.com" }
+    ]
+  },
+  "market": {
+    "heading": "Piyasa Göstergeleri",
+    "items": [
+      { "name": "Yahoo Finance (yfinance)", "detail": "VIX, Nasdaq, S&P 500, KOSPI, KOSDAQ, ABD endeks vadeli işlemleri, altın vadeli işlemleri, dolar endeksi, benzin vadeli işlemleri ve ısıtma yağı vadeli işlemleri için anlık görüntüler, 5 dakikalık mumlar ve günlük mumlar.", "url": "https://finance.yahoo.com" }
+    ]
+  },
+  "events": {
+    "heading": "Jeopolitik Olaylar",
+    "items": [
+      { "name": "BBC Orta Doğu RSS", "detail": "BBC News'ten Orta Doğu manşetleri.", "url": "https://www.bbc.com/news/world/middle_east" },
+      { "name": "Anadolu Ajansı RSS", "detail": "Türkiye'nin devlet haber ajansından bölgesel haberler.", "url": "https://www.aa.com.tr/en" },
+      { "name": "NYT ve CNBC RSS", "detail": "Orta Doğu, enerji ve küresel piyasalarla ilgili İngilizce manşetler.", "url": "https://www.nytimes.com" },
+      { "name": "Reuters ve AP News (Google Haberler RSS)", "detail": "Resmi RSS erişiminin sınırlı olduğu yerlerde Google Haberler RSS arama akışları aracılığıyla seçilen yayınlardan ilgili manşetler.", "url": "https://news.google.com" },
+      { "name": "Yonhap, Korea Economic Daily, Maeil Business RSS", "detail": "Anahtar kelimelere göre sınıflandırılmış Kore uluslararası ve piyasa manşetleri.", "url": "https://www.yna.co.kr" },
+      { "name": "Truth Social RSS", "detail": "Trump Truth Social gönderileri toplandı ve Koreceye çevrildi.", "url": "https://trumpstruth.org/feed" }
+    ]
+  },
+  "updateFrequency": {
+    "heading": "Güncelleme Sıklığı",
+    "rows": [
+      { "source": "AIS gemi pozisyonları ve yön tahminleri", "frequency": "Her 20 dakikada bir" },
+      { "source": "Piyasa göstergeleri ve 5 dakikalık mumlar", "frequency": "Her 20 dakikada bir" },
+      { "source": "İlgili sorunlar (RSS)", "frequency": "Her saat başı" },
+      { "source": "Durum özeti ve Trump çevirisi", "frequency": "Her saat başı" },
+      { "source": "Trump Truth Social koleksiyonu", "frequency": "Her 2 saatte bir" },
+      { "source": "PortWatch, petrol, benzin ve temizlik", "frequency": "Günlük 06:00 UTC'de" }
+    ]
+  },
+  "disclaimer": "Tüm veriler halka açık API'lerden ve akışlardan alınmıştır. Hormuz Monitor, yukarıda listelenen veri sağlayıcılarının hiçbiriyle bağlantılı değildir."
+}

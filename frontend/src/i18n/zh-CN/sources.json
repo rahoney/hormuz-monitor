@@ -1,0 +1,50 @@
+{
+  "title": "数据来源",
+  "subtitle": "数据从何而来？",
+  "emptyState": "来源详情将在此处显示",
+  "shipping": {
+    "heading": "船只流量",
+    "items": [
+      { "name": "IMF PortWatch", "detail": "通过ArcGIS REST API获取的每日咽喉要道通行量统计。基于卫星AIS。每天更新一次。", "url": "https://portwatch.imf.org" },
+      { "name": "AISStream", "detail": "用于估计过去24小时内进出港活动的AIS船只位置流。", "url": "https://aisstream.io" },
+      { "name": "MarineTraffic (地图)", "detail": "通过iframe嵌入的实时AIS船只地图。实时船只位置。", "url": "https://www.marinetraffic.com" }
+    ]
+  },
+  "oil": {
+    "heading": "油气价格",
+    "items": [
+      { "name": "EIA (美国能源信息署)", "detail": "WTI、Brent、Henry Hub 天然气以及美国汽油价格数据。", "url": "https://www.eia.gov/opendata" },
+      { "name": "Yahoo Finance (yfinance)", "detail": "WTI和Brent期货以及主要市场指标，作为现货数据延迟时的备用数据源。", "url": "https://finance.yahoo.com" },
+      { "name": "TradingView", "detail": "通过小部件嵌入的实时价格图表 (TVC:USOIL, TVC:UKOIL, CAPITALCOM:NATURALGAS)。", "url": "https://www.tradingview.com" }
+    ]
+  },
+  "market": {
+    "heading": "市场指标",
+    "items": [
+      { "name": "Yahoo Finance (yfinance)", "detail": "VIX、Nasdaq、S&P 500、KOSPI、KOSDAQ、美国指数期货、黄金期货、美元指数、汽油期货及取暖油期货的快照、5分钟线和日线。", "url": "https://finance.yahoo.com" }
+    ]
+  },
+  "events": {
+    "heading": "地缘政治事件",
+    "items": [
+      { "name": "BBC 中东 RSS", "detail": "来自 BBC News 的中东新闻头条。", "url": "https://www.bbc.com/news/world/middle_east" },
+      { "name": "Anadolu Agency RSS", "detail": "土耳其国家通讯社的地区新闻。", "url": "https://www.aa.com.tr/en" },
+      { "name": "NYT 和 CNBC RSS", "detail": "与中东、能源及全球市场相关的英文头条新闻。", "url": "https://www.nytimes.com" },
+      { "name": "Reuters 和 AP News (Google News RSS)", "detail": "通过 Google News RSS 搜索获取的精选媒体相关头条新闻，适用于官方 RSS 访问受限的情况。", "url": "https://news.google.com" },
+      { "name": "韩联社、韩国经济新闻、每日经济 RSS", "detail": "按关键字分类的韩国国际和市场新闻头条。", "url": "https://www.yna.co.kr" },
+      { "name": "Truth Social RSS", "detail": "特朗普 Truth Social 帖子收集并翻译为韩文。", "url": "https://trumpstruth.org/feed" }
+    ]
+  },
+  "updateFrequency": {
+    "heading": "更新频率",
+    "rows": [
+      { "source": "AIS 船只位置及方向估计", "frequency": "每 20 分钟" },
+      { "source": "市场指标及 5 分钟线", "frequency": "每 20 分钟" },
+      { "source": "相关事件 (RSS)", "frequency": "每 1 小时" },
+      { "source": "局势摘要及特朗普社交翻译", "frequency": "每 1 小时" },
+      { "source": "特朗普 Truth Social 收集", "frequency": "每 2 小时" },
+      { "source": "PortWatch、原油、汽油及清理", "frequency": "每天 06:00 UTC" }
+    ]
+  },
+  "disclaimer": "所有数据均来自公开可用的API和数据源。Hormuz Monitor 与上述任何数据提供商均无关联。"
+}

@@ -1,0 +1,32 @@
+{
+  "title": "關於",
+  "subtitle": "什麼是 Hormuz Monitor？",
+  "description": {
+    "p1": "根據EIA統計，2024年通過霍爾木茲海峽的原油和石油產品日均流量達2000萬桶——約占全球石油消費量的20%。",
+    "p2": "全球約20%的液化天然氣 (LNG) 貿易也經過該海峽，其中84%的原油和凝析油以及83%的液化天然氣流向亞洲市場。",
+    "p3": "如果霍爾木茲海峽的能源供應受阻，將對全球工業和經濟產生重大影響。這個專案的建立是為了將所有相關資訊集中於一處，避免從多個來源進行檢索。",
+    "p4": "Hormuz Monitor 是一個儀表板，可讓您一目瞭然地查看通過霍爾木茲海峽的船隻動態、油價以及美國主要市場指數。它旨在幫助您更快地在一個地方存取分散的資訊。"
+  },
+  "sources": {
+    "heading": "數據來源",
+    "list": "IMF PortWatch, AISStream, MarineTraffic, EIA, TradingView, Yahoo Finance, BBC RSS, Anadolu Agency RSS, NYT/CNBC RSS, Google News RSS, 韓國主要新聞 RSS, Truth Social RSS"
+  },
+  "github": "GitHub",
+  "contact": {
+    "heading": "聯繫我們",
+    "body": "關於本專案的任何問題，請使用聯繫表格。",
+    "button": "聯繫我們"
+  },
+  "support": {
+    "heading": "支持",
+    "body1": "如果您想支持本專案，可以透過以下連結進行贊助。",
+    "body2": "您的支持將用於專案的維護和未來的功能改進。",
+    "kr": "韓國支持",
+    "global": "全球支持"
+  },
+  "notice": {
+    "heading": "注意事項",
+    "body": "Hormuz Monitor 是作為一個個人專案營運的。",
+    "peace": "我們希望戰爭早日結束，和平降臨在每個人身上。"
+  }
+}

@@ -1,0 +1,120 @@
+{
+  "title": "مصادر البيانات",
+  "subtitle": "من أين تأتي البيانات؟",
+  "emptyState": "ستظهر تفاصيل المصدر هنا",
+  "shipping": {
+    "heading": "حركة السفن",
+    "items": [
+      {
+        "name": "IMF PortWatch",
+        "detail": "إحصاءات العبور اليومية لنقاط الاختناق عبر واجهة برمجة تطبيقات ArcGIS REST. تعتمد على AIS للأقمار الصناعية. يتم تحديثها مرة واحدة يوميًا.",
+        "url": "https://portwatch.imf.org"
+      },
+      {
+        "name": "AISStream",
+        "detail": "تدفق موقع سفن AIS المستخدم لتقدير الحركة الواردة والصادرة على مدار الـ 24 ساعة الماضية.",
+        "url": "https://aisstream.io"
+      },
+      {
+        "name": "MarineTraffic (map)",
+        "detail": "خريطة سفن AIS المباشرة المضمنة عبر iframe. مواقع السفن في الوقت الفعلي.",
+        "url": "https://www.marinetraffic.com"
+      }
+    ]
+  },
+  "oil": {
+    "heading": "أسعار النفط والغاز",
+    "items": [
+      {
+        "name": "EIA (U.S. Energy Information Administration)",
+        "detail": "بيانات أسعار WTI، Brent، الغاز الطبيعي (Henry Hub)، وأسعار البنزين في الولايات المتحدة.",
+        "url": "https://www.eia.gov/opendata"
+      },
+      {
+        "name": "Yahoo Finance (yfinance)",
+        "detail": "عقود WTI و Brent الآجلة بالإضافة إلى مؤشرات السوق الرئيسية المستخدمة كبديل عندما تتأخر البيانات الفورية.",
+        "url": "https://finance.yahoo.com"
+      },
+      {
+        "name": "TradingView",
+        "detail": "مخططات أسعار في الوقت الفعلي مضمنة عبر واجهة التطبيق (TVC:USOIL, TVC:UKOIL, CAPITALCOM:NATURALGAS).",
+        "url": "https://www.tradingview.com"
+      }
+    ]
+  },
+  "market": {
+    "heading": "مؤشرات السوق",
+    "items": [
+      {
+        "name": "Yahoo Finance (yfinance)",
+        "detail": "لقطات، شموع 5 دقائق، وشموع يومية لـ VIX، Nasdaq، S&P 500، KOSPI، KOSDAQ، العقود الآجلة للمؤشرات الأمريكية، العقود الآجلة للذهب، مؤشر الدولار، العقود الآجلة للبنزين، والعقود الآجلة لزيت التدفئة.",
+        "url": "https://finance.yahoo.com"
+      }
+    ]
+  },
+  "events": {
+    "heading": "الأحداث الجيوسياسية",
+    "items": [
+      {
+        "name": "BBC Middle East RSS",
+        "detail": "عناوين الشرق الأوسط من أخبار BBC.",
+        "url": "https://www.bbc.com/news/world/middle_east"
+      },
+      {
+        "name": "Anadolu Agency RSS",
+        "detail": "الأخبار الإقليمية من وكالة الأنباء الحكومية التركية.",
+        "url": "https://www.aa.com.tr/en"
+      },
+      {
+        "name": "NYT and CNBC RSS",
+        "detail": "عناوين باللغة الإنجليزية تتعلق بالشرق الأوسط والطاقة والأسواق العالمية.",
+        "url": "https://www.nytimes.com"
+      },
+      {
+        "name": "Reuters and AP News (Google News RSS)",
+        "detail": "العناوين ذات الصلة من منافذ مختارة من خلال موجزات بحث Google News RSS حيث يكون الوصول الرسمي إلى RSS محدودًا.",
+        "url": "https://news.google.com"
+      },
+      {
+        "name": "Yonhap, Korea Economic Daily, Maeil Business RSS",
+        "detail": "العناوين الكورية الدولية والسوقية مصنفة حسب الكلمة الرئيسية.",
+        "url": "https://www.yna.co.kr"
+      },
+      {
+        "name": "Truth Social RSS",
+        "detail": "تم جمع منشورات Trump Truth Social وترجمتها إلى الكورية.",
+        "url": "https://trumpstruth.org/feed"
+      }
+    ]
+  },
+  "updateFrequency": {
+    "heading": "تواتر التحديث",
+    "rows": [
+      {
+        "source": "مواقع سفن AIS وتقديرات الاتجاه",
+        "frequency": "كل 20 دقيقة"
+      },
+      {
+        "source": "مؤشرات السوق وشموع 5 دقائق",
+        "frequency": "كل 20 دقيقة"
+      },
+      {
+        "source": "القضايا ذات الصلة (RSS)",
+        "frequency": "كل ساعة"
+      },
+      {
+        "source": "ملخص الحالة وترجمة ترامب",
+        "frequency": "كل ساعة"
+      },
+      {
+        "source": "مجموعة Truth Social لترامب",
+        "frequency": "كل ساعتين"
+      },
+      {
+        "source": "PortWatch، النفط، البنزين، والتنظيف",
+        "frequency": "يوميًا في 06:00 UTC"
+      }
+    ]
+  },
+  "disclaimer": "يتم الحصول على جميع البيانات من واجهات برمجة التطبيقات والخلاصات المتاحة للجمهور. Hormuz Monitor غير تابع لأي من مزودي البيانات المذكورين أعلاه."
+}

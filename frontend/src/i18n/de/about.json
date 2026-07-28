@@ -1,0 +1,32 @@
+{
+  "title": "Über",
+  "subtitle": "Was ist Hormuz Monitor?",
+  "description": {
+    "p1": "Laut EIA betrug der durchschnittliche tägliche Fluss von Rohöl und Erdölprodukten durch die Straße von Hormus im Jahr 2024 20 Millionen Barrel - etwa 20% des weltweiten Erdölverbrauchs.",
+    "p2": "Etwa 20% des weltweiten LNG-Handels passierten ebenfalls die Meerenge, wobei 84% des Rohöls und Kondensats und 83% des LNGs in asiatische Märkte flossen.",
+    "p3": "Jede Unterbrechung der Energieversorgung durch die Straße von Hormus kann erhebliche Auswirkungen auf die globale Industrie und Wirtschaft haben. Dieses Projekt wurde ins Leben gerufen, um all diese Informationen an einem Ort zu bündeln, anstatt in mehreren Quellen zu suchen.",
+    "p4": "Hormuz Monitor ist ein Dashboard, das es Ihnen ermöglicht, Schiffsbewegungen durch die Straße von Hormus, Ölpreise und wichtige US-Marktindizes auf einen Blick zu sehen. Es wurde entwickelt, um Ihnen zu helfen, schneller auf verstreute Informationen an einem Ort zuzugreifen."
+  },
+  "sources": {
+    "heading": "Datenquellen",
+    "list": "IMF PortWatch, AISStream, MarineTraffic, EIA, TradingView, Yahoo Finance, BBC RSS, Anadolu Agency RSS, NYT/CNBC RSS, Google News RSS, wichtige koreanische Nachrichten RSS, Truth Social RSS"
+  },
+  "github": "GitHub",
+  "contact": {
+    "heading": "Kontakt",
+    "body": "Für Anfragen zum Projekt nutzen Sie bitte das Kontaktformular.",
+    "button": "Kontaktiere uns"
+  },
+  "support": {
+    "heading": "Unterstützung",
+    "body1": "Wenn Sie dieses Projekt unterstützen möchten, können Sie dies über die unten stehenden Links tun.",
+    "body2": "Ihre Unterstützung hilft bei der Wartung und zukünftigen Verbesserungen.",
+    "kr": "KR-Support",
+    "global": "Globaler Support"
+  },
+  "notice": {
+    "heading": "Hinweis",
+    "body": "Hormuz Monitor wird als persönliches Projekt betrieben.",
+    "peace": "Wir hoffen, dass der Krieg bald endet und Frieden für alle einkehrt."
+  }
+}

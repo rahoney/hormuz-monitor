@@ -114,7 +114,8 @@
     "hist2d": "2일 전",
     "hist1w": "1주 전",
     "hist2w": "2주 전",
-    "hist1m": "1개월 전"
+    "hist1m": "1개월 전",
+    "hist2m": "2개월 전"
   },
   "summary": {
     "title": "상황 요약",

@@ -1,0 +1,20 @@
+{
+  "nav": {
+    "dashboard": "儀表板",
+    "events": "相關事件",
+    "about": "關於"
+  },
+  "footer": {
+    "copyright": "© 2026 Hormuz Monitor by WikiHoney. 保留所有權利。",
+    "supportText": "支持本專案",
+    "supportKr": "韓國支持",
+    "supportGlobal": "全球支持",
+    "otherProjects": "其他專案"
+  },
+  "status": {
+    "loading": "載入中...",
+    "noData": "暫無數據",
+    "error": "數據載入失敗",
+    "lastUpdated": "最後更新"
+  }
+}

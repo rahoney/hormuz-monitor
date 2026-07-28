@@ -1,0 +1,37 @@
+{
+  "title": "Verwandte Themen",
+  "subtitle": "Geopolitische Ereignisse, die die Straße von Hormus beeinflussen",
+  "emptyState": "Noch keine Ereignisse erfasst",
+  "tabs": {
+    "events": "Ereignisse",
+    "trump": "Trump Social"
+  },
+  "filters": {
+    "all": "Alle",
+    "attack": "Angriff",
+    "closure": "Schließung",
+    "reopening": "Wiedereröffnung",
+    "sanctions": "Sanktionen",
+    "ceasefire": "Waffenstillstand",
+    "negotiation": "Verhandlung",
+    "escort_operation": "Eskorten-Operation"
+  },
+  "severity": {
+    "critical": "Kritisch",
+    "high": "Hoch",
+    "medium": "Mittel",
+    "low": "Niedrig"
+  },
+  "source": "Quelle",
+  "noSource": "Keine Quelle",
+  "articleSummary": {
+    "label": "Artikelzusammenfassung",
+    "loading": "Artikel wird zusammengefasst...",
+    "error": "Die Zusammenfassung konnte nicht geladen werden. Bitte öffnen Sie den Originalartikel.",
+    "openOriginal": "Original öffnen",
+    "close": "Schließen",
+    "cached": "Gespeicherte Zusammenfassung",
+    "generated": "Neue Zusammenfassung",
+    "unknownSource": "Keine Quelle"
+  }
+}

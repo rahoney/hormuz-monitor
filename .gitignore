@@ -40,3 +40,6 @@ Thumbs.db
 # 임시 테스트 폴더 (깃허브 업로드 제외)
 tmp_test/
 tmp_live_tests/
+
+# 에이전트 자산 (서브에이전트, 스킬, 훅 등 내부 운영 파일)
+agent/

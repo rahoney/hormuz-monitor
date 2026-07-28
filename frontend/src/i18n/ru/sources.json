@@ -1,0 +1,50 @@
+{
+  "title": "Источники данных",
+  "subtitle": "Откуда берутся данные?",
+  "emptyState": "Здесь появится информация об источниках",
+  "shipping": {
+    "heading": "Движение судов",
+    "items": [
+      { "name": "IMF PortWatch", "detail": "Ежедневная статистика транзита через узкие места через ArcGIS REST API. На основе спутниковой системы AIS. Обновляется раз в день.", "url": "https://portwatch.imf.org" },
+      { "name": "AISStream", "detail": "Поток данных о местоположении судов AIS, используемый для оценки входящего и исходящего движения за последние 24 часа.", "url": "https://aisstream.io" },
+      { "name": "MarineTraffic (карта)", "detail": "Живая карта судов AIS, встроенная через iframe. Позиции судов в реальном времени.", "url": "https://www.marinetraffic.com" }
+    ]
+  },
+  "oil": {
+    "heading": "Цены на нефть и газ",
+    "items": [
+      { "name": "EIA (Управление энергетической информации США)", "detail": "Данные о ценах на нефть WTI, Brent, природный газ Henry Hub и бензин в США.", "url": "https://www.eia.gov/opendata" },
+      { "name": "Yahoo Finance (yfinance)", "detail": "Фьючерсы на WTI и Brent, а также основные рыночные индикаторы, используемые в качестве резервных при задержке спотовых данных.", "url": "https://finance.yahoo.com" },
+      { "name": "TradingView", "detail": "Графики цен в реальном времени, встроенные через виджет (TVC:USOIL, TVC:UKOIL, CAPITALCOM:NATURALGAS).", "url": "https://www.tradingview.com" }
+    ]
+  },
+  "market": {
+    "heading": "Рыночные индикаторы",
+    "items": [
+      { "name": "Yahoo Finance (yfinance)", "detail": "Снимки, 5-минутные и дневные свечи для VIX, Nasdaq, S&P 500, KOSPI, KOSDAQ, фьючерсов на индексы США, фьючерсов на золото, индекса доллара, фьючерсов на бензин и мазут.", "url": "https://finance.yahoo.com" }
+    ]
+  },
+  "events": {
+    "heading": "Геополитические события",
+    "items": [
+      { "name": "BBC Middle East RSS", "detail": "Заголовки новостей Ближнего Востока от BBC News.", "url": "https://www.bbc.com/news/world/middle_east" },
+      { "name": "Anadolu Agency RSS", "detail": "Региональные новости от государственного информационного агентства Турции.", "url": "https://www.aa.com.tr/en" },
+      { "name": "NYT и CNBC RSS", "detail": "Англоязычные заголовки, связанные с Ближним Востоком, энергетикой и мировыми рынками.", "url": "https://www.nytimes.com" },
+      { "name": "Reuters и AP News (Google News RSS)", "detail": "Релевантные заголовки из выбранных изданий через RSS-каналы поиска Google News, где официальный доступ к RSS ограничен.", "url": "https://news.google.com" },
+      { "name": "Yonhap, Korea Economic Daily, Maeil Business RSS", "detail": "Заголовки корейских международных и рыночных новостей, классифицированные по ключевым словам.", "url": "https://www.yna.co.kr" },
+      { "name": "Truth Social RSS", "detail": "Посты Трампа в Truth Social, собранные и переведенные на корейский язык.", "url": "https://trumpstruth.org/feed" }
+    ]
+  },
+  "updateFrequency": {
+    "heading": "Частота обновлений",
+    "rows": [
+      { "source": "Позиции судов AIS и оценки направления", "frequency": "Каждые 20 минут" },
+      { "source": "Рыночные индикаторы и 5-минутные свечи", "frequency": "Каждые 20 минут" },
+      { "source": "Связанные события (RSS)", "frequency": "Каждый час" },
+      { "source": "Сводка ситуации и перевод Трампа", "frequency": "Каждый час" },
+      { "source": "Сбор данных Truth Social Трампа", "frequency": "Каждые 2 часа" },
+      { "source": "PortWatch, нефть, бензин и очистка данных", "frequency": "Ежедневно в 06:00 UTC" }
+    ]
+  },
+  "disclaimer": "Все данные получены из общедоступных API и каналов. Hormuz Monitor не связан ни с одним из перечисленных выше поставщиков данных."
+}

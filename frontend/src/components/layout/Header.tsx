@@ -1,11 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
-import { useTranslations } from "next-intl";
-import { usePathname } from "next/navigation";
-import { Link, useRouter } from "@/i18n/navigation";
-import { routing } from "@/i18n/routing";
+import { useTranslations, useLocale } from "next-intl";
+import { Link, useRouter, usePathname } from "@/i18n/navigation";
+import { routing, LOCALE_LABELS } from "@/i18n/routing";
 
 const NAV_ITEMS = [
   { key: "dashboard", href: "/" },
@@ -17,21 +16,30 @@ export default function Header() {
   const t = useTranslations("common");
   const pathname = usePathname();
   const router = useRouter();
+  const currentLocale = useLocale();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [langOpen, setLangOpen] = useState(false);
+  const langRef = useRef<HTMLDivElement>(null);
 
-  const currentLocale = routing.locales.find((loc) =>
-    pathname.startsWith(`/${loc}`)
-  ) ?? routing.defaultLocale;
+  // 드롭다운 외부 클릭 감지
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (langRef.current && !langRef.current.contains(e.target as Node)) {
+        setLangOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   function switchLocale(locale: string) {
-    const pathWithoutLocale = pathname.replace(/^\/(en|ko)/, "") || "/";
-    router.push(pathWithoutLocale, { locale });
+    router.push(pathname, { locale });
+    setLangOpen(false);
     setMenuOpen(false);
   }
 
   function isActive(href: string) {
-    const pathWithoutLocale = pathname.replace(/^\/(en|ko)/, "") || "/";
-    return href === "/" ? pathWithoutLocale === "/" : pathWithoutLocale.startsWith(href);
+    return href === "/" ? pathname === "/" : pathname.startsWith(href);
   }
 
   return (
@@ -60,23 +68,50 @@ export default function Header() {
           ))}
         </nav>
 
-        {/* 언어 전환 + 모바일 메뉴 버튼 */}
+        {/* 언어 드롭다운 + 모바일 메뉴 버튼 */}
         <div className="flex items-center gap-2">
-          <div className="flex rounded border border-slate-700 text-xs">
-            {routing.locales.map((loc) => (
-              <button
-                key={loc}
-                onClick={() => switchLocale(loc)}
-                className={`cursor-pointer px-2.5 py-1 transition-colors first:rounded-l last:rounded-r ${
-                  currentLocale === loc
-                    ? "bg-slate-700 text-slate-100"
-                    : "text-slate-400 hover:text-slate-100"
-                }`}
-              >
-                {loc.toUpperCase()}
-              </button>
-            ))}
+          {/* 언어 선택 드롭다운 */}
+          <div className="relative" ref={langRef}>
+            <button
+              onClick={() => setLangOpen(!langOpen)}
+              className="flex items-center gap-1 rounded border border-slate-700 px-2.5 py-1 text-xs text-slate-300 transition-colors hover:border-slate-500 hover:text-slate-100"
+              aria-label="Select language"
+              aria-expanded={langOpen}
+            >
+              <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <circle cx="12" cy="12" r="10" />
+                <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10A15.3 15.3 0 0 1 12 2z" />
+              </svg>
+              <span>{LOCALE_LABELS[currentLocale] ?? currentLocale}</span>
+              <svg className={`h-3 w-3 transition-transform ${langOpen ? "rotate-180" : ""}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+
+            {langOpen && (
+              <div className="absolute end-0 top-full z-50 mt-1 max-h-72 w-40 overflow-y-auto rounded-lg border border-slate-700 bg-slate-900 py-1 shadow-xl">
+                {routing.locales.map((loc) => (
+                  <button
+                    key={loc}
+                    onClick={() => switchLocale(loc)}
+                    className={`flex w-full items-center gap-2 px-3 py-1.5 text-start text-xs transition-colors ${
+                      currentLocale === loc
+                        ? "bg-slate-700/50 text-amber-400"
+                        : "text-slate-300 hover:bg-slate-800 hover:text-slate-100"
+                    }`}
+                  >
+                    {LOCALE_LABELS[loc] ?? loc}
+                    {currentLocale === loc && (
+                      <svg className="ms-auto h-3.5 w-3.5 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path d="M5 13l4 4L19 7" />
+                      </svg>
+                    )}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
+
           <button
             className="rounded p-1.5 text-slate-400 hover:text-slate-100 md:hidden"
             onClick={() => setMenuOpen(!menuOpen)}

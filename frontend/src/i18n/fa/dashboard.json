@@ -1,0 +1,127 @@
+{
+  "title": "نمایشگر لحظه‌ای تنگه هرمز",
+  "subtitle": "اطلاعات کلیدی در یک جا جمع‌آوری شده است تا بتوانید وضعیت تنگه را با یک نگاه ارزیابی کنید.",
+  "cards": {
+    "straitStatus": "وضعیت تنگه",
+    "vesselCount": "کشتی‌های فعال",
+    "lngVessels": "نفتکش‌های ال‌ان‌جی (LNG)",
+    "crudeVessels": "نفتکش‌های خام",
+    "tankerVessels": "نفتکش‌ها",
+    "containerVessels": "کشتی‌های کانتینری",
+    "dryBulkVessels": "کشتی‌های فله‌بر خشک",
+    "generalCargoVessels": "کشتی‌های باری عمومی",
+    "inlandEntry": "ورود به داخل",
+    "offshoreExit": "خروج به سمت دریا",
+    "oilPrice": "نفت خام برنت (Brent)",
+    "riskLevel": "سطح ریسک",
+    "insideStrait": "داخل تنگه",
+    "persianGulf": "خلیج فارس",
+    "arabianSea": "دریای عرب",
+    "notTracked": "ردیابی نشده",
+    "weeklyAverage": "میانگین ۷ روزه",
+    "aisEstimated": "تخمین AIS",
+    "ais24hEstimated": "تخمین ۲۴ ساعته AIS",
+    "confirmed": "تأیید شده",
+    "estimated": "تخمین زده شده"
+  },
+  "sections": {
+    "jump": "پرش به بخش",
+    "summary": "خلاصه وضعیت",
+    "statusCards": "وضعیت فعلی",
+    "weeklyTransit": "میانگین عبور هفتگی",
+    "map": "نقشه تنگه",
+    "transitFlow": "جریان عبور (۹۰ روزه)",
+    "oilPrices": "قیمت نفت (تاریخچه ۹۰ روزه)",
+    "oilRealtime": "قیمت نفت (لحظه‌ای)",
+    "transitOilComparison": "عبور در برابر قیمت نفت (۹۰ روز)",
+    "marketSnapshot": "نمای بازار",
+    "recentEvents": "مسائل مرتبط"
+  },
+  "map": {
+    "title": "نقشه تنگه",
+    "placeholder": "نقشه زنده کشتی‌ها",
+    "map1": "نقشه ۱",
+    "map2": "نقشه ۲"
+  },
+  "oil": {
+    "wti": "WTI",
+    "brent": "Brent",
+    "naturalGas": "گاز طبیعی",
+    "perBbl": "دلار/بشکه",
+    "perMmbtu": "دلار/MMBtu",
+    "realtimeWidget": "لحظه‌ای"
+  },
+  "transit": {
+    "comparison": "عبور + نفت",
+    "total": "مجموع",
+    "breakdown": "به تفکیک نوع",
+    "brent": "Brent",
+    "totalVessels": "کل کشتی‌ها",
+    "tanker": "نفتکش",
+    "container": "کانتینر",
+    "dryBulk": "فله‌بر خشک",
+    "general": "باری عمومی",
+    "offshoreExitEstimate": "تخمین خروج به سمت دریا",
+    "confirmed": "تأیید شده",
+    "estimated": "تخمین زده شده",
+    "noData": "داده‌های عبور موجود نیست"
+  },
+  "events": {
+    "viewAll": "مشاهده همه رویدادها ←",
+    "noEvents": "رویداد اخیری وجود ندارد"
+  },
+  "status": {
+    "normal": "عادی",
+    "slightly_delayed": "کمی تأخیر",
+    "congested": "پرترافیک",
+    "high_risk": "ریسک بالا",
+    "critical": "بحرانی",
+    "blockade_level": "سطح محاصره",
+    "unknown": "نامشخص"
+  },
+  "trump": {
+    "title": "رسانه‌های اجتماعی ترامپ",
+    "noData": "هیچ پستی موجود نیست",
+    "viewOriginal": "مشاهده اصلی"
+  },
+  "gasoline": {
+    "title": "قیمت بنزین در ایالات متحده",
+    "national": "میانگین ملی",
+    "state": "به تفکیک منطقه / ایالت",
+    "pricePerGallon": "$/گالن",
+    "area": "منطقه",
+    "price": "قیمت ($/گالن)",
+    "weekChange": "تغییر هفتگی",
+    "region": "منطقه",
+    "noData": "داده‌های قیمت بنزین موجود نیست"
+  },
+  "gauge": {
+    "title": "شاخص ریسک هرمز",
+    "safe": "ایمن",
+    "caution": "احتیاط",
+    "warning": "هشدار",
+    "danger": "خطر",
+    "vessels": "کشتی‌ها",
+    "geoLabel": "تنش ژئوپلیتیک",
+    "histLabel": "تاریخی",
+    "hist1d": "دیروز",
+    "hist2d": "۲ روز پیش",
+    "hist1w": "۱ هفته پیش",
+    "hist2w": "۲ هفته پیش",
+    "hist1m": "۱ ماه پیش",
+    "hist2m": "۲ ماه پیش"
+  },
+  "summary": {
+    "title": "خلاصه وضعیت",
+    "aiLabel": "خلاصه هوش مصنوعی",
+    "updated": "به‌روزرسانی شده",
+    "noData": "در حال بارگذاری خلاصه...",
+    "share": "اشتراک‌گذاری",
+    "shareCopied": "کپی شد!",
+    "shareSource": "منبع: Hormuz Monitor",
+    "shareService": "Hormuz Monitor",
+    "shareServiceUrl": "https://www.hrmz.today"
+  },
+  "loading": "در حال بارگذاری...",
+  "noData": "داده‌ای نیست"
+}

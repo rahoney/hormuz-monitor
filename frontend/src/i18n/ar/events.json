@@ -1,0 +1,37 @@
+{
+  "title": "القضايا ذات الصلة",
+  "subtitle": "الأحداث الجيوسياسية التي تؤثر على مضيق هرمز",
+  "emptyState": "لم تسجل أي أحداث بعد",
+  "tabs": {
+    "events": "الأحداث",
+    "trump": "ترامب الاجتماعي"
+  },
+  "filters": {
+    "all": "الكل",
+    "attack": "هجوم",
+    "closure": "إغلاق",
+    "reopening": "إعادة فتح",
+    "sanctions": "عقوبات",
+    "ceasefire": "وقف إطلاق النار",
+    "negotiation": "تفاوض",
+    "escort_operation": "عملية مرافقة"
+  },
+  "severity": {
+    "critical": "حرج",
+    "high": "عالي",
+    "medium": "متوسط",
+    "low": "منخفض"
+  },
+  "source": "المصدر",
+  "noSource": "لا يوجد مصدر",
+  "articleSummary": {
+    "label": "ملخص المقال",
+    "loading": "جاري تلخيص المقال...",
+    "error": "تعذر تحميل الملخص. يرجى فتح المقال الأصلي.",
+    "openOriginal": "فتح الأصل",
+    "close": "إغلاق",
+    "cached": "ملخص مخزن مؤقتًا",
+    "generated": "ملخص جديد",
+    "unknownSource": "لا يوجد مصدر"
+  }
+}

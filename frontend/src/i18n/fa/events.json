@@ -1,0 +1,37 @@
+{
+  "title": "مسائل مرتبط",
+  "subtitle": "رویدادهای ژئوپلیتیک مؤثر بر تنگه هرمز",
+  "emptyState": "هنوز رویدادی ثبت نشده است",
+  "tabs": {
+    "events": "رویدادها",
+    "trump": "اجتماعی ترامپ"
+  },
+  "filters": {
+    "all": "همه",
+    "attack": "حمله",
+    "closure": "بستن",
+    "reopening": "بازگشایی",
+    "sanctions": "تحریم‌ها",
+    "ceasefire": "آتش‌بس",
+    "negotiation": "مذاکره",
+    "escort_operation": "عملیات اسکورت"
+  },
+  "severity": {
+    "critical": "بحرانی",
+    "high": "بالا",
+    "medium": "متوسط",
+    "low": "پایین"
+  },
+  "source": "منبع",
+  "noSource": "بدون منبع",
+  "articleSummary": {
+    "label": "خلاصه مقاله",
+    "loading": "در حال خلاصه‌سازی مقاله...",
+    "error": "خلاصه بارگذاری نشد. لطفاً مقاله اصلی را باز کنید.",
+    "openOriginal": "باز کردن اصلی",
+    "close": "بستن",
+    "cached": "خلاصه ذخیره شده",
+    "generated": "خلاصه جدید",
+    "unknownSource": "بدون منبع"
+  }
+}

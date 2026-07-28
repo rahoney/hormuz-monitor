@@ -1,0 +1,37 @@
+{
+  "title": "関連イシュー",
+  "subtitle": "ホルムズ海峡に影響を与える地政学的イベント",
+  "emptyState": "まだイベントは記録されていません",
+  "tabs": {
+    "events": "イベント",
+    "trump": "トランプ・ソーシャル"
+  },
+  "filters": {
+    "all": "すべて",
+    "attack": "攻撃",
+    "closure": "閉鎖",
+    "reopening": "再開",
+    "sanctions": "制裁",
+    "ceasefire": "停戦",
+    "negotiation": "交渉",
+    "escort_operation": "護衛作戦"
+  },
+  "severity": {
+    "critical": "危機的",
+    "high": "高",
+    "medium": "中",
+    "low": "低"
+  },
+  "source": "ソース",
+  "noSource": "ソースなし",
+  "articleSummary": {
+    "label": "記事の要約",
+    "loading": "記事を要約しています...",
+    "error": "要約を読み込めませんでした。元の記事を開いてください。",
+    "openOriginal": "原文を開く",
+    "close": "閉じる",
+    "cached": "キャッシュされた要約",
+    "generated": "新しい要約",
+    "unknownSource": "ソースなし"
+  }
+}

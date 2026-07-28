@@ -1,7 +1,21 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 
-type Locale = "ko" | "en";
+type Locale =
+  | "ko"
+  | "en"
+  | "ar"
+  | "fa"
+  | "ja"
+  | "es"
+  | "tr"
+  | "de"
+  | "fr"
+  | "pt-BR"
+  | "it"
+  | "zh-CN"
+  | "zh-TW"
+  | "ru";
 
 type EventRow = {
   id: number;
@@ -36,6 +50,23 @@ const DEFAULT_MODELS = [
   "models/gemini-3-flash-preview",
 ];
 const RETRY_STATUS_CODES = new Set([429, 500, 503, 504]);
+
+const LOCALE_NAME_MAP: Record<Locale, string> = {
+  ko: "Korean",
+  en: "English",
+  ar: "Arabic",
+  fa: "Persian",
+  ja: "Japanese",
+  es: "Spanish",
+  tr: "Turkish",
+  de: "German",
+  fr: "French",
+  "pt-BR": "Brazilian Portuguese",
+  it: "Italian",
+  "zh-CN": "Simplified Chinese",
+  "zh-TW": "Traditional Chinese",
+  ru: "Russian",
+};
 
 function serviceClient() {
   const url = process.env.SUPABASE_URL ?? process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -76,8 +107,9 @@ function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-function prompt(event: EventRow, locale: Locale): string {
-  const language = locale === "ko" ? "Korean" : "English";
+/** 1단계: 원본 메타데이터로부터 직접 요약 생성 프롬프트 (en/ko 등에 사용) */
+function fullSummarizePrompt(event: EventRow, locale: Locale): string {
+  const language = LOCALE_NAME_MAP[locale] ?? "English";
   return `
 You summarize a news item for a Hormuz Strait monitoring dashboard.
 
@@ -102,6 +134,25 @@ Severity: ${event.severity ?? ""}
 Published at: ${event.published_at ?? event.event_date ?? ""}
 Existing excerpt/summary: ${event.summary ?? ""}
 Original URL: ${event.source_url ?? ""}
+`.trim();
+}
+
+/** 2단계: 기존 요약문(영어/한국어)을 대상 언어로 번역하는 초경량 프롬프트 (토큰 절약) */
+function translatePrompt(baseSummary: string, targetLocale: Locale): string {
+  const targetLanguage = LOCALE_NAME_MAP[targetLocale] ?? "English";
+  return `
+Translate the following article summary into ${targetLanguage}.
+
+Rules:
+- Preserve the exact meaning and tone.
+- Do not add or remove information.
+- Keep the same 3 to 5 sentence structure.
+- Do not include markdown.
+- Return only one JSON object: {"summary":"..."}
+- If strict JSON is not possible, return only the translated summary text.
+
+Summary to translate:
+${baseSummary}
 `.trim();
 }
 
@@ -140,7 +191,7 @@ function parseSummary(text: string): string {
     const summary = String(payload.summary ?? "").trim();
     if (summary) return summary.slice(0, 2000);
   } catch {
-    // Plain text fallback is supported by the prompt and Python implementation.
+    // Plain text fallback
   }
 
   if (!stripped) {
@@ -225,8 +276,8 @@ export async function POST(
 ) {
   const params = await context.params;
   const eventId = Number(params.eventId);
-  const localeParam = new URL(request.url).searchParams.get("locale");
-  const locale: Locale = localeParam === "ko" ? "ko" : "en";
+  const localeParam = new URL(request.url).searchParams.get("locale") || "en";
+  const locale = (LOCALE_NAME_MAP[localeParam as Locale] ? localeParam : "en") as Locale;
 
   if (!Number.isInteger(eventId) || eventId <= 0) {
     return NextResponse.json({ detail: "invalid event id" }, { status: 400 });
@@ -244,6 +295,7 @@ export async function POST(
       return NextResponse.json({ detail: "event not found" }, { status: 404 });
     }
 
+    // 1. 요청된 locale에 대한 기존 캐시 확인 (0 토큰 사용)
     const { data: cached } = await supabase
       .from("event_article_summaries")
       .select("event_id,source_url,locale,summary,model,created_at")
@@ -257,7 +309,41 @@ export async function POST(
       return NextResponse.json({ ...cached, event, cached: true });
     }
 
-    const result = await generateText(prompt(event, locale));
+    // 2. 요청된 locale 캐시가 없고 타겟이 en/ko가 아닌 경우:
+    // 이미 존재하는 en 캐시(또는 ko 캐시)를 찾아 초경량 번역(Translate) 수행 (토큰 90% 절약)
+    let aiPrompt: string;
+    let baseSummaryText: string | null = null;
+
+    if (locale !== "en" && locale !== "ko") {
+      const { data: enCached } = await supabase
+        .from("event_article_summaries")
+        .select("summary")
+        .eq("event_id", eventId)
+        .eq("locale", "en")
+        .maybeSingle<{ summary: string }>();
+
+      if (enCached?.summary) {
+        baseSummaryText = enCached.summary;
+      } else {
+        const { data: koCached } = await supabase
+          .from("event_article_summaries")
+          .select("summary")
+          .eq("event_id", eventId)
+          .eq("locale", "ko")
+          .maybeSingle<{ summary: string }>();
+        if (koCached?.summary) {
+          baseSummaryText = koCached.summary;
+        }
+      }
+    }
+
+    if (baseSummaryText) {
+      aiPrompt = translatePrompt(baseSummaryText, locale);
+    } else {
+      aiPrompt = fullSummarizePrompt(event, locale);
+    }
+
+    const result = await generateText(aiPrompt);
     const summary = parseSummary(result.text);
     const record = {
       event_id: eventId,

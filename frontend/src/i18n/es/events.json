@@ -1,0 +1,37 @@
+{
+  "title": "Problemas relacionados",
+  "subtitle": "Eventos geopolíticos que afectan el Estrecho de Ormuz",
+  "emptyState": "No se han registrado eventos aún",
+  "tabs": {
+    "events": "Eventos",
+    "trump": "Redes de Trump"
+  },
+  "filters": {
+    "all": "Todos",
+    "attack": "Ataque",
+    "closure": "Cierre",
+    "reopening": "Reapertura",
+    "sanctions": "Sanciones",
+    "ceasefire": "Alto el fuego",
+    "negotiation": "Negociación",
+    "escort_operation": "Operación de escolta"
+  },
+  "severity": {
+    "critical": "Crítico",
+    "high": "Alto",
+    "medium": "Medio",
+    "low": "Bajo"
+  },
+  "source": "Fuente",
+  "noSource": "Sin fuente",
+  "articleSummary": {
+    "label": "Resumen del artículo",
+    "loading": "Resumiendo el artículo...",
+    "error": "No se pudo cargar el resumen. Por favor abra el artículo original.",
+    "openOriginal": "Abrir original",
+    "close": "Cerrar",
+    "cached": "Resumen en caché",
+    "generated": "Nuevo resumen",
+    "unknownSource": "Sin fuente"
+  }
+}

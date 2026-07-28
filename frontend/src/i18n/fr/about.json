@@ -1,0 +1,32 @@
+{
+  "title": "À propos",
+  "subtitle": "Qu'est-ce que Hormuz Monitor ?",
+  "description": {
+    "p1": "Selon l'EIA, en 2024, le flux quotidien moyen de pétrole brut et de produits pétroliers transitant par le détroit d'Ormuz était de 20 millions de barils — soit environ 20 % de la consommation mondiale de pétrole.",
+    "p2": "Environ 20 % du commerce mondial de GNL a également transité par le détroit, avec 84 % du brut et des condensats et 83 % du GNL destinés aux marchés asiatiques.",
+    "p3": "Toute perturbation de l'approvisionnement en énergie via le détroit d'Ormuz peut avoir un impact majeur sur l'industrie et les économies mondiales. Ce projet a été créé pour regrouper toutes ces informations en un seul endroit, plutôt que de chercher à travers de multiples sources.",
+    "p4": "Hormuz Monitor est un tableau de bord qui vous permet de voir les mouvements des navires via le détroit d'Ormuz, les prix du pétrole et les principaux indices du marché américain en un coup d'œil. Il est conçu pour vous aider à accéder plus rapidement à des informations dispersées, en un seul endroit."
+  },
+  "sources": {
+    "heading": "Sources de données",
+    "list": "IMF PortWatch, AISStream, MarineTraffic, EIA, TradingView, Yahoo Finance, BBC RSS, Anadolu Agency RSS, NYT/CNBC RSS, Google News RSS, principaux flux RSS d'actualités coréennes, Truth Social RSS"
+  },
+  "github": "GitHub",
+  "contact": {
+    "heading": "Contact",
+    "body": "Pour toute question concernant le projet, veuillez utiliser le formulaire de contact.",
+    "button": "Nous contacter"
+  },
+  "support": {
+    "heading": "Soutien",
+    "body1": "Si vous souhaitez soutenir ce projet, vous pouvez le faire via les liens ci-dessous.",
+    "body2": "Votre soutien aide à la maintenance et aux améliorations futures.",
+    "kr": "Soutien KR",
+    "global": "Soutien Mondial"
+  },
+  "notice": {
+    "heading": "Remarque",
+    "body": "Hormuz Monitor est exploité comme un projet personnel.",
+    "peace": "Nous espérons que la guerre prendra fin bientôt et que la paix viendra à tous."
+  }
+}

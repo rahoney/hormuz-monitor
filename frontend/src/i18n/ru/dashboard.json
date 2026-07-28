@@ -1,0 +1,127 @@
+{
+  "title": "Ормузский пролив в реальном времени",
+  "subtitle": "Ключевая информация собрана в одном месте, чтобы вы могли оценить ситуацию в проливе с первого взгляда.",
+  "cards": {
+    "straitStatus": "Состояние пролива",
+    "vesselCount": "Активные суда",
+    "lngVessels": "СПГ-танкеры",
+    "crudeVessels": "Нефтяные танкеры",
+    "tankerVessels": "Танкеры",
+    "containerVessels": "Контейнеровозы",
+    "dryBulkVessels": "Балкеры",
+    "generalCargoVessels": "Генеральные грузы",
+    "inlandEntry": "Вход во внутренние воды",
+    "offshoreExit": "Выход в открытое море",
+    "oilPrice": "Нефть Brent",
+    "riskLevel": "Уровень риска",
+    "insideStrait": "Внутри пролива",
+    "persianGulf": "Персидский залив",
+    "arabianSea": "Аравийское море",
+    "notTracked": "Не отслеживается",
+    "weeklyAverage": "Среднее за 7 дней",
+    "aisEstimated": "Оценка AIS",
+    "ais24hEstimated": "Оценка AIS за 24 ч",
+    "confirmed": "Подтверждено",
+    "estimated": "Оценочно"
+  },
+  "sections": {
+    "jump": "Перейти к разделу",
+    "summary": "Сводка ситуации",
+    "statusCards": "Текущий статус",
+    "weeklyTransit": "Средненедельный транзит",
+    "map": "Карта пролива",
+    "transitFlow": "Поток транзита (90 дней)",
+    "oilPrices": "Цены на нефть (история за 90 дней)",
+    "oilRealtime": "Цены на нефть (в реальном времени)",
+    "transitOilComparison": "Транзит и цены на нефть (90 дней)",
+    "marketSnapshot": "Обзор рынка",
+    "recentEvents": "Связанные события"
+  },
+  "map": {
+    "title": "Карта пролива",
+    "placeholder": "Карта судов в реальном времени",
+    "map1": "Карта 1",
+    "map2": "Карта 2"
+  },
+  "oil": {
+    "wti": "WTI",
+    "brent": "Brent",
+    "naturalGas": "Природный газ",
+    "perBbl": "USD/bbl",
+    "perMmbtu": "USD/MMBtu",
+    "realtimeWidget": "В реальном времени"
+  },
+  "transit": {
+    "comparison": "Транзит и нефть",
+    "total": "Всего",
+    "breakdown": "По типу",
+    "brent": "Brent",
+    "totalVessels": "Всего судов",
+    "tanker": "Танкер",
+    "container": "Контейнеровоз",
+    "dryBulk": "Балкер",
+    "general": "Генеральный груз",
+    "offshoreExitEstimate": "Оценка выхода в море",
+    "confirmed": "Подтверждено",
+    "estimated": "Оценочно",
+    "noData": "Нет данных о транзите"
+  },
+  "events": {
+    "viewAll": "Смотреть все события →",
+    "noEvents": "Нет недавних событий"
+  },
+  "status": {
+    "normal": "Нормально",
+    "slightly_delayed": "Небольшая задержка",
+    "congested": "Перегружено",
+    "high_risk": "Высокий риск",
+    "critical": "Критично",
+    "blockade_level": "Уровень блокады",
+    "unknown": "Неизвестно"
+  },
+  "trump": {
+    "title": "Социальные сети Трампа",
+    "noData": "Нет доступных постов",
+    "viewOriginal": "Смотреть оригинал"
+  },
+  "gasoline": {
+    "title": "Цены на бензин в США",
+    "national": "В среднем по стране",
+    "state": "По регионам / штатам",
+    "pricePerGallon": "$/gallon",
+    "area": "Район",
+    "price": "Цена ($/gal)",
+    "weekChange": "Изменение за неделю",
+    "region": "Регион",
+    "noData": "Нет данных о ценах на бензин"
+  },
+  "gauge": {
+    "title": "Индекс риска Ормузского пролива",
+    "safe": "БЕЗОПАСНО",
+    "caution": "ОСТОРОЖНО",
+    "warning": "ПРЕДУПРЕЖДЕНИЕ",
+    "danger": "ОПАСНОСТЬ",
+    "vessels": "Суда",
+    "geoLabel": "Геополитическая напряженность",
+    "histLabel": "История",
+    "hist1d": "Вчера",
+    "hist2d": "2 дн. назад",
+    "hist1w": "1 нед. назад",
+    "hist2w": "2 нед. назад",
+    "hist1m": "1 мес. назад",
+    "hist2m": "2 мес. назад"
+  },
+  "summary": {
+    "title": "Сводка ситуации",
+    "aiLabel": "Сводка ИИ",
+    "updated": "Обновлено",
+    "noData": "Загрузка сводки...",
+    "share": "Поделиться",
+    "shareCopied": "Скопировано!",
+    "shareSource": "Источник: Hormuz Monitor",
+    "shareService": "Hormuz Monitor",
+    "shareServiceUrl": "https://www.hrmz.today"
+  },
+  "loading": "Загрузка...",
+  "noData": "Нет данных"
+}

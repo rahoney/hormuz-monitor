@@ -1,0 +1,127 @@
+{
+  "title": "ホルムズ海峡リアルタイムモニター",
+  "subtitle": "重要な情報が一箇所に集約されているため、海峡の状況を一目で把握できます。",
+  "cards": {
+    "straitStatus": "海峡の状況",
+    "vesselCount": "アクティブな船舶",
+    "lngVessels": "LNGタンカー",
+    "crudeVessels": "原油タンカー",
+    "tankerVessels": "タンカー",
+    "containerVessels": "コンテナ船",
+    "dryBulkVessels": "ドライバルク船",
+    "generalCargoVessels": "一般貨物船",
+    "inlandEntry": "内海への進入",
+    "offshoreExit": "外海への退出",
+    "oilPrice": "ブレント原油",
+    "riskLevel": "リスクレベル",
+    "insideStrait": "海峡内",
+    "persianGulf": "ペルシャ湾",
+    "arabianSea": "アラビア海",
+    "notTracked": "追跡対象外",
+    "weeklyAverage": "7日間平均",
+    "aisEstimated": "AIS推定値",
+    "ais24hEstimated": "24時間AIS推定値",
+    "confirmed": "確認済み",
+    "estimated": "推定値"
+  },
+  "sections": {
+    "jump": "セクションへジャンプ",
+    "summary": "状況の要約",
+    "statusCards": "現在の状況",
+    "weeklyTransit": "週間平均通過量",
+    "map": "海峡マップ",
+    "transitFlow": "通過フロー（90日間）",
+    "oilPrices": "原油価格（過去90日間）",
+    "oilRealtime": "原油価格（リアルタイム）",
+    "transitOilComparison": "通過量と原油価格の比較（90日間）",
+    "marketSnapshot": "マーケットスナップショット",
+    "recentEvents": "関連イシュー"
+  },
+  "map": {
+    "title": "海峡マップ",
+    "placeholder": "ライブ船舶マップ",
+    "map1": "マップ 1",
+    "map2": "マップ 2"
+  },
+  "oil": {
+    "wti": "WTI",
+    "brent": "Brent",
+    "naturalGas": "天然ガス",
+    "perBbl": "USD/bbl",
+    "perMmbtu": "USD/MMBtu",
+    "realtimeWidget": "リアルタイム"
+  },
+  "transit": {
+    "comparison": "通過量 + 原油",
+    "total": "合計",
+    "breakdown": "種類別",
+    "brent": "Brent",
+    "totalVessels": "全船舶",
+    "tanker": "タンカー",
+    "container": "コンテナ",
+    "dryBulk": "ドライバルク",
+    "general": "一般貨物",
+    "offshoreExitEstimate": "外海退出推定値",
+    "confirmed": "確認済み",
+    "estimated": "推定",
+    "noData": "通過データなし"
+  },
+  "events": {
+    "viewAll": "すべてのイベントを表示 ←",
+    "noEvents": "最近のイベントはありません"
+  },
+  "status": {
+    "normal": "正常",
+    "slightly_delayed": "わずかな遅延",
+    "congested": "混雑",
+    "high_risk": "高リスク",
+    "critical": "危機的",
+    "blockade_level": "封鎖レベル",
+    "unknown": "不明"
+  },
+  "trump": {
+    "title": "トランプ氏のソーシャルメディア",
+    "noData": "投稿がありません",
+    "viewOriginal": "原文を見る"
+  },
+  "gasoline": {
+    "title": "米国のガソリン価格",
+    "national": "全国平均",
+    "state": "地域 / 州別",
+    "pricePerGallon": "$/ガロン",
+    "area": "地域",
+    "price": "価格 ($/ガロン)",
+    "weekChange": "週間変動",
+    "region": "地域",
+    "noData": "ガソリン価格データがありません"
+  },
+  "gauge": {
+    "title": "ホルムズ・リスク指数",
+    "safe": "安全",
+    "caution": "注意",
+    "warning": "警告",
+    "danger": "危険",
+    "vessels": "船舶",
+    "geoLabel": "地政学的緊張",
+    "histLabel": "履歴",
+    "hist1d": "昨日",
+    "hist2d": "2日前",
+    "hist1w": "1週間前",
+    "hist2w": "2週間前",
+    "hist1m": "1ヶ月前",
+    "hist2m": "2ヶ月前"
+  },
+  "summary": {
+    "title": "状況の要約",
+    "aiLabel": "AI要約",
+    "updated": "更新",
+    "noData": "要約を読み込み中...",
+    "share": "共有",
+    "shareCopied": "コピーしました！",
+    "shareSource": "ソース: Hormuz Monitor",
+    "shareService": "Hormuz Monitor",
+    "shareServiceUrl": "https://www.hrmz.today"
+  },
+  "loading": "読み込み中...",
+  "noData": "データなし"
+}

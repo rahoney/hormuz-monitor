@@ -316,7 +316,9 @@ export default function MarketCustomChart({ symbol, intraday, ohlcv }: Props) {
                 : "text-slate-400 hover:text-slate-200 hover:bg-slate-700"
             }`}
           >
-            {t === "5m" ? "5분봉" : "일봉 90일"}
+            {t === "5m"
+              ? (locale === "ko" ? "5분봉" : "5M")
+              : (locale === "ko" ? "일봉 90일" : "Daily (90D)")}
           </button>
         ))}
       </div>

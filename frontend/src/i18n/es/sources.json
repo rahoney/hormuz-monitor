@@ -1,0 +1,50 @@
+{
+  "title": "Fuentes de datos",
+  "subtitle": "¿De dónde provienen los datos?",
+  "emptyState": "Los detalles de la fuente aparecerán aquí",
+  "shipping": {
+    "heading": "Tráfico de buques",
+    "items": [
+      { "name": "IMF PortWatch", "detail": "Conteos diarios de tránsito en puntos de estrangulamiento a través de la API REST de ArcGIS. Basado en AIS satelital. Actualizado una vez al día.", "url": "https://portwatch.imf.org" },
+      { "name": "AISStream", "detail": "Flujo de posición de buques AIS utilizado para estimar el movimiento de entrada y salida durante las últimas 24 horas.", "url": "https://aisstream.io" },
+      { "name": "MarineTraffic (mapa)", "detail": "Mapa de buques AIS en vivo incrustado a través de iframe. Posiciones de buques en tiempo real.", "url": "https://www.marinetraffic.com" }
+    ]
+  },
+  "oil": {
+    "heading": "Precios del petróleo y gas",
+    "items": [
+      { "name": "EIA (Administración de Información Energética de EE. UU.)", "detail": "Datos de precios de WTI, Brent, gas natural Henry Hub y gasolina de EE. UU.", "url": "https://www.eia.gov/opendata" },
+      { "name": "Yahoo Finance (yfinance)", "detail": "Futuros de WTI y Brent más los principales indicadores del mercado utilizados como respaldo cuando los datos al contado se retrasan.", "url": "https://finance.yahoo.com" },
+      { "name": "TradingView", "detail": "Gráficos de precios en tiempo real incrustados a través de un widget (TVC:USOIL, TVC:UKOIL, CAPITALCOM:NATURALGAS).", "url": "https://www.tradingview.com" }
+    ]
+  },
+  "market": {
+    "heading": "Indicadores del mercado",
+    "items": [
+      { "name": "Yahoo Finance (yfinance)", "detail": "Instantáneas, velas de 5 minutos y velas diarias para VIX, Nasdaq, S&P 500, KOSPI, KOSDAQ, futuros de índices de EE. UU., futuros de oro, el índice del dólar, futuros de gasolina y futuros de combustible para calefacción.", "url": "https://finance.yahoo.com" }
+    ]
+  },
+  "events": {
+    "heading": "Eventos geopolíticos",
+    "items": [
+      { "name": "RSS de la BBC para Medio Oriente", "detail": "Titulares de Medio Oriente de BBC News.", "url": "https://www.bbc.com/news/world/middle_east" },
+      { "name": "RSS de la Agencia Anadolu", "detail": "Noticias regionales de la agencia estatal de noticias de Turquía.", "url": "https://www.aa.com.tr/en" },
+      { "name": "RSS del NYT y CNBC", "detail": "Titulares en inglés relacionados con Medio Oriente, energía y mercados globales.", "url": "https://www.nytimes.com" },
+      { "name": "Reuters y AP News (RSS de Google News)", "detail": "Titulares relevantes de medios seleccionados a través de feeds de búsqueda RSS de Google News donde el acceso RSS oficial es limitado.", "url": "https://news.google.com" },
+      { "name": "Yonhap, Korea Economic Daily, Maeil Business RSS", "detail": "Titulares internacionales y de mercado coreanos clasificados por palabras clave.", "url": "https://www.yna.co.kr" },
+      { "name": "RSS de Truth Social", "detail": "Publicaciones de Trump en Truth Social recopiladas y traducidas al coreano.", "url": "https://trumpstruth.org/feed" }
+    ]
+  },
+  "updateFrequency": {
+    "heading": "Frecuencia de actualización",
+    "rows": [
+      { "source": "Posiciones de buques AIS y estimaciones de dirección", "frequency": "Cada 20 minutos" },
+      { "source": "Indicadores de mercado y velas de 5 minutos", "frequency": "Cada 20 minutos" },
+      { "source": "Problemas relacionados (RSS)", "frequency": "Cada hora" },
+      { "source": "Resumen de la situación y traducción de Trump", "frequency": "Cada hora" },
+      { "source": "Recopilación de Trump Truth Social", "frequency": "Cada 2 horas" },
+      { "source": "PortWatch, petróleo, gasolina y limpieza", "frequency": "Diariamente a las 06:00 UTC" }
+    ]
+  },
+  "disclaimer": "Todos los datos provienen de API y feeds disponibles públicamente. Hormuz Monitor no está afiliado a ninguno de los proveedores de datos enumerados anteriormente."
+}

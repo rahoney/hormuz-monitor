@@ -20,14 +20,30 @@ _SYMBOLS: list[dict[str, str]] = [
     {"symbol": "USD_INDEX",    "ticker": "DX-Y.NYB", "exchange": "ICE"},
     {"symbol": "GASOLINE_FUTURES", "ticker": "RB=F", "exchange": "CME"},
     {"symbol": "HEATING_OIL_FUTURES", "ticker": "HO=F", "exchange": "CME"},
+    # 신규 추가 지표 5종
+    {"symbol": "STOXX600",   "ticker": "^STOXX",    "exchange": "STOXX"},
+    {"symbol": "NIKKEI225",  "ticker": "^N225",     "exchange": "TSE"},
+    {"symbol": "HANG_SENG",  "ticker": "^HSI",      "exchange": "HKEX"},
+    {"symbol": "SHANGHAI",   "ticker": "000001.SS", "exchange": "SSE"},
+    {"symbol": "US10Y",      "ticker": "^TNX",      "exchange": "NYSE"},
 ]
 
-# 캐시된 캘린더 인스턴스
+# 캐시된 캘린더 인스턴스 (지원되는 캘린더 등록, 미등록 시 수집 시도 폴백)
+def _get_cal(name: str):
+    try:
+        return mcal.get_calendar(name)
+    except Exception:
+        return None
+
 _CALENDARS = {
-    "NYSE": mcal.get_calendar('XNYS'),
-    "KRX":  mcal.get_calendar('XKRX'),
-    "CME":  mcal.get_calendar('CME_Equity'),
-    "ICE":  mcal.get_calendar('ICEUS'),
+    "NYSE":  _get_cal('XNYS'),
+    "KRX":   _get_cal('XKRX'),
+    "CME":   _get_cal('CME_Equity'),
+    "ICE":   _get_cal('ICEUS'),
+    "TSE":   _get_cal('TSE'),
+    "HKEX":  _get_cal('HKEX'),
+    "SSE":   _get_cal('SSE'),
+    "STOXX": _get_cal('EUREX'),
 }
 
 def _is_trading_day(exchange: str) -> bool:
