@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import Script from "next/script";
+import { getLocale } from "next-intl/server";
 import BrowserProtection from "@/components/system/BrowserProtection";
 import { OG_IMAGE_URL, SITE_URL } from "@/lib/seo";
 import "./globals.css";
@@ -40,34 +41,49 @@ const jsonLd = {
   ],
 };
 
-export const metadata: Metadata = {
-  metadataBase: new URL(SITE_URL),
-  title: "Hormuz Monitor",
-  description: "Key information is gathered in one place so you can assess the strait situation at a glance.",
-  verification: {
-    other: {
-      "naver-site-verification": "28c96a0d8d92c8b434de480085bd254369fa1bd9",
-    },
-  },
-  openGraph: {
-    title: "Hormuz Monitor",
-    description: "Key information is gathered in one place so you can assess the strait situation at a glance.",
-    url: SITE_URL,
-    siteName: "Hormuz Monitor",
-    images: [{ url: OG_IMAGE_URL, width: 1734, height: 907, alt: "Hormuz Monitor" }],
-    type: "website",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Hormuz Monitor",
-    description: "Key information is gathered in one place so you can assess the strait situation at a glance.",
-    images: [OG_IMAGE_URL],
-  },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getLocale();
+  const contentLanguage = locale === "ko" ? "ko-KR" : "en-US";
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return {
+    metadataBase: new URL(SITE_URL),
+
+    title: "Hormuz Monitor",
+    description: "Key information is gathered in one place so you can assess the strait situation at a glance.",
+    other: {
+      "content-language": contentLanguage,
+    },
+    verification: {
+      other: {
+        "naver-site-verification": "28c96a0d8d92c8b434de480085bd254369fa1bd9",
+      },
+    },
+    icons: {
+      icon: "/logo.jpg",
+      apple: "/logo.jpg",
+    },
+    openGraph: {
+      title: "Hormuz Monitor",
+      description: "Key information is gathered in one place so you can assess the strait situation at a glance.",
+      url: SITE_URL,
+      siteName: "Hormuz Monitor",
+      images: [{ url: OG_IMAGE_URL, width: 1734, height: 907, alt: "Hormuz Monitor" }],
+      type: "website",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: "Hormuz Monitor",
+      description: "Key information is gathered in one place so you can assess the strait situation at a glance.",
+      images: [OG_IMAGE_URL],
+    },
+  };
+}
+
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const locale = await getLocale();
+
   return (
-    <html className={`${geistSans.variable} ${geistMono.variable}`} suppressHydrationWarning>
+    <html lang={locale} className={`${geistSans.variable} ${geistMono.variable}`} suppressHydrationWarning>
       <body className="min-h-screen flex flex-col antialiased bg-[#0b0f1a] text-slate-100" suppressHydrationWarning>
         <script
           type="application/ld+json"

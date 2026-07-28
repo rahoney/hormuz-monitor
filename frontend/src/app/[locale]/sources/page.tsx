@@ -13,7 +13,7 @@ const META = {
     keywords: ["호르무즈 데이터 출처", "선박 통행량 데이터", "AIS 지도", "유가 데이터", "시장 지표 데이터"],
   },
   en: {
-    title: "Hormuz Monitor Data Sources | Vessel, Oil, Market, Related Issues",
+    title: "Strait of Hormuz Data Sources | Oil Price, Vessel & Market",
     description: "Review the public data sources used by Hormuz Monitor, including vessel traffic, AIS maps, WTI and Brent oil prices, natural gas, U.S. gasoline prices, market indicators, and related issues.",
     keywords: ["Hormuz data sources", "vessel traffic data", "AIS map", "oil price data", "market indicator data"],
   },
