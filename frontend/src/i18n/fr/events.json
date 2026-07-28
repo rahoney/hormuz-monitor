@@ -1,0 +1,37 @@
+{
+  "title": "Related Issues",
+  "subtitle": "Geopolitical events affecting the Hormuz Strait",
+  "emptyState": "No events recorded yet",
+  "tabs": {
+    "events": "Events",
+    "trump": "Trump Social"
+  },
+  "filters": {
+    "all": "All",
+    "attack": "Attack",
+    "closure": "Closure",
+    "reopening": "Reopening",
+    "sanctions": "Sanctions",
+    "ceasefire": "Ceasefire",
+    "negotiation": "Negotiation",
+    "escort_operation": "Escort Op"
+  },
+  "severity": {
+    "critical": "Critical",
+    "high": "High",
+    "medium": "Medium",
+    "low": "Low"
+  },
+  "source": "Source",
+  "noSource": "No source",
+  "articleSummary": {
+    "label": "Article Summary",
+    "loading": "Summarizing the article...",
+    "error": "Could not load the summary. Please open the original article.",
+    "openOriginal": "Open original",
+    "close": "Close",
+    "cached": "Cached summary",
+    "generated": "New summary",
+    "unknownSource": "No source"
+  }
+}

@@ -1,13 +1,13 @@
 import type { MetadataRoute } from "next";
 import { SITE_URL } from "@/lib/seo";
+import { routing } from "@/i18n/routing";
 
 const ROUTES = ["", "/events", "/about", "/sources"] as const;
-const LOCALES = ["ko", "en"] as const;
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date();
 
-  return LOCALES.flatMap((locale) =>
+  return (routing.locales as readonly string[]).flatMap((locale) =>
     ROUTES.map((route) => ({
       url: `${SITE_URL}/${locale}${route}`,
       lastModified: now,
@@ -16,3 +16,4 @@ export default function sitemap(): MetadataRoute.Sitemap {
     }))
   );
 }
+
