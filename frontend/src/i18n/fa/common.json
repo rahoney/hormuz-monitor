@@ -1,20 +1,20 @@
 {
   "nav": {
-    "dashboard": "Dashboard",
-    "events": "Related Issues",
-    "about": "About"
+    "dashboard": "داشبورد",
+    "events": "مسائل مرتبط",
+    "about": "درباره ما"
   },
   "footer": {
-    "copyright": "© 2026 Hormuz Monitor by WikiHoney. All rights reserved.",
-    "supportText": "Support this project",
-    "supportKr": "KR Support",
-    "supportGlobal": "Global Support",
-    "otherProjects": "Other Projects"
+    "copyright": "© 2026 Hormuz Monitor توسط WikiHoney. تمامی حقوق محفوظ است.",
+    "supportText": "از این پروژه حمایت کنید",
+    "supportKr": "پشتیبانی کره (KR)",
+    "supportGlobal": "پشتیبانی جهانی",
+    "otherProjects": "سایر پروژه‌ها"
   },
   "status": {
-    "loading": "Loading...",
-    "noData": "No data available",
-    "error": "Failed to load data",
-    "lastUpdated": "Last updated"
+    "loading": "در حال بارگذاری...",
+    "noData": "داده‌ای موجود نیست",
+    "error": "بارگذاری داده‌ها با خطا مواجه شد",
+    "lastUpdated": "آخرین به‌روزرسانی"
   }
 }

@@ -1,37 +1,37 @@
 {
-  "title": "Related Issues",
-  "subtitle": "Geopolitical events affecting the Hormuz Strait",
-  "emptyState": "No events recorded yet",
+  "title": "関連イシュー",
+  "subtitle": "ホルムズ海峡に影響を与える地政学的イベント",
+  "emptyState": "まだイベントは記録されていません",
   "tabs": {
-    "events": "Events",
-    "trump": "Trump Social"
+    "events": "イベント",
+    "trump": "トランプ・ソーシャル"
   },
   "filters": {
-    "all": "All",
-    "attack": "Attack",
-    "closure": "Closure",
-    "reopening": "Reopening",
-    "sanctions": "Sanctions",
-    "ceasefire": "Ceasefire",
-    "negotiation": "Negotiation",
-    "escort_operation": "Escort Op"
+    "all": "すべて",
+    "attack": "攻撃",
+    "closure": "閉鎖",
+    "reopening": "再開",
+    "sanctions": "制裁",
+    "ceasefire": "停戦",
+    "negotiation": "交渉",
+    "escort_operation": "護衛作戦"
   },
   "severity": {
-    "critical": "Critical",
-    "high": "High",
-    "medium": "Medium",
-    "low": "Low"
+    "critical": "危機的",
+    "high": "高",
+    "medium": "中",
+    "low": "低"
   },
-  "source": "Source",
-  "noSource": "No source",
+  "source": "ソース",
+  "noSource": "ソースなし",
   "articleSummary": {
-    "label": "Article Summary",
-    "loading": "Summarizing the article...",
-    "error": "Could not load the summary. Please open the original article.",
-    "openOriginal": "Open original",
-    "close": "Close",
-    "cached": "Cached summary",
-    "generated": "New summary",
-    "unknownSource": "No source"
+    "label": "記事の要約",
+    "loading": "記事を要約しています...",
+    "error": "要約を読み込めませんでした。元の記事を開いてください。",
+    "openOriginal": "原文を開く",
+    "close": "閉じる",
+    "cached": "キャッシュされた要約",
+    "generated": "新しい要約",
+    "unknownSource": "ソースなし"
   }
 }

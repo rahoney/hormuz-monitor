@@ -1,37 +1,37 @@
 {
-  "title": "Related Issues",
-  "subtitle": "Geopolitical events affecting the Hormuz Strait",
-  "emptyState": "No events recorded yet",
+  "title": "Problemi Correlati",
+  "subtitle": "Eventi geopolitici che interessano lo Stretto di Hormuz",
+  "emptyState": "Nessun evento ancora registrato",
   "tabs": {
-    "events": "Events",
+    "events": "Eventi",
     "trump": "Trump Social"
   },
   "filters": {
-    "all": "All",
-    "attack": "Attack",
-    "closure": "Closure",
-    "reopening": "Reopening",
-    "sanctions": "Sanctions",
-    "ceasefire": "Ceasefire",
-    "negotiation": "Negotiation",
-    "escort_operation": "Escort Op"
+    "all": "Tutti",
+    "attack": "Attacco",
+    "closure": "Chiusura",
+    "reopening": "Riapertura",
+    "sanctions": "Sanzioni",
+    "ceasefire": "Cessate il fuoco",
+    "negotiation": "Negoziati",
+    "escort_operation": "Op. di scorta"
   },
   "severity": {
-    "critical": "Critical",
-    "high": "High",
-    "medium": "Medium",
-    "low": "Low"
+    "critical": "Critica",
+    "high": "Alta",
+    "medium": "Media",
+    "low": "Bassa"
   },
-  "source": "Source",
-  "noSource": "No source",
+  "source": "Fonte",
+  "noSource": "Nessuna fonte",
   "articleSummary": {
-    "label": "Article Summary",
-    "loading": "Summarizing the article...",
-    "error": "Could not load the summary. Please open the original article.",
-    "openOriginal": "Open original",
-    "close": "Close",
-    "cached": "Cached summary",
-    "generated": "New summary",
-    "unknownSource": "No source"
+    "label": "Riepilogo articolo",
+    "loading": "Creazione del riepilogo in corso...",
+    "error": "Impossibile caricare il riepilogo. Apri l'articolo originale.",
+    "openOriginal": "Apri originale",
+    "close": "Chiudi",
+    "cached": "Riepilogo memorizzato",
+    "generated": "Nuovo riepilogo",
+    "unknownSource": "Nessuna fonte"
   }
 }

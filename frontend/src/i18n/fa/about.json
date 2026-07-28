@@ -1,32 +1,32 @@
 {
-  "title": "About",
-  "subtitle": "What is Hormuz Monitor?",
+  "title": "درباره ما",
+  "subtitle": "Hormuz Monitor چیست؟",
   "description": {
-    "p1": "According to the EIA, in 2024 the average daily flow of crude oil and petroleum products through the Strait of Hormuz was 20 million barrels — roughly 20% of global petroleum consumption.",
-    "p2": "About 20% of global LNG trade also passed through the strait, with 84% of crude and condensate and 83% of LNG heading to Asian markets.",
-    "p3": "Any disruption to energy supply through the Strait of Hormuz can have a major impact on global industry and economies. This project was created to bring all that information together in one place, rather than searching across multiple sources.",
-    "p4": "Hormuz Monitor is a dashboard that lets you see vessel movements through the Strait of Hormuz, oil prices, and key U.S. market indices at a glance. It is designed to help you access scattered information faster, in one place."
+    "p1": "طبق گفته EIA، در سال ۲۰۲۴ میانگین جریان روزانه نفت خام و فرآورده‌های نفتی از طریق تنگه هرمز ۲۰ میلیون بشکه بود — تقریباً ۲۰٪ از مصرف جهانی نفت.",
+    "p2": "حدود ۲۰٪ از تجارت جهانی ال‌ان‌جی (LNG) نیز از این تنگه عبور کرد، در حالی که ۸۴٪ نفت خام و میعانات و ۸۳٪ ال‌ان‌جی به بازارهای آسیایی سرازیر شد.",
+    "p3": "هرگونه اختلال در تأمین انرژی از طریق تنگه هرمز می‌تواند تأثیر عمده‌ای بر صنعت و اقتصاد جهانی بگذارد. این پروژه برای جمع‌آوری تمامی این اطلاعات در یک مکان ایجاد شده است، تا نیازی به جستجو در چندین منبع نباشد.",
+    "p4": "Hormuz Monitor یک داشبورد است که به شما امکان می‌دهد حرکات کشتی‌ها از طریق تنگه هرمز، قیمت نفت و شاخص‌های کلیدی بازار ایالات متحده را در یک نگاه مشاهده کنید. این سیستم برای کمک به شما در دسترسی سریع‌تر به اطلاعات پراکنده در یک جا طراحی شده است."
   },
   "sources": {
-    "heading": "Data Sources",
-    "list": "IMF PortWatch, AISStream, MarineTraffic, EIA, TradingView, Yahoo Finance, BBC RSS, Anadolu Agency RSS, NYT/CNBC RSS, Google News RSS, major Korean news RSS, Truth Social RSS"
+    "heading": "منابع داده",
+    "list": "IMF PortWatch, AISStream, MarineTraffic, EIA, TradingView, Yahoo Finance, BBC RSS, Anadolu Agency RSS, NYT/CNBC RSS, Google News RSS, خبرگزاری‌های مهم کره RSS, Truth Social RSS"
   },
   "github": "GitHub",
   "contact": {
-    "heading": "Contact",
-    "body": "For inquiries about the project, please use the contact form.",
-    "button": "Contact Us"
+    "heading": "تماس",
+    "body": "برای پرسش‌های مربوط به پروژه، لطفاً از فرم تماس استفاده کنید.",
+    "button": "با ما تماس بگیرید"
   },
   "support": {
-    "heading": "Support",
-    "body1": "If you'd like to support this project, you can do so through the links below.",
-    "body2": "Your support helps with maintenance and future improvements.",
-    "kr": "KR Support",
-    "global": "Global Support"
+    "heading": "پشتیبانی",
+    "body1": "اگر مایل به حمایت از این پروژه هستید، می‌توانید از طریق لینک‌های زیر اقدام کنید.",
+    "body2": "حمایت شما به نگهداری و پیشرفت‌های آینده کمک می‌کند.",
+    "kr": "پشتیبانی کره (KR)",
+    "global": "پشتیبانی جهانی"
   },
   "notice": {
-    "heading": "Note",
-    "body": "Hormuz Monitor is operated as a personal project.",
-    "peace": "We hope the war ends soon and peace comes to everyone."
+    "heading": "توجه",
+    "body": "Hormuz Monitor به عنوان یک پروژه شخصی اداره می‌شود.",
+    "peace": "امیدواریم جنگ زودتر پایان یابد و صلح برای همه فرا رسد."
   }
 }

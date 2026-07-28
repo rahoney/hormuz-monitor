@@ -1,20 +1,20 @@
 {
   "nav": {
     "dashboard": "Dashboard",
-    "events": "Related Issues",
-    "about": "About"
+    "events": "Verwandte Themen",
+    "about": "Über"
   },
   "footer": {
-    "copyright": "© 2026 Hormuz Monitor by WikiHoney. All rights reserved.",
-    "supportText": "Support this project",
-    "supportKr": "KR Support",
-    "supportGlobal": "Global Support",
-    "otherProjects": "Other Projects"
+    "copyright": "© 2026 Hormuz Monitor von WikiHoney. Alle Rechte vorbehalten.",
+    "supportText": "Dieses Projekt unterstützen",
+    "supportKr": "KR-Support",
+    "supportGlobal": "Globaler Support",
+    "otherProjects": "Weitere Projekte"
   },
   "status": {
-    "loading": "Loading...",
-    "noData": "No data available",
-    "error": "Failed to load data",
-    "lastUpdated": "Last updated"
+    "loading": "Wird geladen...",
+    "noData": "Keine Daten verfügbar",
+    "error": "Daten konnten nicht geladen werden",
+    "lastUpdated": "Zuletzt aktualisiert"
   }
 }
