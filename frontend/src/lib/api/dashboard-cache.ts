@@ -4,6 +4,7 @@ import {
   fetchLatestMarketSnapshots,
   fetchLatestStraitMetric,
   fetchLatestSummary,
+  fetchLatestSummaryForLocale,
   fetchMarketIntraday,
   fetchMarketOHLCV,
   fetchOilPriceSeries,
@@ -29,6 +30,14 @@ export const getCachedLatestSummary = unstable_cache(
   ["dashboard", "latest-summary"],
   { revalidate: TTL.summary }
 );
+
+export async function getCachedLatestSummaryForLocale(locale: string) {
+  return unstable_cache(
+    () => fetchLatestSummaryForLocale(locale),
+    ["dashboard", "latest-summary", locale],
+    { revalidate: TTL.summary }
+  )();
+}
 
 export const getCachedLatestMarketSnapshots = unstable_cache(
   fetchLatestMarketSnapshots,
