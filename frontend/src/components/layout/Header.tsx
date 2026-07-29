@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import { useTranslations, useLocale } from "next-intl";
-import { Link, useRouter, usePathname } from "@/i18n/navigation";
+import { getPathname, Link, usePathname } from "@/i18n/navigation";
 import { routing, LOCALE_LABELS, RTL_LOCALES } from "@/i18n/routing";
 
 const NAV_ITEMS = [
@@ -15,7 +15,6 @@ const NAV_ITEMS = [
 export default function Header() {
   const t = useTranslations("common");
   const pathname = usePathname();
-  const router = useRouter();
   const currentLocale = useLocale();
   const [menuOpen, setMenuOpen] = useState(false);
   const [langOpen, setLangOpen] = useState(false);
@@ -39,12 +38,6 @@ export default function Header() {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
-
-  function switchLocale(locale: string) {
-    router.push(pathname, { locale });
-    setLangOpen(false);
-    setMenuOpen(false);
-  }
 
   function isActive(href: string) {
     return href === "/" ? pathname === "/" : pathname.startsWith(href);
@@ -98,24 +91,29 @@ export default function Header() {
 
             {langOpen && (
               <div className="absolute end-0 top-full z-50 mt-1 max-h-72 w-40 overflow-y-auto rounded-lg border border-slate-700 bg-slate-900 py-1 shadow-xl">
-                {routing.locales.map((loc) => (
-                  <button
-                    key={loc}
-                    onClick={() => switchLocale(loc)}
-                    className={`flex w-full items-center gap-2 px-3 py-1.5 text-start text-xs transition-colors ${
-                      currentLocale === loc
-                        ? "bg-slate-700/50 text-amber-400"
-                        : "text-slate-300 hover:bg-slate-800 hover:text-slate-100"
-                    }`}
-                  >
-                    {LOCALE_LABELS[loc] ?? loc}
-                    {currentLocale === loc && (
-                      <svg className="ms-auto h-3.5 w-3.5 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                        <path d="M5 13l4 4L19 7" />
-                      </svg>
-                    )}
-                  </button>
-                ))}
+                {routing.locales.map((loc) => {
+                  const href = getPathname({ href: pathname, locale: loc });
+                  return (
+                    <a
+                      key={loc}
+                      href={href}
+                      hrefLang={loc}
+                      aria-current={currentLocale === loc ? "page" : undefined}
+                      className={`flex w-full items-center gap-2 px-3 py-1.5 text-start text-xs transition-colors ${
+                        currentLocale === loc
+                          ? "bg-slate-700/50 text-amber-400"
+                          : "text-slate-300 hover:bg-slate-800 hover:text-slate-100"
+                      }`}
+                    >
+                      {LOCALE_LABELS[loc] ?? loc}
+                      {currentLocale === loc && (
+                        <svg className="ms-auto h-3.5 w-3.5 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                          <path d="M5 13l4 4L19 7" />
+                        </svg>
+                      )}
+                    </a>
+                  );
+                })}
               </div>
             )}
           </div>

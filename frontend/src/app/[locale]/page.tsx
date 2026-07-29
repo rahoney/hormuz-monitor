@@ -1,4 +1,4 @@
-export const revalidate = 60;
+export const dynamic = "force-dynamic";
 
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
@@ -21,7 +21,6 @@ import {
   getCachedGasolinePrices,
   getCachedLatestMarketSnapshots,
   getCachedLatestStraitMetric,
-  getCachedLatestSummaryForLocale,
   getCachedMarketIntraday,
   getCachedMarketOHLCV,
   getCachedOilPriceSeries,
@@ -31,6 +30,7 @@ import {
   getCachedTrumpPostsForLocale,
   getCachedWeeklyTransitSummary,
 } from "@/lib/api/dashboard-cache";
+import { fetchLatestSummaryForLocale } from "@/lib/api/dashboard";
 import { makePageMetadata } from "@/lib/seo";
 import { seoMetadata } from "@/lib/seo-metadata";
 
@@ -87,7 +87,7 @@ export default async function DashboardPage({ params }: Props) {
     getCachedTransitSeries(90),
     getCachedGasolinePrices(90),
     getCachedTrumpPostsForLocale(locale, 20),
-    getCachedLatestSummaryForLocale(locale),
+    fetchLatestSummaryForLocale(locale),
     getCachedRiskScoreHistory(),
   ]);
 
