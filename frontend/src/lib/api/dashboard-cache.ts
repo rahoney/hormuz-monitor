@@ -3,8 +3,6 @@ import {
   fetchGasolinePrices,
   fetchLatestMarketSnapshots,
   fetchLatestStraitMetric,
-  fetchLatestSummary,
-  fetchLatestSummaryForLocale,
   fetchMarketIntraday,
   fetchMarketOHLCV,
   fetchOilPriceSeries,
@@ -17,7 +15,6 @@ import {
 } from "@/lib/api/dashboard";
 
 const TTL = {
-  summary: 93,
   market: 103,
   shipping: 425,
   riskAndTransitSummary: 513,
@@ -25,20 +22,6 @@ const TTL = {
   trump: 180,
   daily: 7269,
 } as const;
-
-export const getCachedLatestSummary = unstable_cache(
-  fetchLatestSummary,
-  ["dashboard", "latest-summary"],
-  { revalidate: TTL.summary }
-);
-
-export async function getCachedLatestSummaryForLocale(locale: string) {
-  return unstable_cache(
-    () => fetchLatestSummaryForLocale(locale),
-    ["dashboard", "latest-summary", locale],
-    { revalidate: TTL.summary }
-  )();
-}
 
 export const getCachedLatestMarketSnapshots = unstable_cache(
   fetchLatestMarketSnapshots,
