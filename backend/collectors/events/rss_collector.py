@@ -1,5 +1,5 @@
 """영문/국문 RSS와 Google News RSS에서 호르무즈 관련 기사를 수집한다."""
-from datetime import date, datetime, timezone
+from datetime import date, timezone
 from email.utils import parsedate_to_datetime
 from typing import Any
 import feedparser

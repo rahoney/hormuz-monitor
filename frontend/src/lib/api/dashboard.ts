@@ -11,6 +11,7 @@ export async function fetchLatestSummary(): Promise<SituationSummary | null> {
   const { data } = await supabase
     .from("situation_summaries")
     .select("id, summary_ko, summary_en, summary_ko_structured, summary_en_structured, generated_at, geo_score")
+    .eq("is_published", true)
     .order("generated_at", { ascending: false })
     .limit(1)
     .single();
@@ -33,19 +34,21 @@ export async function fetchLatestSummaryForLocale(locale: string): Promise<Situa
     return {
       ...summary,
       summary_translated_text: translation.summary_text,
-      summary_translated_structured: translation.summary_structured as any,
+      summary_translated_structured:
+        translation.summary_structured as SituationSummary["summary_translated_structured"],
       locale_translated: locale,
     };
   }
 
-  return summary;
+  // 게시된 행에는 12개 번역이 모두 있어야 한다. 조회 실패 시 영어를 노출하지 않는다.
+  return null;
 }
 
 export async function fetchRiskScoreHistory(): Promise<RiskScoreHistory[]> {
   const since = new Date(Date.now() - 65 * 86_400_000).toISOString().slice(0, 10);
   const { data } = await supabase
     .from("risk_score_history")
-    .select("score_date, total_score, vessel_score, geo_score, brent_score, vix_score, geo_raw")
+    .select("score_date, total_score, vessel_score, geo_score, brent_score, vix_score, geo_raw, vessels_raw, inland_entry_raw, offshore_exit_raw, brent_raw, brent_change_pct_7d_raw, vix_raw")
     .gte("score_date", since)
     .order("score_date", { ascending: false });
   return data ?? [];
@@ -180,31 +183,38 @@ export async function fetchMarketIntraday(): Promise<Record<string, { time: stri
         .select("recorded_at, price")
         .eq("symbol", symbol)
         .gte("recorded_at", since)
-        .order("recorded_at", { ascending: true })
+        .order("recorded_at", { ascending: false })
+        .limit(1000)
         .then(({ data }) => ({ symbol, rows: (data ?? []) as { recorded_at: string; price: number }[] }))
     )
   );
 
   const result: Record<string, { time: string; price: number }[]> = {};
   for (const { symbol, rows } of fetches) {
-    result[symbol] = rows.map((r) => ({ time: r.recorded_at, price: r.price }));
+    result[symbol] = rows
+      .slice()
+      .reverse()
+      .map((r) => ({ time: r.recorded_at, price: r.price }));
   }
   return result;
 }
 
 export async function fetchMarketOHLCV(): Promise<Record<string, MarketOHLCV[]>> {
   const since = new Date(Date.now() - 90 * 86_400_000).toISOString().slice(0, 10);
-  const { data } = await supabase
-    .from("market_ohlcv")
-    .select("symbol, price_date, open, high, low, close")
-    .in("symbol", MARKET_SYMBOLS)
-    .gte("price_date", since)
-    .order("price_date", { ascending: true });
-
   const result: Record<string, MarketOHLCV[]> = {};
-  for (const row of (data ?? []) as MarketOHLCV[]) {
-    if (!result[row.symbol]) result[row.symbol] = [];
-    result[row.symbol].push(row);
+  const fetches = await Promise.all(
+    MARKET_SYMBOLS.map((symbol) =>
+      supabase
+        .from("market_ohlcv")
+        .select("symbol, price_date, open, high, low, close")
+        .eq("symbol", symbol)
+        .gte("price_date", since)
+        .order("price_date", { ascending: true })
+        .then(({ data }) => ({ symbol, rows: (data ?? []) as MarketOHLCV[] }))
+    )
+  );
+  for (const { symbol, rows } of fetches) {
+    result[symbol] = rows;
   }
   return result;
 }
@@ -271,6 +281,27 @@ export async function fetchTrumpPosts(limit = 20): Promise<TrumpPost[]> {
     .order("post_date", { ascending: false })
     .limit(limit);
   return data ?? [];
+}
+
+export async function fetchTrumpPostsForLocale(locale: string, limit = 20): Promise<TrumpPost[]> {
+  const posts = await fetchTrumpPosts(limit);
+  if (posts.length === 0 || locale === "ko" || locale === "en") return posts;
+
+  const { data: translations } = await supabase
+    .from("trump_post_translations")
+    .select("post_id, content_translated")
+    .eq("locale", locale)
+    .in("post_id", posts.map((post) => post.id));
+
+  const translatedById = new Map(
+    ((translations ?? []) as { post_id: number; content_translated: string }[])
+      .map((row) => [row.post_id, row.content_translated])
+  );
+  return posts.map((post) => ({
+    ...post,
+    content_translated: translatedById.get(post.id) ?? null,
+    locale_translated: translatedById.has(post.id) ? locale : null,
+  }));
 }
 
 export async function fetchRecentEvents(limit = 5): Promise<Event[]> {

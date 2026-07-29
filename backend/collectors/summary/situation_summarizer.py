@@ -481,6 +481,39 @@ SECTION_TITLES_BY_LOCALE: dict[str, tuple[str, str, str, str]] = {
 }
 
 
+def _valid_translated_structure(
+    value: Any,
+    expected_titles: tuple[str, str, str, str],
+) -> bool:
+    if not isinstance(value, dict) or value.get("version") != 1:
+        return False
+    sections = value.get("sections")
+    if not isinstance(sections, list) or len(sections) != len(expected_titles):
+        return False
+
+    for section, expected_title in zip(sections, expected_titles, strict=True):
+        if not isinstance(section, dict) or section.get("title") != expected_title:
+            return False
+        body = section.get("body")
+        highlights = section.get("highlights")
+        if not isinstance(body, str) or not body.strip():
+            return False
+        if not isinstance(highlights, list) or not 1 <= len(highlights) <= 3:
+            return False
+        for highlight in highlights:
+            if not isinstance(highlight, dict):
+                return False
+            text = highlight.get("text")
+            if (
+                not isinstance(text, str)
+                or not text
+                or text not in body
+                or highlight.get("tone") not in _ALLOWED_HIGHLIGHT_TONES
+            ):
+                return False
+    return True
+
+
 def translate_summary_for_locale(
     source_structured: dict[str, Any] | None,
     source_text: str,
@@ -488,7 +521,6 @@ def translate_summary_for_locale(
 ) -> tuple[str, dict[str, Any], str] | None:
     """단일 locale에 대해 구조화 번역 생성. (summary_text, summary_structured, model) 반환."""
     import json
-    import httpx
 
     target_lang = LOCALE_NAME_MAP.get(target_locale)
     titles = SECTION_TITLES_BY_LOCALE.get(target_locale)
@@ -544,42 +576,29 @@ Original Source Report:
 {json.dumps(source_structured, ensure_ascii=False, indent=2) if source_structured else source_text}
 """.strip()
 
-    import os
-    api_key = os.getenv("GOOGLE_GEMINI_API_KEY")
-    if not api_key:
-        return None
-
-    models = summary_models()
-    payload = {
-        "contents": [{"parts": [{"text": prompt}]}],
-        "generationConfig": {
-            "responseMimeType": "application/json",
-            "maxOutputTokens": 2048,
-            "temperature": 0.1,
-        },
-    }
-
-    for model in models:
-        model_name = model if model.startswith("models/") else f"models/{model}"
-        url = f"https://generativelanguage.googleapis.com/v1beta/{model_name}:generateContent?key={api_key}"
+    def _valid_json_text(text: str) -> bool:
         try:
-            resp = httpx.post(url, json=payload, timeout=25.0)
-            if resp.status_code != 200:
-                continue
-            data = resp.json()
-            candidates = data.get("candidates", [])
-            if not candidates:
-                continue
-            text_str = candidates[0].get("content", {}).get("parts", [{}])[0].get("text", "").strip()
-            if not text_str:
-                continue
+            return _valid_translated_structure(json.loads(text), titles)
+        except (json.JSONDecodeError, TypeError):
+            return False
 
-            parsed = json.loads(text_str)
-            if parsed.get("version") == 1 and isinstance(parsed.get("sections"), list) and len(parsed["sections"]) == 4:
-                plain_text = "\n\n".join(f"- {s['title']}:\n{s['body']}" for s in parsed["sections"])
-                return plain_text, parsed, model_name
-        except Exception:
-            continue
-
-    return None
-
+    try:
+        result = generate_text(
+            prompt,
+            task=f"situation_summary_translate_{target_locale}",
+            models=summary_models(),
+            max_output_tokens=2048,
+            temperature=0.1,
+            timeout=25.0,
+            extra_generation_config={"responseMimeType": "application/json"},
+            validate_text=_valid_json_text,
+        )
+        parsed = json.loads(result.text)
+        plain_text = "\n\n".join(
+            f"- {section['title']}:\n{section['body']}"
+            for section in parsed["sections"]
+        )
+        return plain_text, parsed, result.model
+    except (GeminiError, json.JSONDecodeError, KeyError, TypeError) as exc:
+        logger.error("상황 요약 번역 실패 (locale=%s): %s", target_locale, exc)
+        return None
