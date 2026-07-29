@@ -61,6 +61,8 @@ export interface TrumpPost {
   posted_at: string | null;
   content: string;
   content_ko: string | null;
+  content_translated?: string | null;
+  locale_translated?: string | null;
   source_url: string | null;
   source_name: string;
 }
@@ -127,6 +129,12 @@ export interface RiskScoreHistory {
   brent_score: number | null;
   vix_score: number | null;
   geo_raw: number | null;
+  vessels_raw?: number | null;
+  inland_entry_raw?: number | null;
+  offshore_exit_raw?: number | null;
+  brent_raw?: number | null;
+  brent_change_pct_7d_raw?: number | null;
+  vix_raw?: number | null;
 }
 
 export interface Event {

@@ -12,6 +12,7 @@ import {
   fetchRiskScoreHistory,
   fetchTransitSeries,
   fetchTrumpPosts,
+  fetchTrumpPostsForLocale,
   fetchWeeklyTransitSummary,
 } from "@/lib/api/dashboard";
 
@@ -92,6 +93,14 @@ export const getCachedTrumpPosts = unstable_cache(
   ["dashboard", "trump-posts"],
   { revalidate: TTL.trump }
 );
+
+export async function getCachedTrumpPostsForLocale(locale: string, limit = 20) {
+  return unstable_cache(
+    () => fetchTrumpPostsForLocale(locale, limit),
+    ["dashboard", "trump-posts", locale, String(limit)],
+    { revalidate: TTL.trump }
+  )();
+}
 
 export const getCachedOilPriceSeries = unstable_cache(
   fetchOilPriceSeries,

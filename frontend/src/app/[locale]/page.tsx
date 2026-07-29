@@ -28,7 +28,7 @@ import {
   getCachedRecentEvents,
   getCachedRiskScoreHistory,
   getCachedTransitSeries,
-  getCachedTrumpPosts,
+  getCachedTrumpPostsForLocale,
   getCachedWeeklyTransitSummary,
 } from "@/lib/api/dashboard-cache";
 import { makePageMetadata } from "@/lib/seo";
@@ -86,7 +86,7 @@ export default async function DashboardPage({ params }: Props) {
     getCachedRecentEvents(15),
     getCachedTransitSeries(90),
     getCachedGasolinePrices(90),
-    getCachedTrumpPosts(20),
+    getCachedTrumpPostsForLocale(locale, 20),
     getCachedLatestSummaryForLocale(locale),
     getCachedRiskScoreHistory(),
   ]);

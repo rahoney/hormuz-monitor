@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import PageShell from "@/components/layout/PageShell";
 import EventsPageClient from "@/components/cards/EventsPageClient";
+import { fetchTrumpPostsForLocale } from "@/lib/api/dashboard";
 import { supabase } from "@/lib/supabase";
-import type { Event, TrumpPost } from "@/types";
+import type { Event } from "@/types";
 import { makePageMetadata } from "@/lib/seo";
 
 export const dynamic = "force-dynamic";
@@ -76,21 +77,13 @@ async function fetchAllEvents(): Promise<Event[]> {
   );
 }
 
-async function fetchAllTrumpPosts(): Promise<TrumpPost[]> {
-  return withAbortSignal((signal) =>
-    supabase
-      .from("trump_posts")
-      .select("id, post_date, posted_at, content, content_ko, source_url, source_name")
-      .order("post_date", { ascending: false })
-      .limit(100)
-      .abortSignal(signal)
-  );
-}
+type PageProps = { params: Promise<{ locale: string }> };
 
-export default async function EventsPage() {
+export default async function EventsPage({ params }: PageProps) {
+  const { locale } = await params;
   const [events, trumpPosts] = await Promise.allSettled([
     fetchAllEvents(),
-    fetchAllTrumpPosts(),
+    fetchTrumpPostsForLocale(locale, 100),
   ]);
 
   return (

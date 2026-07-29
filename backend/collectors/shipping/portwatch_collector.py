@@ -1,5 +1,5 @@
 """IMF PortWatch ArcGIS API에서 호르무즈 해협 일별 통행량을 수집한다."""
-from datetime import date, datetime, timezone
+from datetime import datetime, timezone
 from typing import Any
 import httpx
 

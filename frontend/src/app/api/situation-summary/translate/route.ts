@@ -1,20 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 
-type Locale =
-  | "ar"
-  | "fa"
-  | "ja"
-  | "es"
-  | "tr"
-  | "de"
-  | "fr"
-  | "pt-BR"
-  | "it"
-  | "zh-CN"
-  | "zh-TW"
-  | "ru";
-
 const GEMINI_BASE_URL = "https://generativelanguage.googleapis.com/v1beta";
 const DEFAULT_MODELS = [
   "models/gemini-3.1-flash-lite",
@@ -207,11 +193,18 @@ export async function GET(request: Request) {
       return NextResponse.json({ ...cached, cached: true });
     }
 
+    // 신규 요약은 백엔드가 12개 번역을 모두 저장한 뒤에만 게시한다.
+    // 과거 누락 데이터의 수동 복구가 꼭 필요한 경우에만 명시적으로 활성화한다.
+    if (process.env.ALLOW_ON_DEMAND_SITUATION_TRANSLATION !== "true") {
+      return NextResponse.json({ detail: "translation is not published" }, { status: 404 });
+    }
+
     // 2. 원본 situation_summary 조회
     const { data: summaryRow } = await supabase
       .from("situation_summaries")
       .select("id,summary_en,summary_ko,summary_en_structured,summary_ko_structured")
       .eq("id", summaryId)
+      .eq("is_published", true)
       .single();
 
     if (!summaryRow) {
@@ -246,7 +239,7 @@ export async function GET(request: Request) {
       .upsert(record, { onConflict: "summary_id,locale" });
 
     if (upsertError) {
-      console.error("upsert error:", upsertError);
+      throw upsertError;
     }
 
     return NextResponse.json({ ...record, cached: false });

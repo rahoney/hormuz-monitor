@@ -43,7 +43,7 @@ export function makePageMetadata({
   keywords,
   noIndex = false,
 }: PageMetaInput): Metadata {
-  const currentLocale = routing.locales.includes(locale as any)
+  const currentLocale = routing.locales.some((supportedLocale) => supportedLocale === locale)
     ? locale
     : routing.defaultLocale;
   const canonicalPath = localizedPath(currentLocale, path);
