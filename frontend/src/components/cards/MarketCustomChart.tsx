@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import type { CandlestickData, IChartApi, LineData, LogicalRange, Time, UTCTimestamp } from "lightweight-charts";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import type { MarketOHLCV } from "@/types";
 
 type IntradayPoint = { time: string; price: number };
@@ -164,6 +164,7 @@ function initialVisibleBars(tab: "5m" | "1d", containerWidth: number): number {
 
 export default function MarketCustomChart({ symbol, intraday, ohlcv }: Props) {
   const locale = useLocale();
+  const t = useTranslations("dashboard");
   const has5m = prepareIntraday(intraday).length > 0;
   const [tab, setTab] = useState<"5m" | "1d">(has5m ? "5m" : "1d");
   const containerRef = useRef<HTMLDivElement>(null);
@@ -316,14 +317,12 @@ export default function MarketCustomChart({ symbol, intraday, ohlcv }: Props) {
                 : "text-slate-400 hover:text-slate-200 hover:bg-slate-700"
             }`}
           >
-            {t === "5m"
-              ? (locale === "ko" ? "5분봉" : "5M")
-              : (locale === "ko" ? "일봉 90일" : "Daily (90D)")}
+            {t === "5m" ? "5M" : "1D · 90D"}
           </button>
         ))}
       </div>
       {tab === "1d" && !has1d && (
-        <p className="text-xs text-slate-500 text-center py-6">일봉 데이터 없음</p>
+        <p className="text-xs text-slate-500 text-center py-6">{t("noData")}</p>
       )}
       <div ref={containerRef} className="w-full" />
     </div>

@@ -9,7 +9,7 @@ type Props = { posts: TrumpPost[]; fullPage?: boolean };
 export default function TrumpPostsFeed({ posts, fullPage = false }: Props) {
   const t = useTranslations("dashboard.trump");
   const locale = useLocale();
-  const [translations, setTranslations] = useState<Record<number, string>>({});
+  const [translations, setTranslations] = useState<Record<string, string>>({});
 
   useEffect(() => {
     if (posts.length === 0 || locale === "ko" || locale === "en") return;
@@ -17,23 +17,32 @@ export default function TrumpPostsFeed({ posts, fullPage = false }: Props) {
     let cancelled = false;
 
     // 12개 신규 언어 접속 시 표시 중인 포스트들에 대해 온디맨드 번역 API 요청
-    posts.forEach((post) => {
-      if (translations[post.id]) return;
-
-      fetch(`/api/trump-posts/translate?post_id=${post.id}&locale=${encodeURIComponent(locale)}`)
-        .then((res) => (res.ok ? res.json() : null))
-        .then((data) => {
+    const missingPosts = posts.filter(
+      (post) => post.locale_translated !== locale || !post.content_translated
+    );
+    async function loadMissingTranslations() {
+      for (const post of missingPosts) {
+        if (cancelled) break;
+        const translationKey = `${locale}:${post.id}`;
+        try {
+          const res = await fetch(
+            `/api/trump-posts/translate?post_id=${post.id}&locale=${encodeURIComponent(locale)}`
+          );
+          const data = res.ok ? await res.json() : null;
           if (!cancelled && data?.content_translated) {
-            setTranslations((prev) => ({ ...prev, [post.id]: data.content_translated }));
+            setTranslations((prev) => ({ ...prev, [translationKey]: data.content_translated }));
           }
-        })
-        .catch(() => {});
-    });
+        } catch {
+          // 다음 게시물의 캐시 조회/번역은 계속 진행한다.
+        }
+      }
+    }
+    void loadMissingTranslations();
 
     return () => {
       cancelled = true;
     };
-  }, [posts, locale, translations]);
+  }, [posts, locale]);
 
   if (posts.length === 0) {
     return (
@@ -52,13 +61,14 @@ export default function TrumpPostsFeed({ posts, fullPage = false }: Props) {
       }}
     >
       {posts.map((post) => {
-        let contentToDisplay: string;
+        let contentToDisplay: string | null;
         if (locale === "ko") {
           contentToDisplay = post.content_ko || post.content;
         } else if (locale === "en") {
           contentToDisplay = post.content;
         } else {
-          contentToDisplay = translations[post.id] || post.content;
+          contentToDisplay = translations[`${locale}:${post.id}`]
+            || (post.locale_translated === locale ? post.content_translated ?? null : null);
         }
 
         return (
@@ -73,9 +83,16 @@ export default function TrumpPostsFeed({ posts, fullPage = false }: Props) {
               </div>
               <span className="text-xs text-slate-500 shrink-0">{post.post_date}</span>
             </div>
-            <p className="min-w-0 text-sm text-slate-200 leading-6 whitespace-pre-wrap [overflow-wrap:anywhere]">
-              {contentToDisplay}
-            </p>
+            {contentToDisplay ? (
+              <p className="min-w-0 text-sm text-slate-200 leading-6 whitespace-pre-wrap [overflow-wrap:anywhere]">
+                {contentToDisplay}
+              </p>
+            ) : (
+              <div className="space-y-2 py-1" aria-label={t("noData")} aria-busy="true">
+                <div className="h-3 w-full animate-pulse rounded bg-slate-700/70" />
+                <div className="h-3 w-5/6 animate-pulse rounded bg-slate-700/70" />
+              </div>
+            )}
             {post.source_url && (
               <a
                 href={post.source_url}

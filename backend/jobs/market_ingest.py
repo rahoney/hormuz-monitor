@@ -17,6 +17,16 @@ from db.error_repo import log_error
 from utils.logger import get_logger
 
 logger = get_logger(__name__)
+_OHLCV_TARGET_HOURS_UTC = {
+    "KRX": 14,
+    "NYSE": 1,
+    "CME": 1,
+    "ICE": 1,
+    "TSE": 8,
+    "HKEX": 9,
+    "SSE": 8,
+    "STOXX": 18,
+}
 
 def _run_snapshot() -> bool:
     run_id = start_run("market")
@@ -82,14 +92,7 @@ def run(force: bool = False) -> None:
     # KRX: 한국 밤 11시 (14:00 UTC)
     # NYSE/CME: 미국장 종료 후 (한국 오전 10시 = 01:00 UTC)
     now = datetime.now(timezone.utc)
-    exchanges = {
-        "KRX": 14,
-        "NYSE": 1,
-        "CME": 1,
-        "ICE": 1,
-    }
-
-    for exc, target_hour in exchanges.items():
+    for exc, target_hour in _OHLCV_TARGET_HOURS_UTC.items():
         # 타겟 시간이 지났고, 해당 타겟 시간 이후로 성공한 기록이 없는 경우에만 실행
         target_time = now.replace(hour=target_hour, minute=0, second=0, microsecond=0)
         

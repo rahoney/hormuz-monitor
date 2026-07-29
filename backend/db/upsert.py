@@ -40,3 +40,25 @@ def insert(table: str, records: list[dict[str, Any]]) -> int:
             logger.error("Supabase insert failed (%s): %s", table, resp.text[:1000])
             raise
     return len(records)
+
+
+def insert_returning(table: str, records: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """records를 insert하고 DB가 생성한 id/default 값을 포함한 행을 반환한다."""
+    if not records:
+        return []
+
+    with get_client() as client:
+        resp = client.post(
+            f"/{table}",
+            json=records,
+            headers={"Prefer": "return=representation"},
+        )
+        try:
+            resp.raise_for_status()
+        except httpx.HTTPStatusError:
+            logger.error("Supabase insert returning failed (%s): %s", table, resp.text[:1000])
+            raise
+    rows = resp.json()
+    if not isinstance(rows, list):
+        raise TypeError(f"Supabase insert returning expected list for {table}")
+    return rows

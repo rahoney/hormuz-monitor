@@ -115,14 +115,25 @@ def save_risk_score_today() -> None:
                      filters={"symbol": "eq.VIX"}, order="snapshot_date.desc", limit=1)
     vix = vix_rows[0].get("price") if vix_rows else None
 
-    geo_rows = fetch("situation_summaries", columns="geo_score",
-                     order="generated_at.desc", limit=1)
+    geo_rows = fetch(
+        "situation_summaries",
+        columns="geo_score",
+        filters={"is_published": "eq.true"},
+        order="generated_at.desc",
+        limit=1,
+    )
     geo_raw = geo_rows[0].get("geo_score") if geo_rows else None
 
     scores = compute_risk_score(vessels, inland_entry, offshore_exit, brent, brent_change_pct_7d, vix, geo_raw)
     upsert("risk_score_history", [{
         "score_date": today,
         "updated_at": datetime.now(timezone.utc).isoformat(),
+        "vessels_raw": vessels,
+        "inland_entry_raw": inland_entry,
+        "offshore_exit_raw": offshore_exit,
+        "brent_raw": brent,
+        "brent_change_pct_7d_raw": brent_change_pct_7d,
+        "vix_raw": vix,
         **scores,
     }], on_conflict="score_date")
     logger.info("리스크 점수 저장 — %s total=%.1f geo_raw=%s", today, scores["total_score"], geo_raw)

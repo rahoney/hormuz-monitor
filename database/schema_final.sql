@@ -306,10 +306,13 @@ CREATE TABLE IF NOT EXISTS situation_summaries (
     summary_ko_structured jsonb,
     summary_en_structured jsonb,
     geo_score             integer,
+    is_published          boolean     NOT NULL DEFAULT false,
     generated_at          timestamptz NOT NULL DEFAULT now()
 );
 
 CREATE INDEX IF NOT EXISTS idx_situation_summaries_generated_at ON situation_summaries (generated_at DESC);
+CREATE INDEX IF NOT EXISTS idx_situation_summaries_published_generated
+    ON situation_summaries (is_published, generated_at DESC);
 
 ALTER TABLE situation_summaries ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "public read" ON situation_summaries FOR SELECT USING (true);
@@ -354,6 +357,12 @@ CREATE TABLE IF NOT EXISTS risk_score_history (
     brent_score  numeric(5,1),
     vix_score    numeric(5,1),
     geo_raw      integer,
+    vessels_raw  integer,
+    inland_entry_raw integer,
+    offshore_exit_raw integer,
+    brent_raw    double precision,
+    brent_change_pct_7d_raw double precision,
+    vix_raw      double precision,
     updated_at   timestamptz  DEFAULT now()
 );
 
@@ -448,4 +457,3 @@ TO service_role;
 
 -- Required for inserts into bigserial-backed tables through PostgREST.
 GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO service_role;
-

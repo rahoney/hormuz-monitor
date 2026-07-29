@@ -70,8 +70,10 @@ def _finite_float(value: Any) -> float | None:
 
 def collect_ohlcv(exchange: str, days: int = 100) -> list[dict[str, Any]]:
     """특정 거래소의 일봉 OHLCV 수집 (최근 N일)."""
-    end = date.today()
-    start = end - timedelta(days=days)
+    today = date.today()
+    # yfinance의 end는 exclusive이므로 당일 마감봉을 포함하려면 다음 날을 전달한다.
+    end = today + timedelta(days=1)
+    start = today - timedelta(days=days)
     records: list[dict[str, Any]] = []
 
     symbols_to_fetch = [s for s in _SYMBOLS if s["exchange"] == exchange]
