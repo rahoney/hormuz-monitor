@@ -19,29 +19,59 @@ export async function fetchLatestSummary(): Promise<SituationSummary | null> {
 }
 
 export async function fetchLatestSummaryForLocale(locale: string): Promise<SituationSummary | null> {
-  const summary = await fetchLatestSummary();
-  if (!summary) return null;
-  if (locale === "ko" || locale === "en") return summary;
+  if (locale === "ko" || locale === "en") return fetchLatestSummary();
 
-  const { data: translation } = await supabase
-    .from("situation_summary_translations")
-    .select("summary_text, summary_structured")
-    .eq("summary_id", summary.id)
-    .eq("locale", locale)
-    .maybeSingle();
+  const { data } = await supabase
+    .from("situation_summaries")
+    .select(`
+      id,
+      summary_ko,
+      summary_en,
+      summary_ko_structured,
+      summary_en_structured,
+      generated_at,
+      geo_score,
+      situation_summary_translations (
+        locale,
+        summary_text,
+        summary_structured
+      )
+    `)
+    .eq("is_published", true)
+    .eq("situation_summary_translations.locale", locale)
+    .order("generated_at", { ascending: false })
+    .limit(1)
+    .single();
 
-  if (translation) {
-    return {
-      ...summary,
-      summary_translated_text: translation.summary_text,
-      summary_translated_structured:
-        translation.summary_structured as SituationSummary["summary_translated_structured"],
-      locale_translated: locale,
-    };
-  }
+  if (!data) return null;
 
-  // 게시된 행에는 12개 번역이 모두 있어야 한다. 조회 실패 시 영어를 노출하지 않는다.
-  return null;
+  type TranslationRow = {
+    locale: string;
+    summary_text: string;
+    summary_structured: SituationSummary["summary_translated_structured"];
+  };
+  type SummaryWithTranslations = SituationSummary & {
+    situation_summary_translations: TranslationRow[] | null;
+  };
+
+  const row = data as SummaryWithTranslations;
+  const translation = row.situation_summary_translations?.find(
+    (item) => item.locale === locale
+  );
+  if (!translation) return null;
+
+  return {
+    id: row.id,
+    summary_ko: row.summary_ko,
+    summary_en: row.summary_en,
+    summary_ko_structured: row.summary_ko_structured,
+    summary_en_structured: row.summary_en_structured,
+    generated_at: row.generated_at,
+    geo_score: row.geo_score,
+    summary_translated_text: translation.summary_text,
+    summary_translated_structured: translation.summary_structured,
+    locale_translated: locale,
+  };
 }
 
 export async function fetchRiskScoreHistory(): Promise<RiskScoreHistory[]> {
