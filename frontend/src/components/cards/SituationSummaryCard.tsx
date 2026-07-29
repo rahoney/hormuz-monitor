@@ -102,10 +102,6 @@ export default function SituationSummaryCard({ summary }: Props) {
   const t = useTranslations("dashboard.summary");
   const locale = useLocale();
   const [timeZone, setTimeZone] = useState(() => defaultTimeZone(locale));
-  const [translatedText, setTranslatedText] = useState<string | null>(null);
-  const [translatedStructured, setTranslatedStructured] = useState<StructuredSituationSummary | null>(null);
-  const [loadingTranslation, setLoadingTranslation] = useState(false);
-  const [translationFailed, setTranslationFailed] = useState(false);
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -115,78 +111,31 @@ export default function SituationSummaryCard({ summary }: Props) {
     return () => window.clearTimeout(timer);
   }, []);
 
-  const hasServerTranslation = Boolean(
-    summary
-    && summary.locale_translated === locale
-    && (isStructuredSummary(summary.summary_translated_structured) || summary.summary_translated_text)
-  );
+  let structuredToRender: StructuredSituationSummary | null = null;
+  let text: string | null = null;
 
-  // 12개 신규 언어 접속 시 서버 번역 데이터가 없을 때만 온디맨드 구조화 AI 번역 API 호출
-  useEffect(() => {
-    if (!summary || locale === "ko" || locale === "en" || hasServerTranslation) {
-      setTranslatedText(null);
-      setTranslatedStructured(null);
-      setTranslationFailed(false);
-      setLoadingTranslation(false);
-      return;
+  if (summary) {
+    if (locale === "ko") {
+      structuredToRender = isStructuredSummary(summary.summary_ko_structured) ? summary.summary_ko_structured : null;
+      text = summary.summary_ko;
+    } else if (locale === "en") {
+      structuredToRender = isStructuredSummary(summary.summary_en_structured) ? summary.summary_en_structured : null;
+      text = summary.summary_en || summary.summary_ko;
+    } else {
+      // 12개 신규 언어: 사전 번역 데이터 사용
+      if (summary.locale_translated === locale) {
+        structuredToRender = isStructuredSummary(summary.summary_translated_structured) ? summary.summary_translated_structured : null;
+        text = summary.summary_translated_text ?? null;
+      }
+      // DB에 없으면 영문 / 한글 fallback
+      if (!structuredToRender && !text) {
+        structuredToRender = isStructuredSummary(summary.summary_en_structured)
+          ? summary.summary_en_structured
+          : (isStructuredSummary(summary.summary_ko_structured) ? summary.summary_ko_structured : null);
+        text = summary.summary_en || summary.summary_ko;
+      }
     }
-
-    let cancelled = false;
-    setLoadingTranslation(true);
-    setTranslationFailed(false);
-
-    fetch(`/api/situation-summary/translate?summary_id=${summary.id}&locale=${encodeURIComponent(locale)}`)
-      .then((res) => {
-        if (!res.ok) throw new Error(`Status ${res.status}`);
-        return res.json();
-      })
-      .then((data) => {
-        if (cancelled) return;
-        if (isStructuredSummary(data?.summary_structured)) {
-          setTranslatedStructured(data.summary_structured);
-        } else if (data?.summary_text) {
-          setTranslatedText(data.summary_text);
-        } else {
-          setTranslationFailed(true);
-        }
-      })
-      .catch((err) => {
-        console.error("translation error:", err);
-        if (!cancelled) setTranslationFailed(true);
-      })
-      .finally(() => {
-        if (!cancelled) setLoadingTranslation(false);
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [summary, locale, hasServerTranslation]);
-
-  const isCustomLocale = locale !== "ko" && locale !== "en";
-
-  const baseText = summary
-    ? (locale === "ko" ? summary.summary_ko : (summary.summary_en || summary.summary_ko))
-    : null;
-
-  const serverTranslatedText = (summary && summary.locale_translated === locale) ? (summary.summary_translated_text ?? null) : null;
-  const text = isCustomLocale ? (serverTranslatedText || translatedText) : baseText;
-
-  const baseStructuredCandidate = summary
-    ? (locale === "ko" ? summary.summary_ko_structured : (summary.summary_en_structured || summary.summary_ko_structured))
-    : null;
-
-  const baseStructured = (locale === "ko" || locale === "en") && isStructuredSummary(baseStructuredCandidate)
-    ? baseStructuredCandidate
-    : null;
-
-  const serverTranslatedStructured = (summary && summary.locale_translated === locale && isStructuredSummary(summary.summary_translated_structured))
-    ? summary.summary_translated_structured
-    : null;
-
-  const structuredToRender = isCustomLocale
-    ? (serverTranslatedStructured || translatedStructured)
-    : baseStructured;
+  }
 
   const updatedAt = summary ? formatUpdatedAt(summary.generated_at, locale, timeZone) : null;
 
@@ -211,22 +160,7 @@ export default function SituationSummaryCard({ summary }: Props) {
         </div>
       </div>
       <div className="text-slate-200 leading-7" style={{ fontSize: "16px" }}>
-        {loadingTranslation ? (
-          <div className="py-6 text-sm text-slate-400 flex items-center gap-2">
-            <div className="h-4 w-4 animate-spin rounded-full border-2 border-blue-400 border-t-transparent" />
-            <span>{t("loading")}</span>
-          </div>
-        ) : translationFailed ? (
-          <div className="py-4 text-sm text-slate-400">
-            <p className="mb-2 font-medium text-slate-300">{t("noData")}</p>
-            {baseText && (
-              <details className="mt-3 rounded border border-slate-700/50 bg-slate-900/50 p-3 text-xs text-slate-400">
-                <summary className="cursor-pointer font-semibold text-blue-400">View English Original</summary>
-                <div className="mt-2 whitespace-pre-wrap">{baseText}</div>
-              </details>
-            )}
-          </div>
-        ) : structuredToRender ? (
+        {structuredToRender ? (
           <StructuredSummaryView data={structuredToRender} />
         ) : text ? (
           <ReactMarkdown
