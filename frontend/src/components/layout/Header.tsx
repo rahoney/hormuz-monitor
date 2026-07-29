@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import { useTranslations, useLocale } from "next-intl";
 import { Link, useRouter, usePathname } from "@/i18n/navigation";
-import { routing, LOCALE_LABELS } from "@/i18n/routing";
+import { routing, LOCALE_LABELS, RTL_LOCALES } from "@/i18n/routing";
 
 const NAV_ITEMS = [
   { key: "dashboard", href: "/" },
@@ -20,6 +20,14 @@ export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [langOpen, setLangOpen] = useState(false);
   const langRef = useRef<HTMLDivElement>(null);
+
+  // 언어 변경 시 브라우저 HTML dir(RTL/LTR) 및 lang 동적 동기화
+  useEffect(() => {
+    if (typeof document !== "undefined") {
+      document.documentElement.dir = RTL_LOCALES.has(currentLocale) ? "rtl" : "ltr";
+      document.documentElement.lang = currentLocale;
+    }
+  }, [currentLocale]);
 
   // 드롭다운 외부 클릭 감지
   useEffect(() => {

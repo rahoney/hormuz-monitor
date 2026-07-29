@@ -542,7 +542,7 @@ Rules:
 
 Original Source Report:
 {json.dumps(source_structured, ensure_ascii=False, indent=2) if source_structured else source_text}
-""".trim()
+""".strip()
 
     import os
     api_key = os.getenv("GOOGLE_GEMINI_API_KEY")
