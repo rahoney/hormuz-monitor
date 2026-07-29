@@ -447,5 +447,139 @@ def generate() -> tuple[str, str, int | None, dict[str, Any] | None, dict[str, A
             _has_label_body_newline(ko, _KO_REQUIRED_LABELS),
             _has_label_body_newline(en, _EN_REQUIRED_LABELS),
         )
-        return None
     return ko, en, geo_score, _build_structured_summary(ko, "ko"), _build_structured_summary(en, "en")
+
+
+LOCALE_NAME_MAP: dict[str, str] = {
+    "ar": "Arabic",
+    "fa": "Persian",
+    "ja": "Japanese",
+    "es": "Spanish",
+    "tr": "Turkish",
+    "de": "German",
+    "fr": "French",
+    "pt-BR": "Brazilian Portuguese",
+    "it": "Italian",
+    "zh-CN": "Simplified Chinese",
+    "zh-TW": "Traditional Chinese",
+    "ru": "Russian",
+}
+
+SECTION_TITLES_BY_LOCALE: dict[str, tuple[str, str, str, str]] = {
+    "ar": ("الوضع الرئيسي", "التحركات العسكرية والدبلوماسية", "رد فعل السوق", "الرؤية والنقاط المرتقبة"),
+    "fa": ("وضعیت اصلی", "تحرکات نظامی و دیپلماتیک", "واکنش بازار", "چشم‌انداز و نقاط کلیدی"),
+    "ja": ("主な状況", "軍事・外交の動き", "市場の反応", "見通しと注視ポイント"),
+    "es": ("Situación principal", "Movimientos militares y diplomáticos", "Reacción del mercado", "Perspectivas y puntos a vigilar"),
+    "tr": ("Ana Durum", "Askeri ve Diplomatik Hareketler", "Piyasa Tepkisi", "Görünüm ve Takip Noktaları"),
+    "de": ("Kernsituation", "Militärische & diplomatische Schritte", "Marktreaktion", "Ausblick & Beobachtungspunkte"),
+    "fr": ("Situation principale", "Mouvements militaires et diplomatiques", "Réaction du marché", "Perspectives et points clés"),
+    "pt-BR": ("Situação principal", "Movimentos militares e diplomáticos", "Reação do mercado", "Perspectivas e pontos de atenção"),
+    "it": ("Situazione principale", "Mosse militari e diplomatiche", "Reazione del mercato", "Prospettive e punti chiave"),
+    "zh-CN": ("核心局势", "军事与外交动态", "市场反应", "前景与关注要点"),
+    "zh-TW": ("核心局勢", "軍事與外交動態", "市場反應", "前景與關注要點"),
+    "ru": ("Ключевая ситуация", "Военно-дипломатические шаги", "Реакция рынка", "Перспективы и контрольные точки"),
+}
+
+
+def translate_summary_for_locale(
+    source_structured: dict[str, Any] | None,
+    source_text: str,
+    target_locale: str,
+) -> tuple[str, dict[str, Any], str] | None:
+    """단일 locale에 대해 구조화 번역 생성. (summary_text, summary_structured, model) 반환."""
+    import json
+    import httpx
+
+    target_lang = LOCALE_NAME_MAP.get(target_locale)
+    titles = SECTION_TITLES_BY_LOCALE.get(target_locale)
+    if not target_lang or not titles:
+        return None
+
+    prompt = f"""
+Translate the following situation summary report into {target_lang}.
+You must produce a valid JSON object matching the structured schema below.
+
+JSON Schema:
+{{
+  "version": 1,
+  "sections": [
+    {{
+      "title": "{titles[0]}",
+      "body": "Translated body paragraph for section 1",
+      "highlights": [
+        {{ "text": "exact sub-phrase in translated body", "tone": "risk" }}
+      ]
+    }},
+    {{
+      "title": "{titles[1]}",
+      "body": "Translated body paragraph for section 2",
+      "highlights": [
+        {{ "text": "exact sub-phrase in translated body", "tone": "watch" }}
+      ]
+    }},
+    {{
+      "title": "{titles[2]}",
+      "body": "Translated body paragraph for section 3",
+      "highlights": [
+        {{ "text": "exact sub-phrase in translated body", "tone": "market" }}
+      ]
+    }},
+    {{
+      "title": "{titles[3]}",
+      "body": "Translated body paragraph for section 4",
+      "highlights": [
+        {{ "text": "exact sub-phrase in translated body", "tone": "watch" }}
+      ]
+    }}
+  ]
+}}
+
+Rules:
+- Translate accurately and naturally into {target_lang}.
+- Keep 4 sections exactly with the given section titles: "{titles[0]}", "{titles[1]}", "{titles[2]}", "{titles[3]}".
+- In each section's "highlights", pick 1-3 key terms or short phrases that appear EXACTLY in that section's "body" string, with tone being one of "risk", "market", or "watch".
+- Output strictly valid JSON with NO markdown code fences or conversational text.
+
+Original Source Report:
+{json.dumps(source_structured, ensure_ascii=False, indent=2) if source_structured else source_text}
+""".trim()
+
+    import os
+    api_key = os.getenv("GOOGLE_GEMINI_API_KEY")
+    if not api_key:
+        return None
+
+    models = summary_models()
+    payload = {
+        "contents": [{"parts": [{"text": prompt}]}],
+        "generationConfig": {
+            "responseMimeType": "application/json",
+            "maxOutputTokens": 2048,
+            "temperature": 0.1,
+        },
+    }
+
+    for model in models:
+        model_name = model if model.startswith("models/") else f"models/{model}"
+        url = f"https://generativelanguage.googleapis.com/v1beta/{model_name}:generateContent?key={api_key}"
+        try:
+            resp = httpx.post(url, json=payload, timeout=25.0)
+            if resp.status_code != 200:
+                continue
+            data = resp.json()
+            candidates = data.get("candidates", [])
+            if not candidates:
+                continue
+            text_str = candidates[0].get("content", {}).get("parts", [{}])[0].get("text", "").strip()
+            if not text_str:
+                continue
+
+            parsed = json.loads(text_str)
+            if parsed.get("version") == 1 and isinstance(parsed.get("sections"), list) and len(parsed["sections"]) == 4:
+                plain_text = "\n\n".join(f"- {s['title']}:\n{s['body']}" for s in parsed["sections"])
+                return plain_text, parsed, model_name
+        except Exception:
+            continue
+
+    return None
+

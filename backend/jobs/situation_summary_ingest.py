@@ -31,7 +31,41 @@ def run() -> None:
             record["summary_ko_structured"] = ko_structured
         if en_structured:
             record["summary_en_structured"] = en_structured
-        insert("situation_summaries", [record])
+        saved_rows = insert("situation_summaries", [record])
+        saved_id = saved_rows[0].get("id") if (saved_rows and isinstance(saved_rows, list)) else None
+
+        if not saved_id:
+            from db.select import fetch
+            latest = fetch("situation_summaries", columns="id", order="generated_at.desc", limit=1)
+            saved_id = latest[0].get("id") if latest else None
+
+        if saved_id:
+            from collectors.summary.situation_summarizer import LOCALE_NAME_MAP, translate_summary_for_locale
+            from db.upsert import upsert
+
+            source_structured = en_structured or ko_structured
+            source_text = en or ko
+            trans_records = []
+
+            for loc in LOCALE_NAME_MAP.keys():
+                try:
+                    res = translate_summary_for_locale(source_structured, source_text, loc)
+                    if res:
+                        summary_text, summary_structured, model_name = res
+                        trans_records.append({
+                            "summary_id": saved_id,
+                            "locale": loc,
+                            "summary_text": summary_text,
+                            "summary_structured": summary_structured,
+                            "model": model_name,
+                        })
+                except Exception as t_err:
+                    logger.error("다국어 사전 번역 실패 (locale=%s): %s", loc, t_err)
+
+            if trans_records:
+                upsert("situation_summary_translations", trans_records, on_conflict="summary_id,locale")
+                logger.info("완료: 다국어 사전 번역 DB 저장 (%d개 언어)", len(trans_records))
+
         finish_run(run_id, "success", 1, 1)
         logger.info(
             "완료: 요약 저장 (ko %d자, en %d words, geo_score %s, structured ko=%s en=%s)",
