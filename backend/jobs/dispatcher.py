@@ -14,6 +14,7 @@ from jobs import (
     shipping_ingest,
     situation_summary_ingest,
     trump_ingest,
+    trump_translate,
 )
 from utils.logger import get_logger
 
@@ -82,15 +83,16 @@ def run(force: bool = False) -> None:
         ("shipping_ingest", shipping_ingest.run, True),
         ("events_ingest", events_ingest.run, force or not has_successful_run_since("rss_events", _hour_start(now))),
         (
-            "situation_summary_ingest",
-            situation_summary_ingest.run,
-            force or _due_hourly_after_events(now, "situation_summary"),
-        ),
-        (
             "trump_ingest",
             trump_ingest.run,
             force or not has_successful_run_since("trump_social", _two_hour_window_start(now)),
         ),
+        (
+            "situation_summary_ingest",
+            situation_summary_ingest.run,
+            force or _due_hourly_after_events(now, "situation_summary"),
+        ),
+        ("trump_translate", trump_translate.run, True),
         ("daily_maintenance", daily_maintenance.run, force or _due_daily_maintenance(now)),
     ]
 
