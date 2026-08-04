@@ -421,8 +421,9 @@ def generate() -> tuple[str, str, int | None, dict[str, Any] | None, dict[str, A
             task="situation_summary",
             models=summary_models(),
             max_output_tokens=3072,
-            temperature=0.3,
+            temperature=None,
             timeout=30.0,
+            retries_per_model=1,
             validate_text=_valid_generated_text,
         )
         text = result.text
@@ -514,91 +515,161 @@ def _valid_translated_structure(
     return True
 
 
-def translate_summary_for_locale(
-    source_structured: dict[str, Any] | None,
-    source_text: str,
-    target_locale: str,
-) -> tuple[str, dict[str, Any], str] | None:
-    """단일 locale에 대해 구조화 번역 생성. (summary_text, summary_structured, model) 반환."""
-    import json
+def _summary_translation_response_schema(locales: tuple[str, ...]) -> dict[str, Any]:
+    highlight_schema: dict[str, Any] = {
+        "type": "object",
+        "properties": {
+            "text": {"type": "string"},
+            "tone": {"type": "string", "enum": sorted(_ALLOWED_HIGHLIGHT_TONES)},
+        },
+        "required": ["text", "tone"],
+        "additionalProperties": False,
+    }
+    section_schema: dict[str, Any] = {
+        "type": "object",
+        "properties": {
+            "body": {"type": "string"},
+            "highlights": {
+                "type": "array",
+                "items": highlight_schema,
+                "minItems": 1,
+                "maxItems": 3,
+            },
+        },
+        "required": ["body", "highlights"],
+        "additionalProperties": False,
+    }
+    translation_schema: dict[str, Any] = {
+        "type": "object",
+        "properties": {
+            "sections": {
+                "type": "array",
+                "items": section_schema,
+                "minItems": 4,
+                "maxItems": 4,
+            },
+        },
+        "required": ["sections"],
+        "additionalProperties": False,
+    }
+    return {
+        "type": "object",
+        "properties": {
+            "translations": {
+                "type": "object",
+                "properties": {locale: translation_schema for locale in locales},
+                "required": list(locales),
+                "additionalProperties": False,
+            },
+        },
+        "required": ["translations"],
+        "additionalProperties": False,
+    }
 
-    target_lang = LOCALE_NAME_MAP.get(target_locale)
-    titles = SECTION_TITLES_BY_LOCALE.get(target_locale)
-    if not target_lang or not titles:
+
+def _structured_translation_for_locale(locale: str, value: Any) -> dict[str, Any] | None:
+    titles = SECTION_TITLES_BY_LOCALE.get(locale)
+    if not titles or not isinstance(value, dict):
+        return None
+    raw_sections = value.get("sections")
+    if not isinstance(raw_sections, list) or len(raw_sections) != len(titles):
         return None
 
-    prompt = f"""
-Translate the following situation summary report into {target_lang}.
-You must produce a valid JSON object matching the structured schema below.
+    structured = {
+        "version": 1,
+        "sections": [
+            {
+                "title": title,
+                "body": section.get("body"),
+                "highlights": section.get("highlights"),
+            }
+            for title, section in zip(titles, raw_sections, strict=True)
+            if isinstance(section, dict)
+        ],
+    }
+    return structured if _valid_translated_structure(structured, titles) else None
 
-JSON Schema:
-{{
-  "version": 1,
-  "sections": [
-    {{
-      "title": "{titles[0]}",
-      "body": "Translated body paragraph for section 1",
-      "highlights": [
-        {{ "text": "exact sub-phrase in translated body", "tone": "risk" }}
-      ]
-    }},
-    {{
-      "title": "{titles[1]}",
-      "body": "Translated body paragraph for section 2",
-      "highlights": [
-        {{ "text": "exact sub-phrase in translated body", "tone": "watch" }}
-      ]
-    }},
-    {{
-      "title": "{titles[2]}",
-      "body": "Translated body paragraph for section 3",
-      "highlights": [
-        {{ "text": "exact sub-phrase in translated body", "tone": "market" }}
-      ]
-    }},
-    {{
-      "title": "{titles[3]}",
-      "body": "Translated body paragraph for section 4",
-      "highlights": [
-        {{ "text": "exact sub-phrase in translated body", "tone": "watch" }}
-      ]
-    }}
-  ]
-}}
+
+def translate_summary_for_locales(
+    source_structured: dict[str, Any] | None,
+    source_text: str,
+    target_locales: tuple[str, ...] | None = None,
+) -> dict[str, tuple[str, dict[str, Any], str]]:
+    """여러 locale의 구조화 번역을 Gemini 한 번의 호출로 생성한다."""
+    import json
+
+    locales = target_locales or tuple(LOCALE_NAME_MAP)
+    locales = tuple(
+        locale
+        for locale in locales
+        if locale in LOCALE_NAME_MAP and locale in SECTION_TITLES_BY_LOCALE
+    )
+    if not locales:
+        return {}
+
+    locale_instructions = "\n".join(
+        f'- "{locale}": {LOCALE_NAME_MAP[locale]}' for locale in locales
+    )
+
+    prompt = f"""
+Translate the source situation report into every language below in one response.
+
+Target locales:
+{locale_instructions}
 
 Rules:
-- Translate accurately and naturally into {target_lang}.
-- Keep 4 sections exactly with the given section titles: "{titles[0]}", "{titles[1]}", "{titles[2]}", "{titles[3]}".
-- In each section's "highlights", pick 1-3 key terms or short phrases that appear EXACTLY in that section's "body" string, with tone being one of "risk", "market", or "watch".
-- Output strictly valid JSON with NO markdown code fences or conversational text.
+- Return a JSON object with a "translations" object keyed by the exact locale codes above.
+- Each locale must contain exactly four sections, in the same order as the source report.
+- Each section contains only its translated "body" and 1-3 "highlights".
+- Each highlight must have a "text" that appears EXACTLY in its section body and a "tone" of "risk", "market", or "watch".
+- Do not include section titles. The application supplies them deterministically.
+- Translate accurately and naturally. Do not add facts.
 
 Original Source Report:
 {json.dumps(source_structured, ensure_ascii=False, indent=2) if source_structured else source_text}
 """.strip()
 
-    def _valid_json_text(text: str) -> bool:
+    def _has_translation_object(text: str) -> bool:
         try:
-            return _valid_translated_structure(json.loads(text), titles)
+            parsed = json.loads(text)
         except (json.JSONDecodeError, TypeError):
             return False
+        return isinstance(parsed, dict) and isinstance(parsed.get("translations"), dict)
 
     try:
         result = generate_text(
             prompt,
-            task=f"situation_summary_translate_{target_locale}",
+            task="situation_summary_translate_batch",
             models=summary_models(),
-            max_output_tokens=2048,
-            temperature=0.1,
-            timeout=25.0,
-            extra_generation_config={"responseMimeType": "application/json"},
-            validate_text=_valid_json_text,
+            max_output_tokens=32768,
+            temperature=None,
+            timeout=90.0,
+            retries_per_model=1,
+            extra_generation_config={
+                "responseMimeType": "application/json",
+                "responseJsonSchema": _summary_translation_response_schema(locales),
+            },
+            validate_text=_has_translation_object,
         )
-        parsed = json.loads(result.text)
+    except GeminiError as exc:
+        logger.error("상황 요약 일괄 번역 실패: %s", exc)
+        return {}
+
+    try:
+        translations = json.loads(result.text).get("translations", {})
+    except (json.JSONDecodeError, TypeError) as exc:
+        logger.error("상황 요약 일괄 번역 JSON 파싱 실패: %s", exc)
+        return {}
+
+    records: dict[str, tuple[str, dict[str, Any], str]] = {}
+    for locale in locales:
+        structured = _structured_translation_for_locale(locale, translations.get(locale))
+        if not structured:
+            logger.warning("상황 요약 일괄 번역 검증 실패 (locale=%s)", locale)
+            continue
         plain_text = "\n\n".join(
             f"- {section['title']}:\n{section['body']}"
-            for section in parsed["sections"]
+            for section in structured["sections"]
         )
-        return plain_text, parsed, result.model
-    except (GeminiError, json.JSONDecodeError, KeyError, TypeError) as exc:
-        logger.error("상황 요약 번역 실패 (locale=%s): %s", target_locale, exc)
-        return None
+        records[locale] = plain_text, structured, result.model
+    return records

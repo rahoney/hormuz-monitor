@@ -15,9 +15,9 @@ Locale = Literal[
 ]
 
 _DEFAULT_MODELS = (
+    "models/gemini-3.5-flash-lite",
     "models/gemini-3.1-flash-lite",
-    "models/gemini-2.5-flash",
-    "models/gemini-3-flash-preview",
+    "models/gemini-3.5-flash",
 )
 
 _LOCALE_NAMES: dict[str, str] = {
@@ -164,7 +164,7 @@ def get_or_create_summary(event_id: int, locale: Locale) -> dict[str, Any]:
         task="event_article_summary",
         models=_summary_models(),
         max_output_tokens=420,
-        temperature=0.1,
+        temperature=None,
         timeout=45.0,
         retries_per_model=2,
     )
