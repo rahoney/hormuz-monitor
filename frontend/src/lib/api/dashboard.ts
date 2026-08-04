@@ -58,8 +58,6 @@ export async function fetchLatestSummaryForLocale(locale: string): Promise<Situa
   const translation = row.situation_summary_translations?.find(
     (item) => item.locale === locale
   );
-  if (!translation) return null;
-
   return {
     id: row.id,
     summary_ko: row.summary_ko,
@@ -68,9 +66,9 @@ export async function fetchLatestSummaryForLocale(locale: string): Promise<Situa
     summary_en_structured: row.summary_en_structured,
     generated_at: row.generated_at,
     geo_score: row.geo_score,
-    summary_translated_text: translation.summary_text,
-    summary_translated_structured: translation.summary_structured,
-    locale_translated: locale,
+    summary_translated_text: translation?.summary_text ?? null,
+    summary_translated_structured: translation?.summary_structured ?? null,
+    locale_translated: translation ? locale : null,
   };
 }
 

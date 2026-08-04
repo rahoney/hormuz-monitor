@@ -16,7 +16,7 @@ services:
       - key: GOOGLE_GEMINI_API_KEY
         sync: false
       - key: ARTICLE_SUMMARY_MODELS
-        value: models/gemini-3.1-flash-lite,models/gemini-2.5-flash,models/gemini-3-flash-preview
+        value: models/gemini-3.5-flash-lite,models/gemini-3.1-flash-lite,models/gemini-3.5-flash
 
   # 통합 크론 dispatcher: 시장/AIS는 20분마다, 저빈도 작업은 내부 조건으로 실행
   - type: cron
@@ -37,3 +37,7 @@ services:
         sync: false
       - key: GOOGLE_GEMINI_API_KEY
         sync: false
+      - key: GEMINI_SUMMARY_MODELS
+        value: models/gemini-3.5-flash-lite,models/gemini-3.1-flash-lite,models/gemini-3.5-flash
+      - key: GEMINI_TRANSLATION_MODELS
+        value: models/gemini-3.5-flash-lite,models/gemini-3.1-flash-lite,models/gemini-3.5-flash
