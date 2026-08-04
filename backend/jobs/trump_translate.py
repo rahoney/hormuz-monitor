@@ -1,4 +1,4 @@
-"""trump_posts content_ko 번역 잡."""
+"""Pretranslate Trump posts for every supported dashboard locale."""
 import sys
 sys.path.insert(0, ".")
 
@@ -17,14 +17,19 @@ def run() -> None:
 
     try:
         with get_client() as client:
-            updated = translate_pending(client)
-        finish_run(run_id, "success", updated, updated)
-        logger.info("완료: %d건 번역", updated)
+            progress = translate_pending(client)
+        status = "partial" if progress.failed_groups else "success"
+        finish_run(run_id, status, progress.requested, progress.saved)
+        if progress.failed_groups:
+            message = f"{progress.failed_groups}개 트럼프 번역 그룹이 다음 회차 재시도 대상으로 남음"
+            log_error("trump_translate", "gemini", message, run_id)
+            logger.warning("%s (저장 %d/%d)", message, progress.saved, progress.requested)
+        else:
+            logger.info("완료: %d/%d건 사전 번역", progress.saved, progress.requested)
     except Exception as exc:
         finish_run(run_id, "failed", 0, 0)
         log_error("trump_translate", "unknown", str(exc), run_id)
-        logger.error("번역 실패: %s", exc)
-        raise
+        logger.error("번역 잡 오류(다음 회차 재시도): %s", exc)
 
 
 if __name__ == "__main__":

@@ -22,53 +22,52 @@ export async function fetchLatestSummaryForLocale(locale: string): Promise<Situa
   if (locale === "ko" || locale === "en") return fetchLatestSummary();
 
   const { data } = await supabase
-    .from("situation_summaries")
+    .from("situation_summary_translations")
     .select(`
-      id,
-      summary_ko,
-      summary_en,
-      summary_ko_structured,
-      summary_en_structured,
-      generated_at,
-      geo_score,
-      situation_summary_translations (
-        locale,
-        summary_text,
-        summary_structured
+      summary_structured,
+      summary_text,
+      situation_summaries!inner (
+        id,
+        summary_ko,
+        summary_en,
+        summary_ko_structured,
+        summary_en_structured,
+        generated_at,
+        geo_score,
+        is_published
       )
     `)
-    .eq("is_published", true)
-    .eq("situation_summary_translations.locale", locale)
-    .order("generated_at", { ascending: false })
+    .eq("locale", locale)
+    .eq("situation_summaries.is_published", true)
+    .order("created_at", { ascending: false })
     .limit(1)
     .single();
 
-  if (!data) return null;
+  if (!data) return fetchLatestSummary();
 
-  type TranslationRow = {
-    locale: string;
+  type TranslationWithSummary = {
     summary_text: string;
     summary_structured: SituationSummary["summary_translated_structured"];
+    situation_summaries:
+      | Array<SituationSummary & { is_published: boolean }>
+      | (SituationSummary & { is_published: boolean });
   };
-  type SummaryWithTranslations = SituationSummary & {
-    situation_summary_translations: TranslationRow[] | null;
-  };
-
-  const row = data as SummaryWithTranslations;
-  const translation = row.situation_summary_translations?.find(
-    (item) => item.locale === locale
-  );
+  const translation = data as TranslationWithSummary;
+  const summary = Array.isArray(translation.situation_summaries)
+    ? translation.situation_summaries[0]
+    : translation.situation_summaries;
+  if (!summary) return fetchLatestSummary();
   return {
-    id: row.id,
-    summary_ko: row.summary_ko,
-    summary_en: row.summary_en,
-    summary_ko_structured: row.summary_ko_structured,
-    summary_en_structured: row.summary_en_structured,
-    generated_at: row.generated_at,
-    geo_score: row.geo_score,
-    summary_translated_text: translation?.summary_text ?? null,
-    summary_translated_structured: translation?.summary_structured ?? null,
-    locale_translated: translation ? locale : null,
+    id: summary.id,
+    summary_ko: summary.summary_ko,
+    summary_en: summary.summary_en,
+    summary_ko_structured: summary.summary_ko_structured,
+    summary_en_structured: summary.summary_en_structured,
+    generated_at: summary.generated_at,
+    geo_score: summary.geo_score,
+    summary_translated_text: translation.summary_text,
+    summary_translated_structured: translation.summary_structured,
+    locale_translated: locale,
   };
 }
 
@@ -312,8 +311,14 @@ export async function fetchTrumpPosts(limit = 20): Promise<TrumpPost[]> {
 }
 
 export async function fetchTrumpPostsForLocale(locale: string, limit = 20): Promise<TrumpPost[]> {
-  const posts = await fetchTrumpPosts(limit);
-  if (posts.length === 0 || locale === "ko" || locale === "en") return posts;
+  const candidateLimit = Math.max(limit * 5, 100);
+  const posts = await fetchTrumpPosts(candidateLimit);
+  if (posts.length === 0 || locale === "en") return posts.slice(0, limit);
+
+  if (locale === "ko") {
+    const translatedPosts = posts.filter((post) => Boolean(post.content_ko)).slice(0, limit);
+    return translatedPosts.length > 0 ? translatedPosts : posts.slice(0, limit);
+  }
 
   const { data: translations } = await supabase
     .from("trump_post_translations")
@@ -325,11 +330,15 @@ export async function fetchTrumpPostsForLocale(locale: string, limit = 20): Prom
     ((translations ?? []) as { post_id: number; content_translated: string }[])
       .map((row) => [row.post_id, row.content_translated])
   );
-  return posts.map((post) => ({
-    ...post,
-    content_translated: translatedById.get(post.id) ?? null,
-    locale_translated: translatedById.has(post.id) ? locale : null,
-  }));
+  const translatedPosts = posts
+    .filter((post) => translatedById.has(post.id))
+    .slice(0, limit)
+    .map((post) => ({
+      ...post,
+      content_translated: translatedById.get(post.id) ?? null,
+      locale_translated: locale,
+    }));
+  return translatedPosts.length > 0 ? translatedPosts : posts.slice(0, limit);
 }
 
 export async function fetchRecentEvents(limit = 5): Promise<Event[]> {

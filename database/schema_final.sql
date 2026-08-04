@@ -291,6 +291,8 @@ CREATE TABLE IF NOT EXISTS trump_post_translations (
 
 CREATE INDEX IF NOT EXISTS idx_trump_trans_post_locale
     ON trump_post_translations (post_id, locale);
+CREATE INDEX IF NOT EXISTS idx_trump_trans_locale_post
+    ON trump_post_translations (locale, post_id);
 
 ALTER TABLE trump_post_translations ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "public read" ON trump_post_translations FOR SELECT USING (true);
@@ -320,9 +322,9 @@ CREATE POLICY "public read" ON situation_summaries FOR SELECT USING (true);
 
 
 -- ============================================================
--- 상황 요약 다국어 번역 캐시 (온디맨드 AI 번역 결과 저장)
+-- 상황 요약 다국어 사전 번역 캐시
 -- ko/en 기본 요약은 situation_summaries에 저장되고,
--- 나머지 12개 언어 접속 시 온디맨드로 번역 후 이 테이블에 캐시한다.
+-- 나머지 12개 언어는 Render cron이 사전 번역해 이 테이블에 캐시한다.
 -- ============================================================
 CREATE TABLE IF NOT EXISTS situation_summary_translations (
     id                  bigserial   PRIMARY KEY,
@@ -340,6 +342,8 @@ CREATE TABLE IF NOT EXISTS situation_summary_translations (
 
 CREATE INDEX IF NOT EXISTS idx_situation_trans_summary_locale
     ON situation_summary_translations (summary_id, locale);
+CREATE INDEX IF NOT EXISTS idx_situation_trans_locale_created
+    ON situation_summary_translations (locale, created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_situation_trans_created_at
     ON situation_summary_translations (created_at DESC);
 

@@ -1,7 +1,6 @@
 "use client";
 
 import { useTranslations, useLocale } from "next-intl";
-import { useEffect, useState } from "react";
 import type { TrumpPost } from "@/types";
 
 type Props = { posts: TrumpPost[]; fullPage?: boolean };
@@ -9,53 +8,6 @@ type Props = { posts: TrumpPost[]; fullPage?: boolean };
 export default function TrumpPostsFeed({ posts, fullPage = false }: Props) {
   const t = useTranslations("dashboard.trump");
   const locale = useLocale();
-  const [translations, setTranslations] = useState<Record<string, string>>({});
-
-  useEffect(() => {
-    if (posts.length === 0 || locale === "ko" || locale === "en") return;
-
-    let cancelled = false;
-
-    // 12개 신규 언어 접속 시 표시 중인 포스트들에 대해 온디맨드 번역 API 요청
-    const missingPosts = posts.filter(
-      (post) => post.locale_translated !== locale || !post.content_translated
-    );
-    async function loadMissingTranslations() {
-      if (missingPosts.length === 0) return;
-      try {
-        const postIds = missingPosts.map((post) => post.id).join(",");
-        const res = await fetch(
-          `/api/trump-posts/translate?post_ids=${postIds}&locale=${encodeURIComponent(locale)}`
-        );
-        const data = res.ok ? await res.json() : null;
-        if (!cancelled && Array.isArray(data?.translations)) {
-          setTranslations((prev) => ({
-            ...prev,
-            ...Object.fromEntries(
-              data.translations
-                .filter((item: unknown): item is { post_id: number; content_translated: string } => (
-                  Boolean(item)
-                  && typeof item === "object"
-                  && typeof (item as { post_id?: unknown }).post_id === "number"
-                  && typeof (item as { content_translated?: unknown }).content_translated === "string"
-                ))
-                .map((item: { post_id: number; content_translated: string }) => (
-                  [`${locale}:${item.post_id}`, item.content_translated]
-                ))
-            ),
-          }));
-        }
-      } catch {
-        // 다음 렌더링에서 캐시 조회/번역을 다시 시도한다.
-      }
-    }
-    void loadMissingTranslations();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [posts, locale]);
-
   if (posts.length === 0) {
     return (
       <div className="flex h-32 items-center justify-center text-sm text-slate-500">
@@ -79,8 +31,9 @@ export default function TrumpPostsFeed({ posts, fullPage = false }: Props) {
         } else if (locale === "en") {
           contentToDisplay = post.content;
         } else {
-          contentToDisplay = translations[`${locale}:${post.id}`]
-            || (post.locale_translated === locale ? post.content_translated ?? null : null);
+          contentToDisplay = post.locale_translated === locale
+            ? post.content_translated ?? post.content
+            : post.content;
         }
 
         return (
