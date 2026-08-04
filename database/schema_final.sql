@@ -342,8 +342,8 @@ CREATE TABLE IF NOT EXISTS situation_summary_translations (
 
 CREATE INDEX IF NOT EXISTS idx_situation_trans_summary_locale
     ON situation_summary_translations (summary_id, locale);
-CREATE INDEX IF NOT EXISTS idx_situation_trans_locale_summary
-    ON situation_summary_translations (locale, summary_id DESC);
+CREATE INDEX IF NOT EXISTS idx_situation_trans_locale_created
+    ON situation_summary_translations (locale, created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_situation_trans_created_at
     ON situation_summary_translations (created_at DESC);
 
