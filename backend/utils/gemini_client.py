@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import os
 import random
+import threading
 import time
 from dataclasses import dataclass
 from collections.abc import Callable
@@ -30,6 +31,9 @@ TRANSLATION_MODELS = (
     "models/gemini-3.5-flash",
 )
 RETRY_STATUS_CODES = {429, 500, 503, 504}
+_DEFAULT_MIN_REQUEST_INTERVAL_SECONDS = 8.0
+_request_slot_lock = threading.Lock()
+_last_request_started_at: float | None = None
 
 
 class GeminiError(RuntimeError):
@@ -75,6 +79,34 @@ def _sleep_before_retry(attempt_index: int, resp: httpx.Response | None = None) 
     else:
         delay = min(2.0 * (2 ** attempt_index), 20.0) + random.uniform(0.0, 0.7)
     time.sleep(delay)
+
+
+def _min_request_interval_seconds() -> float:
+    raw = os.getenv("GEMINI_MIN_REQUEST_INTERVAL_SECONDS", "")
+    if not raw:
+        return _DEFAULT_MIN_REQUEST_INTERVAL_SECONDS
+    try:
+        return max(0.0, float(raw))
+    except ValueError:
+        logger.warning(
+            "Invalid GEMINI_MIN_REQUEST_INTERVAL_SECONDS=%r; using %.1fs",
+            raw,
+            _DEFAULT_MIN_REQUEST_INTERVAL_SECONDS,
+        )
+        return _DEFAULT_MIN_REQUEST_INTERVAL_SECONDS
+
+
+def _wait_for_request_slot() -> None:
+    """Space every physical Gemini request, including retries and fallbacks."""
+    global _last_request_started_at
+
+    with _request_slot_lock:
+        now = time.monotonic()
+        if _last_request_started_at is not None:
+            remaining = _min_request_interval_seconds() - (now - _last_request_started_at)
+            if remaining > 0:
+                time.sleep(remaining)
+        _last_request_started_at = time.monotonic()
 
 
 def _extract_text(data: dict[str, Any]) -> str:
@@ -128,6 +160,7 @@ def generate_text(
             for attempt_index in range(retries_per_model):
                 total_attempts += 1
                 try:
+                    _wait_for_request_slot()
                     resp = client.post(
                         f"{BASE_URL}/{model}:generateContent",
                         params={"key": api_key},

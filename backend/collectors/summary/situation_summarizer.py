@@ -1,4 +1,5 @@
 """Gemini를 이용해 호르무즈 상황 요약을 생성한다."""
+import json
 from datetime import datetime, timezone, timedelta
 from typing import Any
 
@@ -35,6 +36,7 @@ _EN_REQUIRED_LABELS = (
 _KO_SECTION_TITLES = ("핵심 상황", "군사·외교 움직임", "시장 반응", "전망 및 관찰 포인트")
 _EN_SECTION_TITLES = ("Core situation", "Military and diplomatic moves", "Market reaction", "Outlook and watch points")
 _ALLOWED_HIGHLIGHT_TONES = {"risk", "market", "watch"}
+_SUMMARY_TRANSLATION_LOCALE_GROUP_SIZE = 3
 
 
 def _is_market_session() -> bool:
@@ -542,6 +544,7 @@ def _summary_translation_response_schema(locales: tuple[str, ...]) -> dict[str, 
     translation_schema: dict[str, Any] = {
         "type": "object",
         "properties": {
+            "locale": {"type": "string", "enum": list(locales)},
             "sections": {
                 "type": "array",
                 "items": section_schema,
@@ -549,17 +552,17 @@ def _summary_translation_response_schema(locales: tuple[str, ...]) -> dict[str, 
                 "maxItems": 4,
             },
         },
-        "required": ["sections"],
+        "required": ["locale", "sections"],
         "additionalProperties": False,
     }
     return {
         "type": "object",
         "properties": {
             "translations": {
-                "type": "object",
-                "properties": {locale: translation_schema for locale in locales},
-                "required": list(locales),
-                "additionalProperties": False,
+                "type": "array",
+                "items": translation_schema,
+                "minItems": 1,
+                "maxItems": len(locales),
             },
         },
         "required": ["translations"],
@@ -590,23 +593,18 @@ def _structured_translation_for_locale(locale: str, value: Any) -> dict[str, Any
     return structured if _valid_translated_structure(structured, titles) else None
 
 
-def translate_summary_for_locales(
+def _locale_groups(locales: tuple[str, ...]) -> tuple[tuple[str, ...], ...]:
+    return tuple(
+        locales[index:index + _SUMMARY_TRANSLATION_LOCALE_GROUP_SIZE]
+        for index in range(0, len(locales), _SUMMARY_TRANSLATION_LOCALE_GROUP_SIZE)
+    )
+
+
+def _translate_summary_locale_group(
     source_structured: dict[str, Any] | None,
     source_text: str,
-    target_locales: tuple[str, ...] | None = None,
+    locales: tuple[str, ...],
 ) -> dict[str, tuple[str, dict[str, Any], str]]:
-    """여러 locale의 구조화 번역을 Gemini 한 번의 호출로 생성한다."""
-    import json
-
-    locales = target_locales or tuple(LOCALE_NAME_MAP)
-    locales = tuple(
-        locale
-        for locale in locales
-        if locale in LOCALE_NAME_MAP and locale in SECTION_TITLES_BY_LOCALE
-    )
-    if not locales:
-        return {}
-
     locale_instructions = "\n".join(
         f'- "{locale}": {LOCALE_NAME_MAP[locale]}' for locale in locales
     )
@@ -618,7 +616,8 @@ Target locales:
 {locale_instructions}
 
 Rules:
-- Return a JSON object with a "translations" object keyed by the exact locale codes above.
+- Return a JSON object with a "translations" array.
+- Every item must have its exact "locale" code and contain exactly one item for each target locale above.
 - Each locale must contain exactly four sections, in the same order as the source report.
 - Each section contains only its translated "body" and 1-3 "highlights".
 - Each highlight must have a "text" that appears EXACTLY in its section body and a "tone" of "risk", "market", or "watch".
@@ -634,14 +633,14 @@ Original Source Report:
             parsed = json.loads(text)
         except (json.JSONDecodeError, TypeError):
             return False
-        return isinstance(parsed, dict) and isinstance(parsed.get("translations"), dict)
+        return isinstance(parsed, dict) and isinstance(parsed.get("translations"), list)
 
     try:
         result = generate_text(
             prompt,
-            task="situation_summary_translate_batch",
+            task="situation_summary_translate_group",
             models=summary_models(),
-            max_output_tokens=32768,
+            max_output_tokens=16384,
             temperature=None,
             timeout=90.0,
             retries_per_model=1,
@@ -656,11 +655,18 @@ Original Source Report:
         return {}
 
     try:
-        translations = json.loads(result.text).get("translations", {})
+        response_rows = json.loads(result.text).get("translations", [])
     except (json.JSONDecodeError, TypeError) as exc:
         logger.error("상황 요약 일괄 번역 JSON 파싱 실패: %s", exc)
         return {}
 
+    translations = {
+        row.get("locale"): row
+        for row in response_rows
+        if isinstance(row, dict)
+        and isinstance(row.get("locale"), str)
+        and row.get("locale") in locales
+    }
     records: dict[str, tuple[str, dict[str, Any], str]] = {}
     for locale in locales:
         structured = _structured_translation_for_locale(locale, translations.get(locale))
@@ -672,4 +678,22 @@ Original Source Report:
             for section in structured["sections"]
         )
         records[locale] = plain_text, structured, result.model
+    return records
+
+
+def translate_summary_for_locales(
+    source_structured: dict[str, Any] | None,
+    source_text: str,
+    target_locales: tuple[str, ...] | None = None,
+) -> dict[str, tuple[str, dict[str, Any], str]]:
+    """Translate locales in small independent batches so one failure is isolated."""
+    locales = target_locales or tuple(LOCALE_NAME_MAP)
+    locales = tuple(
+        locale
+        for locale in locales
+        if locale in LOCALE_NAME_MAP and locale in SECTION_TITLES_BY_LOCALE
+    )
+    records: dict[str, tuple[str, dict[str, Any], str]] = {}
+    for group in _locale_groups(locales):
+        records.update(_translate_summary_locale_group(source_structured, source_text, group))
     return records

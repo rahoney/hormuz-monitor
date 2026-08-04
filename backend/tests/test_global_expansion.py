@@ -16,6 +16,7 @@ from collectors.summary.situation_summarizer import (
 )
 from jobs import market_ingest, situation_summary_ingest
 from services import risk_score_service
+from utils import gemini_client
 from utils.gemini_client import GeminiResult
 
 
@@ -49,23 +50,25 @@ def test_translated_summary_requires_exact_titles_and_valid_highlights() -> None
     assert not _valid_translated_structure(missing_highlight_text, titles)
 
 
-def test_summary_translation_batches_all_locales_in_one_gemini_call(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_summary_translation_batches_locales_in_groups_of_three(monkeypatch: pytest.MonkeyPatch) -> None:
     calls: list[dict[str, Any]] = []
-    translations = {
-        locale: {
-            "sections": [
-                {
-                    "body": f"{locale} translated section {index}",
-                    "highlights": [{"text": locale, "tone": "watch"}],
-                }
-                for index in range(4)
-            ],
-        }
-        for locale in LOCALE_NAME_MAP
-    }
 
     def fake_generate_text(*_args: Any, **kwargs: Any) -> GeminiResult:
         calls.append(kwargs)
+        locales = kwargs["extra_generation_config"]["responseJsonSchema"]["properties"]["translations"]["items"]["properties"]["locale"]["enum"]
+        translations = [
+            {
+                "locale": locale,
+                "sections": [
+                    {
+                        "body": f"{locale} translated section {index}",
+                        "highlights": [{"text": locale, "tone": "watch"}],
+                    }
+                    for index in range(4)
+                ],
+            }
+            for locale in locales
+        ]
         return GeminiResult(
             text=json.dumps({"translations": translations}, ensure_ascii=False),
             model="models/gemini-3.5-flash-lite",
@@ -76,33 +79,76 @@ def test_summary_translation_batches_all_locales_in_one_gemini_call(monkeypatch:
     translated = situation_summarizer.translate_summary_for_locales(None, "English source")
 
     assert set(translated) == set(LOCALE_NAME_MAP)
-    assert len(calls) == 1
-    assert calls[0]["task"] == "situation_summary_translate_batch"
-    assert calls[0]["max_output_tokens"] == 32768
-    assert calls[0]["retries_per_model"] == 1
+    assert len(calls) == 4
+    assert all(call["task"] == "situation_summary_translate_group" for call in calls)
+    assert all(call["max_output_tokens"] == 16384 for call in calls)
+    assert all(call["retries_per_model"] == 1 for call in calls)
+    assert [
+        call["extra_generation_config"]["responseJsonSchema"]["properties"]["translations"]["items"]["properties"]["locale"]["enum"]
+        for call in calls
+    ] == [["ar", "fa", "ja"], ["es", "tr", "de"], ["fr", "pt-BR", "it"], ["zh-CN", "zh-TW", "ru"]]
 
 
-def test_trump_translation_uses_one_batch_request(monkeypatch: pytest.MonkeyPatch) -> None:
-    selected_batches: list[list[dict[str, Any]]] = []
+def test_trump_translation_pretranslates_all_locale_groups(monkeypatch: pytest.MonkeyPatch) -> None:
+    selected_batches: list[tuple[list[dict[str, Any]], tuple[str, ...]]] = []
 
     class FakeClient:
-        def get(self, *_args: Any, **_kwargs: Any) -> _FakeResponse:
-            return _FakeResponse([
-                {"id": 1, "content": "First post"},
-                {"id": 2, "content": "Second post"},
-            ])
+        def get(self, path: str, *_args: Any, **_kwargs: Any) -> _FakeResponse:
+            if path == "/trump_posts":
+                return _FakeResponse([
+                    {"id": 1, "content": "First post", "content_ko": None},
+                    {"id": 2, "content": "Second post", "content_ko": None},
+                ])
+            assert path == "/trump_post_translations"
+            return _FakeResponse([])
 
         def patch(self, *_args: Any, **_kwargs: Any) -> _FakeResponse:
             return _FakeResponse([])
 
-    def fake_translate_batch(batch: list[dict[str, Any]]) -> dict[int, str]:
-        selected_batches.append(batch)
-        return {post["post_id"]: f"번역 {post['post_id']}" for post in batch}
+        def post(self, *_args: Any, **_kwargs: Any) -> _FakeResponse:
+            return _FakeResponse([])
+
+    def fake_translate_batch(
+        batch: list[dict[str, Any]], locales: tuple[str, ...]
+    ) -> tuple[dict[tuple[int, str], str], str]:
+        selected_batches.append((batch, locales))
+        return {
+            (post["post_id"], locale): f"번역 {post['post_id']} {locale}"
+            for post in batch
+            for locale in post["target_locales"]
+        }, "models/gemini-3.5-flash-lite"
 
     monkeypatch.setattr(trump_translator, "_translate_batch", fake_translate_batch)
-    assert trump_translator.translate_pending(FakeClient()) == 2
-    assert len(selected_batches) == 1
-    assert [post["post_id"] for post in selected_batches[0]] == [1, 2]
+    progress = trump_translator.translate_pending(FakeClient())
+    assert progress.requested == 26
+    assert progress.saved == 26
+    assert progress.failed_groups == 0
+    assert len(selected_batches) == 5
+    assert [locales for _batch, locales in selected_batches] == [
+        ("ko", "ar", "fa"), ("ja", "es", "tr"), ("de", "fr", "pt-BR"),
+        ("it", "zh-CN", "zh-TW"), ("ru",),
+    ]
+
+
+def test_gemini_request_gate_spaces_physical_requests(monkeypatch: pytest.MonkeyPatch) -> None:
+    clock = [100.0]
+    sleeps: list[float] = []
+
+    monkeypatch.setenv("GEMINI_MIN_REQUEST_INTERVAL_SECONDS", "8")
+    monkeypatch.setattr(gemini_client.time, "monotonic", lambda: clock[0])
+
+    def fake_sleep(seconds: float) -> None:
+        sleeps.append(seconds)
+        clock[0] += seconds
+
+    monkeypatch.setattr(gemini_client.time, "sleep", fake_sleep)
+    monkeypatch.setattr(gemini_client, "_last_request_started_at", None)
+
+    gemini_client._wait_for_request_slot()
+    clock[0] = 102.0
+    gemini_client._wait_for_request_slot()
+
+    assert sleeps == [6.0]
 
 
 def test_every_market_exchange_has_an_ohlcv_schedule() -> None:
@@ -179,7 +225,6 @@ def _patch_summary_job(monkeypatch: pytest.MonkeyPatch, translation_count: int) 
     monkeypatch.setattr(situation_summary_ingest, "start_run", lambda *_args: 1)
     monkeypatch.setattr(situation_summary_ingest, "finish_run", lambda *_args: None)
     monkeypatch.setattr(situation_summary_ingest, "log_error", lambda *_args: None)
-    monkeypatch.setattr(situation_summary_ingest, "translate_pending", lambda *_args: 0)
 
     from collectors.summary import situation_summarizer
     from db import upsert as upsert_module
@@ -200,7 +245,7 @@ def _patch_summary_job(monkeypatch: pytest.MonkeyPatch, translation_count: int) 
     return fake_client
 
 
-def test_summary_is_published_after_one_batch_translation_call(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_summary_is_published_after_translation_batches(monkeypatch: pytest.MonkeyPatch) -> None:
     fake_client = _patch_summary_job(monkeypatch, translation_count=12)
     situation_summary_ingest.run()
     assert len(fake_client.publish_calls) == 1

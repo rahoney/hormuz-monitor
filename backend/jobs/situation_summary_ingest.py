@@ -3,7 +3,6 @@ import sys
 sys.path.insert(0, ".")
 
 from collectors.summary.situation_summarizer import generate
-from collectors.social.trump_translator import translate_pending
 from db.client import get_client
 from db.upsert import insert_returning
 from db.run_repo import start_run, finish_run
@@ -97,18 +96,6 @@ def run() -> None:
         log_error("situation_summary", "unknown", str(exc), run_id)
         logger.error("요약 실패: %s", exc)
         failures.append("situation_summary")
-
-    translate_run_id = start_run("trump_translate")
-    logger.info("트럼프 포스트 번역 시작")
-    try:
-        with get_client() as client:
-            updated = translate_pending(client)
-        finish_run(translate_run_id, "success", updated, updated)
-        logger.info("트럼프 포스트 번역 완료: %d건", updated)
-    except Exception as exc:
-        finish_run(translate_run_id, "failed", 0, 0)
-        log_error("trump_translate", "unknown", str(exc), translate_run_id)
-        logger.error("트럼프 포스트 번역 실패: %s", exc)
 
     if failures:
         raise RuntimeError(f"상황 요약 통합 잡 일부 실패: {', '.join(failures)}")
