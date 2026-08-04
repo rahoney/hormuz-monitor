@@ -18,16 +18,16 @@ load_dotenv()
 logger = get_logger(__name__)
 
 BASE_URL = "https://generativelanguage.googleapis.com/v1beta"
-DEFAULT_PRIMARY_MODEL = "models/gemini-3.1-flash-lite-preview"
+DEFAULT_PRIMARY_MODEL = "models/gemini-3.5-flash-lite"
 SUMMARY_MODELS = (
-    "models/gemini-3.1-flash-lite-preview",
-    "models/gemini-3-flash-preview",
-    "models/gemini-2.5-flash",
-    "models/gemma-3-27b-it",
+    "models/gemini-3.5-flash-lite",
+    "models/gemini-3.1-flash-lite",
+    "models/gemini-3.5-flash",
 )
 TRANSLATION_MODELS = (
-    "models/gemini-3.1-flash-lite-preview",
-    "models/gemini-2.5-flash",
+    "models/gemini-3.5-flash-lite",
+    "models/gemini-3.1-flash-lite",
+    "models/gemini-3.5-flash",
 )
 RETRY_STATUS_CODES = {429, 500, 503, 504}
 
@@ -99,7 +99,7 @@ def generate_text(
     task: str,
     models: Iterable[str],
     max_output_tokens: int,
-    temperature: float,
+    temperature: float | None = None,
     timeout: float = 30.0,
     retries_per_model: int = 3,
     extra_generation_config: dict[str, Any] | None = None,
@@ -110,10 +110,9 @@ def generate_text(
     if not api_key:
         raise GeminiError("GOOGLE_GEMINI_API_KEY is not set")
 
-    generation_config: dict[str, Any] = {
-        "maxOutputTokens": max_output_tokens,
-        "temperature": temperature,
-    }
+    generation_config: dict[str, Any] = {"maxOutputTokens": max_output_tokens}
+    if temperature is not None:
+        generation_config["temperature"] = temperature
     if extra_generation_config:
         generation_config.update(extra_generation_config)
 

@@ -11,7 +11,6 @@ from db.error_repo import log_error
 from utils.logger import get_logger
 
 logger = get_logger(__name__)
-_REQUIRED_TRANSLATION_COUNT = 12
 
 
 def run() -> None:
@@ -41,35 +40,34 @@ def run() -> None:
         if not saved_id:
             raise RuntimeError("저장된 상황 요약 id를 확인할 수 없음")
 
-        from collectors.summary.situation_summarizer import LOCALE_NAME_MAP, translate_summary_for_locale
+        from collectors.summary.situation_summarizer import LOCALE_NAME_MAP, translate_summary_for_locales
         from db.upsert import upsert
 
         source_structured = en_structured or ko_structured
         source_text = en or ko
-        trans_records = []
-
-        for loc in LOCALE_NAME_MAP:
-            try:
-                res = translate_summary_for_locale(source_structured, source_text, loc)
-                if res:
-                    summary_text, summary_structured, model_name = res
-                    trans_records.append({
-                        "summary_id": saved_id,
-                        "locale": loc,
-                        "summary_text": summary_text,
-                        "summary_structured": summary_structured,
-                        "model": model_name,
-                    })
-            except Exception as t_err:
-                logger.error("다국어 사전 번역 실패 (locale=%s): %s", loc, t_err)
+        translations = translate_summary_for_locales(source_structured, source_text)
+        trans_records = [
+            {
+                "summary_id": saved_id,
+                "locale": locale,
+                "summary_text": summary_text,
+                "summary_structured": summary_structured,
+                "model": model_name,
+            }
+            for locale, (summary_text, summary_structured, model_name) in translations.items()
+        ]
 
         if trans_records:
             upsert("situation_summary_translations", trans_records, on_conflict="summary_id,locale")
             logger.info("다국어 사전 번역 DB 저장 (%d개 언어)", len(trans_records))
 
-        if len(trans_records) != _REQUIRED_TRANSLATION_COUNT:
-            raise RuntimeError(
-                f"상황 요약 번역 미완료: {_REQUIRED_TRANSLATION_COUNT}개 중 {len(trans_records)}개"
+        missing_locales = sorted(set(LOCALE_NAME_MAP) - set(translations))
+        if missing_locales:
+            logger.warning(
+                "상황 요약 일부 번역 미완료 (%d/%d): %s — 영문 요약으로 표시",
+                len(trans_records),
+                len(LOCALE_NAME_MAP),
+                ", ".join(missing_locales),
             )
 
         with get_client() as client:

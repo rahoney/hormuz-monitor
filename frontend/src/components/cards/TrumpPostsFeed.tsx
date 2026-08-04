@@ -21,20 +21,32 @@ export default function TrumpPostsFeed({ posts, fullPage = false }: Props) {
       (post) => post.locale_translated !== locale || !post.content_translated
     );
     async function loadMissingTranslations() {
-      for (const post of missingPosts) {
-        if (cancelled) break;
-        const translationKey = `${locale}:${post.id}`;
-        try {
-          const res = await fetch(
-            `/api/trump-posts/translate?post_id=${post.id}&locale=${encodeURIComponent(locale)}`
-          );
-          const data = res.ok ? await res.json() : null;
-          if (!cancelled && data?.content_translated) {
-            setTranslations((prev) => ({ ...prev, [translationKey]: data.content_translated }));
-          }
-        } catch {
-          // 다음 게시물의 캐시 조회/번역은 계속 진행한다.
+      if (missingPosts.length === 0) return;
+      try {
+        const postIds = missingPosts.map((post) => post.id).join(",");
+        const res = await fetch(
+          `/api/trump-posts/translate?post_ids=${postIds}&locale=${encodeURIComponent(locale)}`
+        );
+        const data = res.ok ? await res.json() : null;
+        if (!cancelled && Array.isArray(data?.translations)) {
+          setTranslations((prev) => ({
+            ...prev,
+            ...Object.fromEntries(
+              data.translations
+                .filter((item: unknown): item is { post_id: number; content_translated: string } => (
+                  Boolean(item)
+                  && typeof item === "object"
+                  && typeof (item as { post_id?: unknown }).post_id === "number"
+                  && typeof (item as { content_translated?: unknown }).content_translated === "string"
+                ))
+                .map((item: { post_id: number; content_translated: string }) => (
+                  [`${locale}:${item.post_id}`, item.content_translated]
+                ))
+            ),
+          }));
         }
+      } catch {
+        // 다음 렌더링에서 캐시 조회/번역을 다시 시도한다.
       }
     }
     void loadMissingTranslations();

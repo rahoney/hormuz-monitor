@@ -45,9 +45,9 @@ type GeminiResult = {
 
 const GEMINI_BASE_URL = "https://generativelanguage.googleapis.com/v1beta";
 const DEFAULT_MODELS = [
+  "models/gemini-3.5-flash-lite",
   "models/gemini-3.1-flash-lite",
-  "models/gemini-2.5-flash",
-  "models/gemini-3-flash-preview",
+  "models/gemini-3.5-flash",
 ];
 const RETRY_STATUS_CODES = new Set([429, 500, 503, 504]);
 
@@ -210,7 +210,6 @@ async function generateText(articlePrompt: string): Promise<GeminiResult> {
     contents: [{ parts: [{ text: articlePrompt }] }],
     generationConfig: {
       maxOutputTokens: 420,
-      temperature: 0.1,
     },
   };
   const failures: string[] = [];

@@ -3,9 +3,9 @@ import { createClient } from "@supabase/supabase-js";
 
 const GEMINI_BASE_URL = "https://generativelanguage.googleapis.com/v1beta";
 const DEFAULT_MODELS = [
+  "models/gemini-3.5-flash-lite",
   "models/gemini-3.1-flash-lite",
-  "models/gemini-2.5-flash",
-  "models/gemini-3-flash-preview",
+  "models/gemini-3.5-flash",
 ];
 
 const LOCALE_NAME_MAP: Record<string, string> = {
@@ -138,7 +138,6 @@ ${sourceStructured ? JSON.stringify(sourceStructured, null, 2) : sourceText}
     generationConfig: {
       responseMimeType: "application/json",
       maxOutputTokens: 2048,
-      temperature: 0.1,
     },
   };
 
