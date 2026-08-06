@@ -31,13 +31,13 @@ export const seoMetadata: Record<string, SeoMeta> = {
     keywords: ["ホルムズ海峡", "ホルムズ・モニター", "ホルムズ海峡 トラッカー", "ホルムズ海峡 ライブマップ", "アメリカ イラン 対立", "原油価格 リアルタイム", "WTI原油価格", "ブレント原油価格", "船舶交通", "米国ガソリン価格"],
   },
   es: {
-    title: "Noticias del Estrecho de Ormuz Hoy | EE.UU., Irán, Trump, Precio del Petróleo y Mapa",
-    description: "Sigue el Estrecho de Ormuz hoy — conflicto con Irán, actualizaciones de Trump, precio del petróleo en vivo, mapa de tráfico de embarcaciones e indicadores del mercado en un solo panel.",
+    title: "Noticias del Estrecho de Ormuz | Irán, Trump, Petróleo y Mapa",
+    description: "Sigue el Estrecho de Ormuz: conflicto entre Irán y EE. UU., noticias de Trump, precios del petróleo, tráfico marítimo e indicadores del mercado.",
     keywords: ["Estrecho de Ormuz", "Hormuz Monitor", "rastreador de Ormuz", "mapa en vivo Estrecho de Ormuz", "conflicto EE.UU. Irán", "precio del petróleo en vivo", "precio del petróleo WTI", "precio del petróleo Brent", "tráfico de barcos", "precio de la gasolina EE.UU."],
   },
   tr: {
-    title: "Hürmüz Boğazı Haberleri Bugün | ABD, İran, Trump, Petrol Fiyatları ve Harita",
-    description: "Hürmüz Boğazı'nı bugün takip edin — İran krizi, Trump güncellemeleri, canlı petrol fiyatları, gemi trafiği haritası ve piyasa göstergeleri tek bir gerçek zamanlı ekranda.",
+    title: "Hürmüz Boğazı Haberleri | İran, Trump, Petrol ve Harita",
+    description: "Hürmüz Boğazı'nı takip edin: İran-ABD çatışması, Trump haberleri, petrol fiyatları, gemi trafiği ve piyasa göstergeleri.",
     keywords: ["Hürmüz Boğazı", "Hürmüz Monitörü", "Hürmüz takip", "Hürmüz Boğazı canlı harita", "ABD İran krizi", "canlı petrol fiyatları", "WTI petrol fiyatı", "Brent petrol fiyatı", "gemi trafiği", "ABD benzin fiyatları"],
   },
   de: {
@@ -46,18 +46,18 @@ export const seoMetadata: Record<string, SeoMeta> = {
     keywords: ["Straße von Hormus", "Hormuz Monitor", "Hormus Tracker", "Straße von Hormus Live-Karte", "USA Iran Konflikt", "Ölpreis live", "WTI Ölpreis", "Brent Ölpreis", "Schiffsverkehr", "US Benzinpreise"],
   },
   fr: {
-    title: "Actualités du Détroit d'Ormuz Aujourd'hui | USA, Iran, Trump, Prix du Pétrole & Carte",
-    description: "Suivez le détroit d'Ormuz aujourd'hui — conflit iranien, mises à jour sur Trump, prix du pétrole en direct, carte du trafic maritime et indicateurs de marché en temps réel.",
+    title: "Actualités du détroit d'Ormuz | Iran, Trump, pétrole et carte",
+    description: "Suivez le détroit d'Ormuz : conflit entre l'Iran et les États-Unis, actualités de Trump, prix du pétrole, trafic maritime et indicateurs des marchés.",
     keywords: ["Détroit d'Ormuz", "Hormuz Monitor", "tracker d'Ormuz", "carte en direct Détroit d'Ormuz", "conflit USA Iran", "prix du pétrole en direct", "prix du pétrole WTI", "prix du pétrole Brent", "trafic maritime", "prix de l'essence aux USA"],
   },
   "pt-BR": {
-    title: "Notícias do Estreito de Ormuz Hoje | EUA, Irã, Trump, Preço do Petróleo e Mapa",
-    description: "Acompanhe o Estreito de Ormuz hoje — conflito no Irã, atualizações de Trump, preço do petróleo ao vivo, mapa de tráfego de navios e indicadores de mercado em um único painel em tempo real.",
+    title: "Notícias do Estreito de Ormuz | Irã, Trump, Petróleo e Mapa",
+    description: "Acompanhe o Estreito de Ormuz: conflito entre Irã e EUA, notícias de Trump, preços do petróleo, tráfego de navios e indicadores de mercado.",
     keywords: ["Estreito de Ormuz", "Hormuz Monitor", "rastreador de Ormuz", "mapa ao vivo do Estreito de Ormuz", "conflito EUA Irã", "preço do petróleo ao vivo", "preço do petróleo WTI", "preço do petróleo Brent", "tráfego de navios", "preço da gasolina nos EUA"],
   },
   it: {
-    title: "Notizie Stretto di Hormuz Oggi | USA, Iran, Trump, Prezzo Petrolio e Mappa",
-    description: "Segui lo Stretto di Hormuz oggi — conflitto in Iran, aggiornamenti su Trump, prezzo del petrolio in tempo reale, mappa del traffico navale e indicatori di mercato in un'unica dashboard.",
+    title: "Notizie sullo Stretto di Hormuz Oggi | Iran, Trump, Petrolio e Mappa",
+    description: "Segui oggi lo Stretto di Hormuz: conflitto Iran-USA, aggiornamenti su Trump, prezzi del petrolio, traffico navale e indicatori di mercato.",
     keywords: ["Stretto di Hormuz", "Hormuz Monitor", "tracker Hormuz", "mappa in tempo reale Stretto di Hormuz", "conflitto USA Iran", "prezzo petrolio in tempo reale", "prezzo petrolio WTI", "prezzo petrolio Brent", "traffico navale", "prezzo benzina USA"],
   },
   "zh-CN": {
@@ -71,8 +71,8 @@ export const seoMetadata: Record<string, SeoMeta> = {
     keywords: ["霍爾木茲海峽", "Hormuz Monitor", "霍爾木茲追蹤器", "霍爾木茲海峽即時地圖", "美伊衝突", "即時油價", "WTI油價", "布倫特油價", "船舶交通", "美國汽油價格"],
   },
   ru: {
-    title: "Новости Ормузского пролива сегодня | США, Иран, Трамп, Цены на нефть и Карта",
-    description: "Следите за Ормузским проливом сегодня — конфликт с Ираном, новости о Трампе, цены на нефть в реальном времени, карта движения судов и рыночные индикаторы в одном дашборде.",
+    title: "Новости Ормузского пролива | Иран, Трамп, нефть и суда",
+    description: "Следите за Ормузским проливом: конфликт Ирана и США, новости о Трампе, цены на нефть, движение судов и рыночные показатели.",
     keywords: ["Ормузский пролив", "Hormuz Monitor", "трекер Ормуза", "Ормузский пролив живая карта", "конфликт США и Ирана", "цены на нефть онлайн", "цена нефти WTI", "цена нефти Brent", "движение судов", "цены на бензин в США"],
   },
 };
