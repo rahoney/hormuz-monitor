@@ -4,24 +4,90 @@ import { Link } from "@/i18n/navigation";
 import PageShell from "@/components/layout/PageShell";
 import { makePageMetadata } from "@/lib/seo";
 
-const META = {
+type AboutMeta = {
+  title: string;
+  description: string;
+  keywords: readonly string[];
+};
+
+const META: Record<string, AboutMeta> = {
   ko: {
     title: "호르무즈 모니터 소개 | 선박 통행, 유가, 시장, 관련 이슈 대시보드",
     description: "호르무즈 해협 상황, 선박 통행량, 미국과 한국 주식 시장 지표, 브렌트유·WTI, 천연가스와 미국-이란 이슈 대시보드.",
     keywords: ["호르무즈 모니터", "호르무즈 해협 모니터", "호르무즈 해협 트래커", "호르무즈 해협 지도", "호르무즈 해협 실시간 상황", "트럼프 SNS"],
   },
   en: {
-    title: "About Strait of Hormuz Monitor | Map, Oil Price, News, Iran & Trump",
-    description: "Hormuz Monitor is a personal dashboard project for tracking Strait of Hormuz live conditions, vessel traffic, oil prices, U.S. gasoline prices, stock markets, related news, and Trump social posts.",
+    title: "About Strait of Hormuz | Map, Oil Price, News, Iran & Trump",
+    description: "Learn about Hormuz Monitor, a dashboard for Strait of Hormuz conditions, vessel traffic, oil prices, markets, news and Trump posts.",
     keywords: ["Hormuz Monitor", "Strait of Hormuz monitor", "Hormuz tracker", "Strait of Hormuz map", "Strait of Hormuz live status", "Trump social"],
   },
-} as const;
+  ar: {
+    title: "عن مراقب مضيق هرمز | خريطة، نفط، أخبار وترامب",
+    description: "تعرّف على مراقب هرمز، لوحة لمتابعة وضع مضيق هرمز، حركة السفن، أسعار النفط، الأسواق، الأخبار ومنشورات ترامب.",
+    keywords: ["مضيق هرمز", "مراقب هرمز", "خريطة مضيق هرمز", "أسعار النفط", "أخبار ترامب"],
+  },
+  fa: {
+    title: "درباره هرمز مانیتور | نقشه، نفت، اخبار و ترامپ",
+    description: "با هرمز مانیتور، وضعیت تنگه هرمز، تردد کشتی‌ها، قیمت نفت، بازارها، اخبار و پست‌های ترامپ را دنبال کنید.",
+    keywords: ["تنگه هرمز", "هرمز مانیتور", "نقشه تنگه هرمز", "قیمت نفت", "اخبار ترامپ"],
+  },
+  ja: {
+    title: "ホルムズ海峡モニターについて | 地図、原油、ニュース、トランプ",
+    description: "ホルムズ海峡の状況、船舶交通、原油価格、市場、関連ニュース、トランプ氏の投稿を追跡するダッシュボードです。",
+    keywords: ["ホルムズ海峡", "ホルムズ海峡モニター", "ホルムズ海峡地図", "原油価格", "トランプ"],
+  },
+  es: {
+    title: "Sobre Hormuz Monitor | Mapa, petróleo, noticias y Trump",
+    description: "Conoce Hormuz Monitor, un panel para seguir el Estrecho de Ormuz, el tráfico marítimo, el petróleo, los mercados, las noticias y Trump.",
+    keywords: ["Estrecho de Ormuz", "Hormuz Monitor", "mapa de Ormuz", "precio del petróleo", "noticias de Trump"],
+  },
+  tr: {
+    title: "Hürmüz Monitörü Hakkında | Harita, Petrol, Haberler ve Trump",
+    description: "Hürmüz Monitörü ile Hürmüz Boğazı'nı, gemi trafiğini, petrol fiyatlarını, piyasaları, haberleri ve Trump paylaşımlarını takip edin.",
+    keywords: ["Hürmüz Boğazı", "Hürmüz Monitörü", "Hürmüz haritası", "petrol fiyatları", "Trump haberleri"],
+  },
+  de: {
+    title: "Über Hormuz Monitor | Karte, Öl, Nachrichten und Trump",
+    description: "Hormuz Monitor zeigt die Lage an der Straße von Hormus, Schiffsverkehr, Ölpreise, Märkte, Nachrichten und Trumps Beiträge.",
+    keywords: ["Straße von Hormus", "Hormuz Monitor", "Hormus Karte", "Ölpreise", "Trump Nachrichten"],
+  },
+  fr: {
+    title: "À propos d'Hormuz Monitor | Carte, pétrole, actualités et Trump",
+    description: "Découvrez Hormuz Monitor, un tableau de bord pour suivre le détroit d'Ormuz, le trafic maritime, le pétrole, les marchés, l'actualité et Trump.",
+    keywords: ["détroit d'Ormuz", "Hormuz Monitor", "carte d'Ormuz", "prix du pétrole", "actualités de Trump"],
+  },
+  "pt-BR": {
+    title: "Sobre o Hormuz Monitor | Mapa, petróleo, notícias e Trump",
+    description: "Conheça o Hormuz Monitor, um painel para acompanhar o Estreito de Ormuz, o tráfego de navios, o petróleo, os mercados, as notícias e Trump.",
+    keywords: ["Estreito de Ormuz", "Hormuz Monitor", "mapa de Ormuz", "preço do petróleo", "notícias de Trump"],
+  },
+  it: {
+    title: "Informazioni su Hormuz Monitor | Mappa, petrolio, notizie e Trump",
+    description: "Scopri Hormuz Monitor, una dashboard per seguire lo Stretto di Hormuz, il traffico navale, il petrolio, i mercati, le notizie e Trump.",
+    keywords: ["Stretto di Hormuz", "Hormuz Monitor", "mappa di Hormuz", "prezzo del petrolio", "notizie su Trump"],
+  },
+  "zh-CN": {
+    title: "关于霍尔木兹海峡监测 | 地图、油价、新闻与特朗普",
+    description: "了解霍尔木兹监测：在一个仪表板中追踪霍尔木兹海峡局势、船舶交通、油价、市场、新闻和特朗普动态。",
+    keywords: ["霍尔木兹海峡", "霍尔木兹监测", "霍尔木兹地图", "实时油价", "特朗普新闻"],
+  },
+  "zh-TW": {
+    title: "關於霍爾木茲海峽監測 | 地圖、油價、新聞與川普",
+    description: "了解霍爾木茲監測：在一個儀表板中追蹤霍爾木茲海峽局勢、船舶交通、油價、市場、新聞和川普動態。",
+    keywords: ["霍爾木茲海峽", "霍爾木茲監測", "霍爾木茲地圖", "即時油價", "川普新聞"],
+  },
+  ru: {
+    title: "О Hormuz Monitor | Карта, нефть, новости и Трамп",
+    description: "Узнайте о Hormuz Monitor — дашборде для отслеживания ситуации в Ормузском проливе, движения судов, цен на нефть, рынков, новостей и Трампа.",
+    keywords: ["Ормузский пролив", "Hormuz Monitor", "карта Ормуза", "цены на нефть", "новости о Трампе"],
+  },
+};
 
 type MetadataProps = { params: Promise<{ locale: string }> };
 
 export async function generateMetadata({ params }: MetadataProps): Promise<Metadata> {
   const { locale } = await params;
-  const meta = locale === "ko" ? META.ko : META.en;
+  const meta = META[locale] ?? META.en;
   return makePageMetadata({ locale, path: "/about", title: meta.title, description: meta.description, keywords: meta.keywords });
 }
 
