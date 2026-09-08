@@ -424,8 +424,8 @@ def generate() -> tuple[str, str, int | None, dict[str, Any] | None, dict[str, A
             models=summary_models(),
             max_output_tokens=3072,
             temperature=None,
-            timeout=30.0,
-            retries_per_model=1,
+            timeout=60.0,
+            retries_per_model=2,
             validate_text=_valid_generated_text,
         )
         text = result.text
