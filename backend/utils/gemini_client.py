@@ -109,12 +109,21 @@ def _wait_for_request_slot() -> None:
         _last_request_started_at = time.monotonic()
 
 
+def _strip_invalid_surrogates(text: str) -> str:
+    """Remove lone UTF-16 surrogate code points that cannot be encoded as UTF-8."""
+    return "".join(
+        char for char in text
+        if not 0xD800 <= ord(char) <= 0xDFFF
+    )
+
+
 def _extract_text(data: dict[str, Any]) -> str:
     candidates = data.get("candidates") or []
     if not candidates:
         return ""
     parts = candidates[0].get("content", {}).get("parts") or []
-    return "".join(part.get("text", "") for part in parts).strip()
+    text = "".join(part.get("text", "") for part in parts).strip()
+    return _strip_invalid_surrogates(text)
 
 
 def _finish_reason(data: dict[str, Any]) -> str | None:
@@ -147,6 +156,8 @@ def generate_text(
         generation_config["temperature"] = temperature
     if extra_generation_config:
         generation_config.update(extra_generation_config)
+
+    prompt = _strip_invalid_surrogates(prompt)
 
     payload = {
         "contents": [{"parts": [{"text": prompt}]}],
