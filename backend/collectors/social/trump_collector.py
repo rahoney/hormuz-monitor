@@ -7,6 +7,10 @@ from typing import Any
 import feedparser
 import httpx
 
+from utils.logger import get_logger
+
+logger = get_logger(__name__)
+
 _SOURCES = [
     {"name": "Truth Social", "url": "https://trumpstruth.org/feed"},
 ]
@@ -59,9 +63,27 @@ def collect(since: date | None = None) -> list[dict[str, Any]]:
         try:
             with httpx.Client(timeout=20.0, headers=_HEADERS) as client:
                 resp = client.get(source["url"])
-                resp.raise_for_status()
+
+            logger.info(
+                "Trump RSS response: status=%s url=%s content_type=%s bytes=%d",
+                resp.status_code,
+                resp.url,
+                resp.headers.get("content-type"),
+                len(resp.content),
+            )
+
+            resp.raise_for_status()
+
             feed = feedparser.parse(resp.text)
-        except Exception:
+
+            logger.info(
+                "Trump RSS parsed: entries=%d bozo=%s error=%s",
+                len(feed.entries),
+                getattr(feed, "bozo", None),
+                getattr(feed, "bozo_exception", None),
+            )
+        except Exception as exc:
+            logger.error("Trump RSS 수집 실패 (%s): %s", source["url"], exc)
             continue
 
         for entry in feed.entries:
