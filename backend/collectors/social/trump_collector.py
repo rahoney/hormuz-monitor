@@ -61,7 +61,11 @@ def collect(since: date | None = None) -> list[dict[str, Any]]:
 
     for source in _SOURCES:
         try:
-            with httpx.Client(timeout=20.0, headers=_HEADERS) as client:
+            with httpx.Client(
+                timeout=20.0,
+                headers=_HEADERS,
+                follow_redirects=True,
+            ) as client:
                 resp = client.get(source["url"])
 
             logger.info(
