@@ -184,19 +184,40 @@ def _pending_locales(client: Any, posts: list[dict[str, Any]]) -> dict[int, set[
     post_ids = [post["id"] for post in posts if isinstance(post.get("id"), int)]
     if not post_ids:
         return {}
-    response = client.get(
-        "/trump_post_translations",
-        params={
-            "post_id": f"in.({','.join(str(post_id) for post_id in post_ids)})",
-            "select": "post_id,locale",
-        },
-    )
-    response.raise_for_status()
-    saved_pairs = {
-        (row.get("post_id"), row.get("locale"))
-        for row in response.json()
-        if isinstance(row, dict)
-    }
+
+    saved_pairs: set[tuple[int, str]] = set()
+    offset = 0
+    page_size = 500
+
+    while True:
+        response = client.get(
+            "/trump_post_translations",
+            params={
+                "post_id": f"in.({','.join(str(post_id) for post_id in post_ids)})",
+                "select": "post_id,locale",
+                "limit": str(page_size),
+                "offset": str(offset),
+            },
+        )
+        response.raise_for_status()
+
+        rows = response.json()
+        if not isinstance(rows, list):
+            raise RuntimeError("unexpected trump_post_translations response")  # noqa: TRY004
+
+        for row in rows:
+            if not isinstance(row, dict):
+                continue
+            post_id = row.get("post_id")
+            locale = row.get("locale")
+            if isinstance(post_id, int) and isinstance(locale, str):
+                saved_pairs.add((post_id, locale))
+
+        if len(rows) < page_size:
+            break
+
+        offset += page_size
+
     pending: dict[int, set[str]] = {}
     for post in posts:
         post_id = post.get("id")
