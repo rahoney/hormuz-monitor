@@ -66,16 +66,42 @@ class TestTrumpTranslatorPendingLocales(unittest.TestCase):
         client = MockClient(table_data, page_limit=500)
         pending = _pending_locales(client, posts)
 
-        # Must fetch in 3 pages (500, 500, 200)
-        self.assertEqual(len(client.calls), 3)
-        self.assertEqual(client.calls[0]["params"]["limit"], "500")
+        # Must fetch in 4 pages (500, 500, 200, 0)
+        self.assertEqual(len(client.calls), 4)
+        for call in client.calls:
+            self.assertEqual(call["params"]["order"], "post_id.asc,locale.asc")
+            self.assertEqual(call["params"]["limit"], "500")
+
         self.assertEqual(client.calls[0]["params"]["offset"], "0")
-        self.assertEqual(client.calls[1]["params"]["limit"], "500")
         self.assertEqual(client.calls[1]["params"]["offset"], "500")
-        self.assertEqual(client.calls[2]["params"]["limit"], "500")
         self.assertEqual(client.calls[2]["params"]["offset"], "1000")
+        self.assertEqual(client.calls[3]["params"]["offset"], "1200")
 
         # All translations exist, so pending should be empty
+        self.assertEqual(pending, {})
+
+    def test_pending_locales_handles_arbitrary_server_page_size(self) -> None:
+        non_ko_locales = [loc for loc in _TARGET_LOCALES if loc != "ko"]
+        posts = [
+            {"id": i, "content": f"Post {i}", "content_ko": f"한국어 {i}"}
+            for i in range(1, 101)
+        ]
+        table_data = [
+            {"post_id": post["id"], "locale": locale}
+            for post in posts
+            for locale in non_ko_locales
+        ]
+        # Server limits to 350 rows per response (< client page_size 500)
+        client = MockClient(table_data, page_limit=350)
+        pending = _pending_locales(client, posts)
+
+        # 1200 rows with 350 per page: 350, 350, 350, 150, 0 -> 5 calls
+        self.assertEqual(len(client.calls), 5)
+        self.assertEqual(client.calls[0]["params"]["offset"], "0")
+        self.assertEqual(client.calls[1]["params"]["offset"], "350")
+        self.assertEqual(client.calls[2]["params"]["offset"], "700")
+        self.assertEqual(client.calls[3]["params"]["offset"], "1050")
+        self.assertEqual(client.calls[4]["params"]["offset"], "1200")
         self.assertEqual(pending, {})
 
     def test_pending_locales_partial_missing(self) -> None:

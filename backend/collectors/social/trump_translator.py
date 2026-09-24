@@ -195,6 +195,7 @@ def _pending_locales(client: Any, posts: list[dict[str, Any]]) -> dict[int, set[
             params={
                 "post_id": f"in.({','.join(str(post_id) for post_id in post_ids)})",
                 "select": "post_id,locale",
+                "order": "post_id.asc,locale.asc",
                 "limit": str(page_size),
                 "offset": str(offset),
             },
@@ -213,10 +214,10 @@ def _pending_locales(client: Any, posts: list[dict[str, Any]]) -> dict[int, set[
             if isinstance(post_id, int) and isinstance(locale, str):
                 saved_pairs.add((post_id, locale))
 
-        if len(rows) < page_size:
+        if not rows:
             break
 
-        offset += page_size
+        offset += len(rows)
 
     pending: dict[int, set[str]] = {}
     for post in posts:
