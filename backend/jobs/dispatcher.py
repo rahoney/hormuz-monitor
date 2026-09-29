@@ -6,7 +6,15 @@ from datetime import datetime, time, timedelta, timezone
 sys.path.insert(0, ".")
 
 from db.error_repo import log_error
-from db.run_repo import finish_run, has_running_run_since, has_successful_run_since, start_run
+from db.run_repo import (
+    finish_run,
+    has_run_since,
+    has_running_run_since,
+    has_successful_run_since,
+    start_run,
+)
+from utils.logger import get_logger
+
 from jobs import (
     daily_maintenance,
     events_ingest,
@@ -16,11 +24,11 @@ from jobs import (
     trump_ingest,
     trump_translate,
 )
-from utils.logger import get_logger
 
 logger = get_logger(__name__)
 
 _DISPATCHER_SOURCE = "cron_dispatcher"
+_NON_FATAL_TASKS = {"situation_summary_ingest"}
 
 
 def _hour_start(now: datetime) -> datetime:
@@ -45,7 +53,7 @@ def _all_successful_since(source_names: list[str], since: datetime) -> bool:
 def _due_hourly_after_events(now: datetime, source_name: str) -> bool:
     if now.minute < 20:
         return False
-    return not has_successful_run_since(source_name, _hour_start(now))
+    return not has_run_since(source_name, _hour_start(now))
 
 
 def _due_daily_maintenance(now: datetime) -> bool:
@@ -115,8 +123,16 @@ def run(force: bool = False) -> None:
         ",".join(failures) if failures else "none",
     )
 
-    if failures:
-        raise RuntimeError(f"통합 cron 일부 실패: {', '.join(failures)}")
+    fatal_failures = [name for name in failures if name not in _NON_FATAL_TASKS]
+    non_fatal_failures = [name for name in failures if name in _NON_FATAL_TASKS]
+    if non_fatal_failures:
+        logger.warning(
+            "비치명 작업 실패로 cron은 정상 종료: %s",
+            ",".join(non_fatal_failures),
+        )
+
+    if fatal_failures:
+        raise RuntimeError(f"통합 cron 일부 실패: {', '.join(fatal_failures)}")
 
 
 if __name__ == "__main__":

@@ -1,6 +1,7 @@
 """source_runs 테이블 CRUD."""
 from datetime import datetime, timezone
 from typing import Any
+
 from db.client import get_client
 
 
@@ -60,3 +61,18 @@ def has_running_run_since(source_name: str, since: datetime) -> bool:
         resp = client.get("/source_runs", params=params)
         resp.raise_for_status()
     return bool(resp.json())
+
+
+def has_run_since(source_name: str, since: datetime) -> bool:
+    """since 이후 상태와 관계없이 실행 기록이 하나라도 있는지 확인한다."""
+    params: dict[str, Any] = {
+        "select": "id",
+        "source_name": f"eq.{source_name}",
+        "run_start": f"gte.{since.astimezone(timezone.utc).isoformat()}",
+        "limit": 1,
+    }
+    with get_client() as client:
+        resp = client.get("/source_runs", params=params)
+        resp.raise_for_status()
+    return bool(resp.json())
+
