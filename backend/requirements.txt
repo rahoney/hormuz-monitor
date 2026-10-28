@@ -4,6 +4,8 @@ uvicorn[standard]==0.44.0
 pydantic==2.12.0
 pydantic-settings==2.13.1
 httpx==0.28.1
+certifi>=2026.10.19
+curl_cffi>=0.17.0
 psycopg-binary==3.3.3
 feedparser==6.0.12
 python-dotenv==1.2.2
