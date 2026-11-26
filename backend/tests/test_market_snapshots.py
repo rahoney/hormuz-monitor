@@ -353,6 +353,26 @@ def test_overnight_chart_run_waits_until_after_local_day_boundary(monkeypatch, h
     assert [exchange for exchange in calls if exchange in {"CME", "ICE"}] == expected
 
 
+def test_regular_daily_collection_keeps_verified_nasdaq_closes(monkeypatch):
+    days = pd.DatetimeIndex(["2026-10-06", "2026-11-02", "2026-11-03"], tz="America/New_York")
+    frame = pd.DataFrame({
+        "Open": [27620, 25700, 25510], "High": [27730, 25800, 25600],
+        "Low": [27490, 25100, 25300], "Close": [27599.7891, 25164.3105, 25460],
+    }, index=days)
+    symbols = {symbol: yf_market.SYMBOLS[symbol] for symbol in ("NASDAQ", "SP500")}
+    monkeypatch.setattr(yf_market, "SYMBOLS", symbols)
+    monkeypatch.setattr(yf_market.yf, "download", lambda *_args, **_kwargs: frame)
+
+    rows = yf_market.collect_ohlcv("NYSE", now=stamp("2026-11-26T06:00:00Z"))
+    assert {row["price_date"]: row["close"] for row in rows if row["symbol"] == "NASDAQ"} == {
+        "2026-10-06": 27599.8867, "2026-11-02": 25164.3633, "2026-11-03": 25460,
+    }
+    assert [row["close"] for row in rows if row["symbol"] == "SP500"] == [27599.7891, 25164.3105, 25460]
+    assert [(row["open"], row["high"], row["low"], row["source"]) for row in rows if row["symbol"] == "NASDAQ"] == [
+        (27620, 27730, 27490, "yfinance"), (25700, 25800, 25100, "yfinance"), (25510, 25600, 25300, "yfinance"),
+    ]
+
+
 @pytest.mark.parametrize(("reported", "latest_price", "expected"), [
     ("2026-11-19T17:23:00Z", 26.66, [26.83]),
     ("2026-11-19T17:25:00Z", 26.34, [26.83, 26.34]),

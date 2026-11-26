@@ -36,6 +36,12 @@ CLOSE_PUBLICATION_DELAY = timedelta(minutes=10)
 YAHOO_OVERNIGHT_TIMEZONE = ZoneInfo("America/New_York")
 # HKEX can finish its auction at 16:08–16:10. Yahoo's TNX feed ends just before 14:00 Chicago.
 _CLOSE_QUOTE_TOLERANCE = {"HKEX": timedelta(minutes=2), "US10Y": timedelta(minutes=1)}
+# Yahoo's historical candles disagree with its recorded live closes on these dates.
+# The saved live values agree with Nasdaq's published daily closes to two decimals (FRED NASDAQCOM).
+_VERIFIED_NASDAQ_CLOSES = {
+    "2026-10-06": 27599.8867,
+    "2026-11-02": 25164.3633,
+}
 
 
 def calendar_for(symbol: str) -> str:
@@ -83,11 +89,13 @@ def daily_rows(symbol: str, frame) -> list[dict]:
     for timestamp, row in frame.iterrows():
         if pd.isna(timestamp):
             continue
+        day = timestamp.date().isoformat()  # Yahoo's daily index is already in the feed's local timezone.
         values = {field.lower(): price_value(row[field]) for field in ("Open", "High", "Low", "Close")}
+        if symbol == "NASDAQ":
+            values["close"] = _VERIFIED_NASDAQ_CLOSES.get(day, values["close"])
         if None not in values.values() and values["low"] <= min(values["open"], values["close"]) <= max(
             values["open"], values["close"]
         ) <= values["high"]:
-            day = timestamp.date().isoformat()  # Yahoo's daily index is already in the feed's local timezone.
             rows[day] = {"symbol": symbol, "price_date": day, **values, "source": "yfinance"}
     return list(rows.values())
 
