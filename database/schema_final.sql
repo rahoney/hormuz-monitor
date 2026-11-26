@@ -135,6 +135,8 @@ CREATE TABLE IF NOT EXISTS market_snapshots (
     price         double precision NOT NULL,
     change_pct    real,                        -- 전일 대비 변동률 (%)
     source        text             NOT NULL,   -- yfinance
+    price_as_of   timestamptz,                 -- verified market timestamp, null for legacy rows
+    price_kind    text,                        -- intraday | daily_close
     created_at    timestamptz      NOT NULL DEFAULT now(),
     UNIQUE (symbol, snapshot_date)
 );
@@ -462,3 +464,34 @@ TO service_role;
 
 -- Required for inserts into bigserial-backed tables through PostgREST.
 GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO service_role;
+
+
+-- Atomic market snapshot writes ordered by verified data time and close priority.
+CREATE OR REPLACE FUNCTION public.upsert_market_snapshots(snapshots jsonb)
+RETURNS integer
+LANGUAGE sql
+SET search_path = ''
+AS $$
+    WITH applied AS (
+        INSERT INTO public.market_snapshots AS stored
+            (symbol, snapshot_date, price, change_pct, source, price_as_of, price_kind)
+        SELECT symbol, snapshot_date, price, change_pct, source, price_as_of, price_kind
+        FROM jsonb_populate_recordset(NULL::public.market_snapshots, snapshots)
+        WHERE price_as_of IS NOT NULL AND price_kind IN ('intraday', 'daily_close')
+        ORDER BY symbol, snapshot_date
+        ON CONFLICT (symbol, snapshot_date) DO UPDATE
+        SET price = excluded.price, change_pct = excluded.change_pct, source = excluded.source,
+            price_as_of = excluded.price_as_of, price_kind = excluded.price_kind
+        WHERE stored.price_as_of IS NULL
+           OR (excluded.price_kind = 'daily_close' AND stored.price_kind = 'intraday'
+               AND excluded.price_as_of >= stored.price_as_of)
+           OR (excluded.price_kind = stored.price_kind AND excluded.price_as_of > stored.price_as_of)
+           OR (excluded.price_kind = stored.price_kind AND excluded.price_as_of = stored.price_as_of
+               AND excluded.price = stored.price AND stored.change_pct IS NULL AND excluded.change_pct IS NOT NULL)
+        RETURNING 1
+    )
+    SELECT count(*)::integer FROM applied;
+$$;
+
+REVOKE EXECUTE ON FUNCTION public.upsert_market_snapshots(jsonb) FROM PUBLIC, anon, authenticated;
+GRANT EXECUTE ON FUNCTION public.upsert_market_snapshots(jsonb) TO service_role;

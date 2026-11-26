@@ -112,7 +112,7 @@ def save_risk_score_today() -> None:
     brent_change_pct_7d = _brent_change_pct_7d(brent)
 
     vix_rows = fetch("market_snapshots", columns="price",
-                     filters={"symbol": "eq.VIX"}, order="snapshot_date.desc", limit=1)
+                     filters={"symbol": "eq.VIX"}, order="price_as_of.desc.nullslast,snapshot_date.desc", limit=1)
     vix = vix_rows[0].get("price") if vix_rows else None
 
     geo_rows = fetch(

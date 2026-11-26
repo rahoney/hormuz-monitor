@@ -40,6 +40,8 @@ export interface MarketSnapshot {
   price: number;
   change_pct: number | null;
   source: string;
+  price_as_of?: string | null;
+  price_kind?: "intraday" | "daily_close" | null;
 }
 
 export interface TransitRecord {

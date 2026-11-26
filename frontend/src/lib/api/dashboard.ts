@@ -188,7 +188,8 @@ export async function fetchLatestOilPrices(): Promise<Record<string, OilPriceSer
 export async function fetchLatestMarketSnapshots(): Promise<Record<string, MarketSnapshot>> {
   const { data } = await supabase
     .from("market_snapshots")
-    .select("symbol, snapshot_date, price, change_pct, source")
+    .select("symbol, snapshot_date, price, change_pct, source, price_as_of, price_kind")
+    .order("price_as_of", { ascending: false, nullsFirst: false })
     .in("symbol", MARKET_SYMBOLS)
     .order("snapshot_date", { ascending: false })
     .limit(1000);

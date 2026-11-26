@@ -97,6 +97,27 @@ const DISPLAY_NAMES_KO: Record<string, string> = {
 
 const DECIMAL_2 = new Set(["VIX", "USD_INDEX", "US10Y"]);
 
+function formatMarketPrice(symbol: SymbolType, price: number): string {
+  const formatted = formatPrice(price, DECIMAL_2.has(symbol) ? 2 : undefined);
+  return symbol === "US10Y" ? `${formatted}%` : formatted;
+}
+
+function chartIntraday(
+  points: NonNullable<Props["intraday"]>[string] | undefined,
+  snapshot?: MarketSnapshot,
+) {
+  const cutoff = snapshot?.price_as_of ? Date.parse(snapshot.price_as_of) : null;
+  return cutoff === null ? points ?? [] : (points ?? []).filter((point) => Date.parse(point.time) <= cutoff);
+}
+
+function chartDaily(points: MarketOHLCV[] | undefined, snapshot?: MarketSnapshot) {
+  if (!snapshot?.price_as_of) return points ?? [];
+  return (points ?? []).filter((point) =>
+    point.price_date < snapshot.snapshot_date ||
+    (snapshot.price_kind === "daily_close" && point.price_date === snapshot.snapshot_date)
+  );
+}
+
 type CardItemProps = {
   symbol: SymbolType;
   snap?: MarketSnapshot;
@@ -115,7 +136,17 @@ function MarketCardItem({
   onCardClick,
 }: CardItemProps) {
   const t = useTranslations("dashboard");
-  const priceDecimal = DECIMAL_2.has(symbol) ? 2 : undefined;
+  const locale = useLocale();
+  const formattedAsOf = snap?.price_as_of
+    ? new Intl.DateTimeFormat(locale, {
+        month: "short",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        timeZone: "UTC",
+        timeZoneName: "short",
+      }).format(new Date(snap.price_as_of))
+    : null;
   const isUp = (snap?.change_pct ?? 0) >= 0;
 
   return (
@@ -138,12 +169,17 @@ function MarketCardItem({
         <div className="flex items-baseline justify-between gap-2">
           {snap ? (
             <span className="text-lg font-bold text-slate-100 tracking-tight">
-              {formatPrice(snap.price, priceDecimal)}
+              {formatMarketPrice(symbol, snap.price)}
             </span>
           ) : (
             <span className="text-sm font-medium text-slate-500">{t("noData")}</span>
           )}
         </div>
+        {formattedAsOf && (
+          <time className="text-[10px] text-slate-400" dateTime={snap?.price_as_of ?? undefined}>
+            {formattedAsOf}
+          </time>
+        )}
       </div>
 
       <div className="mt-3 h-10 w-full">
@@ -244,8 +280,8 @@ export default function MarketSnapshotCards({
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
         {activeSymbols.map((sym) => {
           const snap = snapshots[sym];
-          const spark = intraday[sym];
-          const ohlcvRows = ohlcv[sym];
+          const spark = chartIntraday(intraday[sym], snap);
+          const ohlcvRows = chartDaily(ohlcv[sym], snap);
           const name = locale === "ko" ? (DISPLAY_NAMES_KO[sym] ?? sym) : (DISPLAY_NAMES[sym] ?? sym);
 
           return (
@@ -278,7 +314,7 @@ export default function MarketSnapshotCards({
                 </h3>
                 <p className="text-xs text-slate-400">
                   {snapshots[selectedSymbol]
-                    ? `${formatPrice(snapshots[selectedSymbol].price, DECIMAL_2.has(selectedSymbol) ? 2 : undefined)} (${formatChangePct(snapshots[selectedSymbol].change_pct)})`
+                    ? `${formatMarketPrice(selectedSymbol, snapshots[selectedSymbol].price)} (${formatChangePct(snapshots[selectedSymbol].change_pct)})`
                     : "No real-time price"}
                 </p>
               </div>
@@ -292,8 +328,8 @@ export default function MarketSnapshotCards({
 
             <MarketCustomChart
               symbol={selectedSymbol}
-              intraday={intraday[selectedSymbol] ?? []}
-              ohlcv={ohlcv[selectedSymbol] ?? []}
+              intraday={chartIntraday(intraday[selectedSymbol], snapshots[selectedSymbol])}
+              ohlcv={chartDaily(ohlcv[selectedSymbol], snapshots[selectedSymbol])}
             />
           </div>
         </div>
