@@ -102,7 +102,7 @@ def _fetch_market() -> dict[str, Any]:
     for sym in ("SP500", "NASDAQ", "VIX"):
         rows = fetch("market_snapshots", columns="price,change_pct",
                      filters={"symbol": f"eq.{sym}"},
-                     order="snapshot_date.desc", limit=1)
+                     order="price_as_of.desc.nullslast,snapshot_date.desc", limit=1)
         if rows:
             result[sym] = rows[0]
     return result

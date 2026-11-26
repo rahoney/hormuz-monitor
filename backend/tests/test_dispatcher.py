@@ -1,11 +1,5 @@
-import sys
 from datetime import datetime, timezone
 from unittest.mock import MagicMock, patch
-
-# 격리된 단위 테스트 환경을 위해 모듈 모킹
-for mod in ("feedparser", "pandas_market_calendars"):
-    if mod not in sys.modules:
-        sys.modules[mod] = MagicMock()
 
 import pytest
 from db.run_repo import has_run_since

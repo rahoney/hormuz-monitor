@@ -1,193 +1,248 @@
-"""yfinance에서 시장 지표 스냅샷·5분봉·일봉 OHLCV를 수집한다."""
-from datetime import date, datetime, timedelta
+"""Collect Yahoo chart data and build snapshots for verified trading sessions."""
+from collections import defaultdict
+from datetime import date, datetime, timedelta, timezone
 import math
 from typing import Any
+
+import pandas as pd
 import yfinance as yf
-import pandas_market_calendars as mcal
+
+from collectors.market.sessions import FIVE_MINUTES, MAX_DELAY, OVERNIGHT, Session, sessions_for
 from utils.logger import get_logger
 
 logger = get_logger(__name__)
 
 _SYMBOLS: list[dict[str, str]] = [
-    {"symbol": "VIX",        "ticker": "^VIX",  "exchange": "NYSE"},
-    {"symbol": "NASDAQ",     "ticker": "^IXIC", "exchange": "NYSE"},
-    {"symbol": "SP500",      "ticker": "^GSPC", "exchange": "NYSE"},
-    {"symbol": "KOSPI",      "ticker": "^KS11", "exchange": "KRX"},
-    {"symbol": "KOSDAQ",     "ticker": "^KQ11", "exchange": "KRX"},
-    {"symbol": "ES_FUTURES", "ticker": "ES=F",  "exchange": "CME"},
-    {"symbol": "NQ_FUTURES", "ticker": "NQ=F",  "exchange": "CME"},
-    {"symbol": "GOLD_FUTURES", "ticker": "GC=F", "exchange": "CME"},
-    {"symbol": "USD_INDEX",    "ticker": "DX-Y.NYB", "exchange": "ICE"},
-    {"symbol": "GASOLINE_FUTURES", "ticker": "RB=F", "exchange": "CME"},
-    {"symbol": "HEATING_OIL_FUTURES", "ticker": "HO=F", "exchange": "CME"},
-    # 신규 추가 지표 5종
-    {"symbol": "STOXX600",   "ticker": "^STOXX",    "exchange": "STOXX"},
-    {"symbol": "NIKKEI225",  "ticker": "^N225",     "exchange": "TSE"},
-    {"symbol": "HANG_SENG",  "ticker": "^HSI",      "exchange": "HKEX"},
-    {"symbol": "SHANGHAI",   "ticker": "000001.SS", "exchange": "SSE"},
-    {"symbol": "US10Y",      "ticker": "^TNX",      "exchange": "NYSE"},
+    {"symbol": "VIX", "ticker": "^VIX", "exchange": "NYSE", "calendar": "VIX"},
+    {"symbol": "NASDAQ", "ticker": "^IXIC", "exchange": "NYSE"},
+    {"symbol": "SP500", "ticker": "^GSPC", "exchange": "NYSE"},
+    {"symbol": "KOSPI", "ticker": "^KS11", "exchange": "KRX"},
+    {"symbol": "KOSDAQ", "ticker": "^KQ11", "exchange": "KRX"},
+    {"symbol": "ES_FUTURES", "ticker": "ES=F", "exchange": "CME", "calendar": "CME_EQUITY"},
+    {"symbol": "NQ_FUTURES", "ticker": "NQ=F", "exchange": "CME", "calendar": "CME_EQUITY"},
+    {"symbol": "GOLD_FUTURES", "ticker": "GC=F", "exchange": "CME", "calendar": "CME_METALS"},
+    {"symbol": "USD_INDEX", "ticker": "DX-Y.NYB", "exchange": "ICE"},
+    {"symbol": "GASOLINE_FUTURES", "ticker": "RB=F", "exchange": "CME", "calendar": "CME_ENERGY"},
+    {"symbol": "HEATING_OIL_FUTURES", "ticker": "HO=F", "exchange": "CME", "calendar": "CME_ENERGY"},
+    {"symbol": "STOXX600", "ticker": "^STOXX", "exchange": "STOXX"},
+    {"symbol": "NIKKEI225", "ticker": "^N225", "exchange": "TSE"},
+    {"symbol": "HANG_SENG", "ticker": "^HSI", "exchange": "HKEX"},
+    {"symbol": "SHANGHAI", "ticker": "000001.SS", "exchange": "SSE"},
+    {"symbol": "US10Y", "ticker": "^TNX", "exchange": "NYSE", "calendar": "US10Y"},
 ]
+SYMBOLS = {s["symbol"]: s for s in _SYMBOLS}
+CLOSE_PUBLICATION_DELAY = timedelta(minutes=10)
 
-# 캐시된 캘린더 인스턴스 (지원되는 캘린더 등록, 미등록 시 수집 시도 폴백)
-def _get_cal(name: str):
-    try:
-        return mcal.get_calendar(name)
-    except Exception:
-        return None
 
-_CALENDARS = {
-    "NYSE":  _get_cal('XNYS'),
-    "KRX":   _get_cal('XKRX'),
-    "CME":   _get_cal('CME_Equity'),
-    "ICE":   _get_cal('ICEUS'),
-    "TSE":   _get_cal('TSE'),
-    "HKEX":  _get_cal('HKEX'),
-    "SSE":   _get_cal('SSE'),
-    "STOXX": _get_cal('EUREX'),
-}
+def calendar_for(symbol: str) -> str:
+    config = SYMBOLS[symbol]
+    return config.get("calendar", config["exchange"])
 
-def _is_trading_day(exchange: str) -> bool:
-    try:
-        cal = _CALENDARS.get(exchange)
-        if not cal:
-            return True # 모르는 거래소는 일단 수집 시도
-        
-        # 거래소의 로컬 타임존 기준으로 '오늘'이 개장일인지 확인
-        today_local = datetime.now(cal.tz).date()
-        schedule = cal.schedule(start_date=today_local, end_date=today_local)
-        return not schedule.empty
-    except Exception as e:
-        logger.warning(f"캘린더 확인 실패 ({exchange}): {e}")
-        return True # 실패 시 폴백으로 수집 시도
 
-def _finite_float(value: Any) -> float | None:
+def overnight(symbol: str) -> bool:
+    return calendar_for(symbol) in OVERNIGHT
+
+
+def market_sessions(now: datetime) -> dict[str, tuple[Session, ...]]:
+    result = {}
+    for symbol in SYMBOLS:
+        try:
+            result[symbol] = sessions_for(calendar_for(symbol), now.date() - timedelta(days=21),
+                                          now.date() + timedelta(days=3))
+        except Exception:
+            logger.exception("Market calendar unavailable for %s", symbol)
+    return result
+
+
+def price_value(value: Any) -> float | None:
     raw = value.iloc[0] if hasattr(value, "iloc") else value
     try:
         number = float(raw)
-    except (TypeError, ValueError):
+    except (TypeError, ValueError, OverflowError):
         return None
-    return number if math.isfinite(number) else None
+    if not math.isfinite(number):
+        return None
+    rounded = round(number, 4)
+    return rounded if rounded > 0 else None
 
-def collect_ohlcv(exchange: str, days: int = 100) -> list[dict[str, Any]]:
-    """특정 거래소의 일봉 OHLCV 수집 (최근 N일)."""
-    today = date.today()
-    # yfinance의 end는 exclusive이므로 당일 마감봉을 포함하려면 다음 날을 전달한다.
+
+def change_percent(price: float, previous: float | None) -> float | None:
+    if previous:
+        change = (price / previous - 1) * 100
+        if math.isfinite(change):
+            return round(change, 4)
+    return None
+
+
+def _daily_rows(symbol: str, frame) -> list[dict]:
+    rows = {}
+    for timestamp, row in frame.iterrows():
+        if pd.isna(timestamp):
+            continue
+        values = {field.lower(): price_value(row[field]) for field in ("Open", "High", "Low", "Close")}
+        if None not in values.values() and values["low"] <= min(values["open"], values["close"]) <= max(
+            values["open"], values["close"]
+        ) <= values["high"]:
+            day = timestamp.date().isoformat()  # Yahoo's daily index is already in the feed's local timezone.
+            rows[day] = {"symbol": symbol, "price_date": day, **values, "source": "yfinance"}
+    return list(rows.values())
+
+
+def collect_ohlcv(exchange: str, days: int = 100, *, now: datetime | None = None) -> list[dict]:
+    """Maintain the existing daily chart. Wait for completed spot sessions."""
+    now = (now or datetime.now(timezone.utc)).astimezone(timezone.utc)
+    today = now.date()
     end = today + timedelta(days=1)
     start = today - timedelta(days=days)
-    records: list[dict[str, Any]] = []
+    records = []
 
-    symbols_to_fetch = [s for s in _SYMBOLS if s["exchange"] == exchange]
-    
-    for s in symbols_to_fetch:
+    for symbol, config in SYMBOLS.items():
+        if config["exchange"] != exchange:
+            continue
         try:
-            df = yf.download(s["ticker"], start=start.isoformat(), end=end.isoformat(),
-                             progress=False, auto_adjust=True)
-            if df.empty:
+            frame = yf.download(config["ticker"], start=start.isoformat(), end=end.isoformat(),
+                                interval="1d", progress=False, auto_adjust=True)
+            if frame.empty:
                 continue
-            for ts, row in df.iterrows():
-                open_price = _finite_float(row["Open"])
-                high = _finite_float(row["High"])
-                low = _finite_float(row["Low"])
-                close = _finite_float(row["Close"])
-                if None in (open_price, high, low, close):
+            rows = _daily_rows(symbol, frame)
+            if not overnight(symbol):
+                completed = {
+                    session.day.isoformat() for session in sessions_for(calendar_for(symbol), start, end)
+                    if session.closes + CLOSE_PUBLICATION_DELAY <= now
+                }
+                rows = [row for row in rows if row["price_date"] in completed]
+            records.extend(rows)
+        except Exception:
+            logger.exception("OHLCV collection failed for %s", symbol)
+    return records
+
+
+def _valid_bar_timestamp(timestamp: datetime, now: datetime) -> bool:
+    return (timestamp.tzinfo is not None and timestamp <= now and timestamp.minute % 5 == 0
+            and timestamp.second == timestamp.microsecond == 0)
+
+
+def collect_intraday(now: datetime, sessions: dict[str, tuple[Session, ...]]) -> list[dict]:
+    """Store chart points from one request per relevant symbol, with an empty-response fallback."""
+    records = {}
+    for symbol, schedule in sessions.items():
+        current = next((s for s in reversed(schedule) if s.opens <= now), None)
+        if current is None or now - current.last_trading_time(now) > timedelta(hours=2):
+            continue
+        try:
+            ticker = yf.Ticker(SYMBOLS[symbol]["ticker"])
+            frame = ticker.history(period="1d", interval="5m", prepost=True)
+            if frame.empty:
+                frame = ticker.history(period="5d", interval="5m", prepost=True)
+            for ts, row in frame.iterrows():
+                if pd.isna(ts) or not _valid_bar_timestamp(ts, now):
                     continue
-                records.append({
-                    "symbol":     s["symbol"],
-                    "price_date": ts.date().isoformat() if hasattr(ts, "date") else str(ts)[:10],
-                    "open":       round(open_price, 4),
-                    "high":       round(high, 4),
-                    "low":        round(low, 4),
-                    "close":      round(close, 4),
-                    "source":     "yfinance",
-                })
-        except Exception as e:
-            logger.error(f"OHLCV 수집 에러 ({s['symbol']}): {e}")
-            continue
-    return records
-
-def collect_intraday() -> list[dict[str, Any]]:
-    """5분봉 데이터 수집. 개장일인 거래소의 티커만 수집한다."""
-    records: list[dict[str, Any]] = []
-    
-    for s in _SYMBOLS:
-        if not _is_trading_day(s["exchange"]):
-            continue
-            
-        try:
-            ticker = yf.Ticker(s["ticker"])
-            hist = ticker.history(period="1d", interval="5m", prepost=True)
-            if hist.empty:
-                hist = ticker.history(period="5d", interval="5m", prepost=True)
-            if hist.empty:
-                continue
-            for ts, row in hist.iterrows():
-                close = _finite_float(row["Close"])
-                if close is None:
+                window = next((window for session in reversed(schedule) if (window := session.window_for(ts))), None)
+                price = price_value(row["Close"])
+                if window is None or price is None or min(ts + FIVE_MINUTES, window[1]) > now:
                     continue
-                records.append({
-                    "symbol":      s["symbol"],
-                    "recorded_at": ts.isoformat(),
-                    "price":       round(close, 4),
-                    "source":      "yfinance",
-                })
-        except Exception as e:
-            logger.error(f"Intraday 수집 에러 ({s['symbol']}): {e}")
-            continue
-    return records
+                stamp = ts.tz_convert("UTC").isoformat()
+                records[symbol, stamp] = dict(symbol=symbol, recorded_at=stamp, price=price, source="yfinance")
+        except Exception:
+            logger.exception("Intraday collection failed for %s", symbol)
+    return list(records.values())
 
-def collect_live() -> list[dict[str, Any]]:
-    """현재 시장 실시간 가격을 수집한다. 개장일인 거래소만 수집."""
-    today = date.today().isoformat()
-    records: list[dict[str, Any]] = []
-    
-    for s in _SYMBOLS:
-        if not _is_trading_day(s["exchange"]):
+
+def snapshot_sessions(schedule: tuple[Session, ...], now: datetime) -> tuple[Session, ...]:
+    """Consider the active session and/or the last completed session, with its reference."""
+    started = [session for session in schedule if session.opens <= now]
+    if not started:
+        return ()
+    return tuple(started[-3:] if now < started[-1].closes else started[-2:])
+
+
+def collect_recent_ohlcv(now: datetime, sessions: dict[str, tuple[Session, ...]],
+                         stored: list[dict]) -> list[dict]:
+    """Fill missing completed spot candles using Yahoo's timestamped daily response."""
+    available = {(row["symbol"], row["price_date"]) for row in stored if price_value(row["close"]) is not None}
+    result = []
+    for symbol, schedule in sessions.items():
+        if overnight(symbol):
             continue
-            
+        recent = snapshot_sessions(schedule, now)
+        if not recent or now - recent[-1].closes > timedelta(hours=36):
+            continue
+        needed = {
+            s.day.isoformat(): s for s in recent
+            if s.closes + CLOSE_PUBLICATION_DELAY <= now and (symbol, s.day.isoformat()) not in available
+        }
+        if not needed:
+            continue
         try:
-            ticker = yf.Ticker(s["ticker"])
-            hist = ticker.history(period="5d", interval="1d")
-            if hist.empty:
+            ticker = yf.Ticker(SYMBOLS[symbol]["ticker"])
+            frame = ticker.history(period="5d", interval="1d")
+            if frame.empty:
                 continue
-            latest_price = _finite_float(hist["Close"].iloc[-1])
-            if latest_price is None:
+            reported = ticker.get_history_metadata().get("regularMarketTime")
+            # yfinance formats this as a Timestamp in current versions and as Unix seconds in some versions.
+            if isinstance(reported, (int, float)):
+                reported = datetime.fromtimestamp(reported, timezone.utc)
+            if not isinstance(reported, datetime) or reported.tzinfo is None or reported > now + FIVE_MINUTES:
                 continue
-            chg = None
-            if len(hist) >= 2:
-                prev_close = _finite_float(hist["Close"].iloc[-2])
-                if prev_close:
-                    raw_chg = (latest_price - prev_close) / prev_close * 100
-                    chg = round(raw_chg, 4) if math.isfinite(raw_chg) else None
-            records.append({
-                "symbol":        s["symbol"],
-                "snapshot_date": today,
-                "price":         round(latest_price, 4),
-                "change_pct":    chg,
-                "source":        "yfinance",
-            })
-        except Exception as e:
-            logger.error(f"Live 수집 에러 ({s['symbol']}): {e}")
-            continue
-    return records
+            for row in _daily_rows(symbol, frame):
+                session = needed.get(row["price_date"])
+                if session and reported >= session.closes - FIVE_MINUTES:
+                    result.append(row)
+        except Exception:
+            logger.exception("Recent daily collection failed for %s", symbol)
+    return result
 
 
-def collect(start: date, end: date) -> list[dict[str, Any]]:
-    records: list[dict[str, Any]] = []
-    for s in _SYMBOLS:
-        df = yf.download(s["ticker"], start=start.isoformat(), end=end.isoformat(), progress=False, auto_adjust=True)
-        if df.empty:
+def _latest_bars(schedule: tuple[Session, ...], rows: list[dict], now: datetime) -> dict[date, tuple]:
+    latest = {}
+    for row in rows:
+        timestamp = datetime.fromisoformat(row["recorded_at"])
+        price = price_value(row["price"])
+        if price is None or not _valid_bar_timestamp(timestamp, now):
             continue
-        df["pct_change"] = df["Close"].pct_change() * 100
-        for ts, row in df.iterrows():
-            close = _finite_float(row["Close"])
-            if close is None:
+        for session in schedule:
+            window = session.window_for(timestamp)
+            if window is None or min(timestamp + FIVE_MINUTES, window[1]) > now:
                 continue
-            chg = _finite_float(row["pct_change"])
-            records.append({
-                "symbol":        s["symbol"],
-                "snapshot_date": ts.date().isoformat(),
-                "price":         round(close, 4),
-                "change_pct":    None if chg is None else round(chg, 4),
-                "source":        "yfinance",
-            })
-    return records
+            if session.last_trading_time(now) - timestamp <= MAX_DELAY:
+                if session.day not in latest or timestamp >= latest[session.day][0]:
+                    latest[session.day] = (timestamp, price)
+            break
+    return latest
+
+
+def collect_live(now: datetime, sessions: dict[str, tuple[Session, ...]], intraday: list[dict],
+                 daily: list[dict]) -> list[dict]:
+    """Build snapshots from the same 5m and daily data used for the charts."""
+    by_symbol = defaultdict(list)
+    for row in intraday:
+        by_symbol[row["symbol"]].append(row)
+    closes = {(row["symbol"], date.fromisoformat(row["price_date"])): price_value(row["close"])
+              for row in daily}
+    rows = []
+    for symbol, schedule in sessions.items():
+        recent = snapshot_sessions(schedule, now)
+        bars = _latest_bars(recent, by_symbol[symbol], now)
+        for index, session in enumerate(recent[1:], start=1):
+            previous = recent[index - 1]
+            if overnight(symbol):
+                # Yahoo's midnight labels can include the next session's evening trades.
+                # Compare with a stable terminal bar at the previous session close.
+                prior_bar = bars.get(previous.day)
+                baseline = prior_bar[1] if prior_bar and previous.closes - prior_bar[0] <= 3 * FIVE_MINUTES else None
+                close = None
+            else:
+                baseline = closes.get((symbol, previous.day))
+                close = closes.get((symbol, session.day)) if session.closes <= now else None
+
+            if close is not None:
+                timestamp, price, kind = session.closes, close, "daily_close"
+            elif session.day in bars:
+                timestamp, price = bars[session.day]
+                kind = "intraday"
+            else:
+                continue
+            rows.append(dict(symbol=symbol, snapshot_date=session.day.isoformat(), price=price,
+                             change_pct=change_percent(price, baseline), source="yfinance",
+                             price_as_of=timestamp.astimezone(timezone.utc).isoformat(), price_kind=kind))
+    return rows
