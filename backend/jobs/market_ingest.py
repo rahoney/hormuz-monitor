@@ -24,8 +24,9 @@ logger = get_logger(__name__)
 _OHLCV_TARGET_HOURS_UTC = {
     "KRX": 14,
     "NYSE": 1,
-    "CME": 1,
-    "ICE": 1,
+    # 06:00 UTC is after Yahoo's New York date boundary in both EST and EDT.
+    "CME": 6,
+    "ICE": 6,
     "TSE": 8,
     "HKEX": 9,
     "SSE": 8,

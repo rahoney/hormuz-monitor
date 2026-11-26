@@ -10,7 +10,7 @@ import pytest
 from collectors.market import yfinance_collector as yf_market
 from collectors.market.sessions import sessions_for
 from jobs import market_ingest
-from jobs.repair_market_snapshots import apply_reviewed, review_symbol
+from jobs.repair_market_snapshots import apply_reviewed, recollect_history, review_symbol
 
 
 def stamp(value: str) -> datetime:
@@ -314,3 +314,116 @@ def test_postgres_keeps_latest_bar_promotes_close_and_is_idempotent():
         input="\n".join(sql), check=True, text=True, capture_output=True, cwd=Path(__file__).resolve().parents[2],
     )
     assert result.stdout.splitlines() == ["1", "0", "0", "1", "1", "0", "0", "112|12|daily_close", "f"]
+
+
+@pytest.mark.parametrize(("now", "provider_end", "last_eligible"), [
+    ("2026-11-25T01:01:00Z", "2026-11-24", "2026-11-23"),
+    ("2026-11-25T05:00:00Z", "2026-11-25", "2026-11-24"),
+    ("2026-07-29T03:59:00Z", "2026-07-28", "2026-07-27"),
+    ("2026-07-29T04:00:00Z", "2026-07-29", "2026-07-28"),
+])
+@pytest.mark.parametrize("exchange", ["CME", "ICE"])
+def test_overnight_chart_never_stores_unfinished_yahoo_date(monkeypatch, now, provider_end, last_eligible, exchange):
+    dates = pd.DatetimeIndex([last_eligible, provider_end], tz="America/New_York")
+    frame = pd.DataFrame({"Open": [101, 105], "High": [104, 107], "Low": [99, 104], "Close": [102, 105]}, index=dates)
+    calls = []
+
+    def download(ticker, **kwargs):
+        calls.append(ticker)
+        assert kwargs["end"] == provider_end
+        assert kwargs["interval"] == "1d"
+        return frame
+
+    monkeypatch.setattr(yf_market.yf, "download", download)
+    rows = yf_market.collect_ohlcv(exchange, now=stamp(now))
+    assert {r["price_date"] for r in rows} == {last_eligible}
+    assert {r["close"] for r in rows} == {102}
+    assert len(rows) == len(calls) == (5 if exchange == "CME" else 1)
+
+
+@pytest.mark.parametrize(("hours", "expected"), [(5, []), (6, ["CME", "ICE"])])
+def test_overnight_chart_run_waits_until_after_local_day_boundary(monkeypatch, hours, expected):
+    calls = []
+    monkeypatch.setattr(market_ingest, "market_sessions", lambda _: {})
+    monkeypatch.setattr(market_ingest, "_run_intraday", lambda *_: (True, []))
+    monkeypatch.setattr(market_ingest, "_run_snapshot", lambda *_: True)
+    monkeypatch.setattr(market_ingest, "has_successful_run_since", lambda *_: False)
+    monkeypatch.setattr(market_ingest, "_run_ohlcv", lambda exchange, _: calls.append(exchange) or True)
+    market_ingest.run(now=datetime(2026, 11, 25, hours, tzinfo=timezone.utc))
+    assert [exchange for exchange in calls if exchange in {"CME", "ICE"}] == expected
+
+
+@pytest.mark.parametrize(("reported", "latest_price", "expected"), [
+    ("2026-11-19T17:23:00Z", 26.66, [26.83]),
+    ("2026-11-19T17:25:00Z", 26.34, [26.83, 26.34]),
+    (None, 26.66, [26.83]),
+])
+def test_delayed_yahoo_quote_cannot_publish_partial_vix_bar(monkeypatch, reported, latest_price, expected):
+    class Ticker:
+        def history(self, **kwargs):
+            return pd.DataFrame({"Close": [26.83, latest_price]}, index=pd.to_datetime([
+                "2026-11-19T17:15:00Z", "2026-11-19T17:20:00Z",
+            ]))
+
+        def get_history_metadata(self):
+            return {"regularMarketTime": stamp(reported).timestamp() if reported else None}
+
+    monkeypatch.setattr(yf_market.yf, "Ticker", lambda _: Ticker())
+    now = stamp("2026-11-19T17:35:00Z")
+    rows = yf_market.collect_intraday(now, sessions("VIX", now))
+    assert [row["price"] for row in rows] == expected
+
+
+@pytest.mark.parametrize(("symbol", "last_bar", "quote_at", "now", "price"), [
+    ("HANG_SENG", "08:05:00", "08:08:28", "08:20:00", 21966.0098),
+    ("US10Y", "19:55:00", "19:59:53", "20:20:00", 4.848),
+])
+def test_closing_quote_can_confirm_final_shortened_bar(monkeypatch, symbol, last_bar, quote_at, now, price):
+    prefix = "2026-11-25T"
+
+    class Ticker:
+        def history(self, **kwargs):
+            return pd.DataFrame({"Close": [price]}, index=pd.to_datetime([prefix + last_bar + "Z"]))
+
+        def get_history_metadata(self):
+            return {"regularMarketTime": stamp(prefix + quote_at + "Z"), "regularMarketPrice": price}
+
+    monkeypatch.setattr(yf_market.yf, "Ticker", lambda _: Ticker())
+    when = stamp(prefix + now + "Z")
+    rows = yf_market.collect_intraday(when, sessions(symbol, when))
+    assert [(row["recorded_at"], row["price"]) for row in rows] == [(prefix + last_bar + "+00:00", price)]
+
+
+@pytest.mark.parametrize(("day", "open_time", "expected_interval"), [
+    ("2026-09-28", "07:30:00", "1h"), ("2026-11-24", "08:05:00", "5m"),
+])
+def test_snapshot_history_requires_exact_session_and_recollected_bar(monkeypatch, day, open_time, expected_interval):
+    symbol = "HANG_SENG"
+    session_day = date.fromisoformat(day)
+    all_dates = sessions_for("HKEX", session_day - timedelta(days=10), session_day)
+    older, previous, current = [session.day for session in all_dates[-3:]]
+    calls = []
+
+    class Ticker:
+        def history(self, *, start, end, interval, **kwargs):
+            calls.append((start, end, interval))
+            if interval == "1d":
+                return pd.DataFrame({"Open": [100, 110, 105], "High": [100, 110, 105],
+                                     "Low": [100, 110, 105], "Close": [100, 110, 105]},
+                                    index=pd.DatetimeIndex([older, previous, current], tz="Asia/Hong_Kong"))
+            if interval == expected_interval:
+                return pd.DataFrame({"Close": [105]}, index=pd.to_datetime([f"{day}T{open_time}Z"]))
+            return pd.DataFrame()
+
+    monkeypatch.setattr(yf_market.yf, "Ticker", lambda _: Ticker())
+    now = stamp("2026-11-26T00:00:00Z")
+    extra = recollect_history(symbol, date(2026, 9, 28), now.date(), now)
+    before = dict(id=17, symbol=symbol, snapshot_date=day, price=110, change_pct=10, source="yfinance")
+    result = review_symbol(symbol, [before], {}, now, lambda *_: [], extra)[0]
+    assert result["after"]["price"] == 105
+    assert result["after"]["change_pct"] == -4.5455
+    assert result["closing_bar"]["interval"] == expected_interval
+    assert calls == [("2026-09-07", "2026-11-26", "1d"),
+                     ("2026-09-29", "2026-11-26", "5m"), ("2026-09-28", "2026-09-29", "1h")]
+    price_only = review_symbol(symbol, [before], {}, now, lambda *_: [], (extra[0], lambda _: None))[0]
+    assert price_only["after"] is None

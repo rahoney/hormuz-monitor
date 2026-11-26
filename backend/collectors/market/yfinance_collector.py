@@ -3,6 +3,7 @@ from collections import defaultdict
 from datetime import date, datetime, timedelta, timezone
 import math
 from typing import Any
+from zoneinfo import ZoneInfo
 
 import pandas as pd
 import yfinance as yf
@@ -32,6 +33,9 @@ _SYMBOLS: list[dict[str, str]] = [
 ]
 SYMBOLS = {s["symbol"]: s for s in _SYMBOLS}
 CLOSE_PUBLICATION_DELAY = timedelta(minutes=10)
+YAHOO_OVERNIGHT_TIMEZONE = ZoneInfo("America/New_York")
+# HKEX can finish its auction at 16:08–16:10. Yahoo's TNX feed ends just before 14:00 Chicago.
+_CLOSE_QUOTE_TOLERANCE = {"HKEX": timedelta(minutes=2), "US10Y": timedelta(minutes=1)}
 
 
 def calendar_for(symbol: str) -> str:
@@ -74,7 +78,7 @@ def change_percent(price: float, previous: float | None) -> float | None:
     return None
 
 
-def _daily_rows(symbol: str, frame) -> list[dict]:
+def daily_rows(symbol: str, frame) -> list[dict]:
     rows = {}
     for timestamp, row in frame.iterrows():
         if pd.isna(timestamp):
@@ -89,23 +93,28 @@ def _daily_rows(symbol: str, frame) -> list[dict]:
 
 
 def collect_ohlcv(exchange: str, days: int = 100, *, now: datetime | None = None) -> list[dict]:
-    """Maintain the existing daily chart. Wait for completed spot sessions."""
+    """Maintain the daily chart using completed spot sessions and Yahoo calendar days."""
     now = (now or datetime.now(timezone.utc)).astimezone(timezone.utc)
-    today = now.date()
-    end = today + timedelta(days=1)
-    start = today - timedelta(days=days)
     records = []
 
     for symbol, config in SYMBOLS.items():
         if config["exchange"] != exchange:
             continue
         try:
+            is_overnight = overnight(symbol)
+            # Yahoo's overnight daily candles are labelled by New York calendar date.
+            # Even after the exchange closes, the provider can update that day's candle.
+            today = now.astimezone(YAHOO_OVERNIGHT_TIMEZONE).date() if is_overnight else now.date()
+            end = today if is_overnight else today + timedelta(days=1)
+            start = today - timedelta(days=days)
             frame = yf.download(config["ticker"], start=start.isoformat(), end=end.isoformat(),
                                 interval="1d", progress=False, auto_adjust=True)
             if frame.empty:
                 continue
-            rows = _daily_rows(symbol, frame)
-            if not overnight(symbol):
+            rows = daily_rows(symbol, frame)
+            if is_overnight:
+                rows = [row for row in rows if start.isoformat() <= row["price_date"] < end.isoformat()]
+            else:
                 completed = {
                     session.day.isoformat() for session in sessions_for(calendar_for(symbol), start, end)
                     if session.closes + CLOSE_PUBLICATION_DELAY <= now
@@ -115,6 +124,19 @@ def collect_ohlcv(exchange: str, days: int = 100, *, now: datetime | None = None
         except Exception:
             logger.exception("OHLCV collection failed for %s", symbol)
     return records
+
+
+def _reported_quote(ticker) -> tuple[datetime | None, float | None]:
+    try:
+        metadata = ticker.get_history_metadata()
+        reported = metadata.get("regularMarketTime")
+        if isinstance(reported, (int, float)):
+            reported = datetime.fromtimestamp(reported, timezone.utc)
+        if isinstance(reported, datetime) and reported.tzinfo is not None:
+            return reported, price_value(metadata.get("regularMarketPrice"))
+    except Exception:
+        logger.debug("Yahoo market time unavailable", exc_info=True)
+    return None, None
 
 
 def _valid_bar_timestamp(timestamp: datetime, now: datetime) -> bool:
@@ -134,13 +156,32 @@ def collect_intraday(now: datetime, sessions: dict[str, tuple[Session, ...]]) ->
             frame = ticker.history(period="1d", interval="5m", prepost=True)
             if frame.empty:
                 frame = ticker.history(period="5d", interval="5m", prepost=True)
-            for ts, row in frame.iterrows():
-                if pd.isna(ts) or not _valid_bar_timestamp(ts, now):
+            samples = [
+                (ts, price) for ts, row in frame.iterrows()
+                if pd.notna(ts) and ts.tzinfo is not None and ts <= now
+                and (price := price_value(row["Close"])) is not None
+            ]
+            if not samples:
+                continue
+            observed_through = max(ts for ts, _ in samples)
+            reported, quote = _reported_quote(ticker)
+            if reported is not None and reported <= now + FIVE_MINUTES:
+                observed_through = max(observed_through, min(reported, now))
+            tolerance = _CLOSE_QUOTE_TOLERANCE.get(calendar_for(symbol), timedelta(0))
+            for ts, price in samples:
+                if not _valid_bar_timestamp(ts, now):
                     continue
                 window = next((window for session in reversed(schedule) if (window := session.window_for(ts))), None)
-                price = price_value(row["Close"])
-                if window is None or price is None or min(ts + FIVE_MINUTES, window[1]) > now:
+                if window is None:
                     continue
+                end = min(ts + FIVE_MINUTES, window[1])
+                if end > observed_through:
+                    closing_quote = (
+                        tolerance and end == current.closes and now >= end and reported is not None
+                        and max(ts, end - tolerance) <= reported < end and price == quote
+                    )
+                    if not closing_quote:
+                        continue
                 stamp = ts.tz_convert("UTC").isoformat()
                 records[symbol, stamp] = dict(symbol=symbol, recorded_at=stamp, price=price, source="yfinance")
         except Exception:
@@ -178,13 +219,10 @@ def collect_recent_ohlcv(now: datetime, sessions: dict[str, tuple[Session, ...]]
             frame = ticker.history(period="5d", interval="1d")
             if frame.empty:
                 continue
-            reported = ticker.get_history_metadata().get("regularMarketTime")
-            # yfinance formats this as a Timestamp in current versions and as Unix seconds in some versions.
-            if isinstance(reported, (int, float)):
-                reported = datetime.fromtimestamp(reported, timezone.utc)
-            if not isinstance(reported, datetime) or reported.tzinfo is None or reported > now + FIVE_MINUTES:
+            reported, _ = _reported_quote(ticker)
+            if reported is None or reported > now + FIVE_MINUTES:
                 continue
-            for row in _daily_rows(symbol, frame):
+            for row in daily_rows(symbol, frame):
                 session = needed.get(row["price_date"])
                 if session and reported >= session.closes - FIVE_MINUTES:
                     result.append(row)
